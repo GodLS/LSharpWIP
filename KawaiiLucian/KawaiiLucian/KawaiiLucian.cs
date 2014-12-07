@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
+using SharpDX;
 
 namespace KawaiiLucian
 {
@@ -96,6 +97,7 @@ namespace KawaiiLucian
         {
             var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
             passiveCheck();
+            autoQ();
             if (!target.IsValidTarget()) return;
             switch (Menu.Orbwalker.ActiveMode)
             {
@@ -135,9 +137,29 @@ namespace KawaiiLucian
             return false;
         }
 
-        float getManaPercentage()
+        void autoQ()
         {
-            return (Player.Mana/Player.MaxMana)*100;
+            if (boolLinks["AutoQ"].Value)
+            {
+                var Target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
+                if (getManaPercentage() >= sliderLinks["QManaAuto"].Value.Value && Target.IsValidTarget())
+                {
+                    Q.CastOnUnit(Target);
+                }
+            }
+        }
+
+        Obj_AI_Base GetExtendedQUnit(Obj_AI_Base target)
+        {
+             var QPrediction = Prediction.GetPrediction(target, 0.25f);
+             var Vector = Vector3.Normalize(QPrediction.CastPosition - Player.Position)*1100;
+             var Units = ObjectManager.Get<Obj_AI_Base>().Where(unit => unit.IsEnemy && unit.IsValidTarget() && unit.Distance(Player) <= 550f && unit.Distance(target)<=550f);
+            foreach (var unit in Units)
+            {
+                var QEndPoint = unit.Position.To2D().Extend(Player.ServerPosition.To2D(), -1100f);
+                
+            }
+            return null;
         }
         void passiveCheck()
         {
@@ -148,6 +170,10 @@ namespace KawaiiLucian
         bool hasPassive()
         {
             return Player.HasBuff("lucianpassivebuff",true);
+        }
+        float getManaPercentage()
+        {
+            return (Player.Mana / Player.MaxMana) * 100;
         }
         void CreateMenu()
         {
