@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Odbc;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using LeagueSharp;
@@ -26,6 +28,11 @@ namespace KawaiiLucian
         private static bool ShouldHavePassive;
         private static float LastPassiveCheck = 0f;
         private static bool justCastedPassive = false;
+
+        private static Vector3 REndPosition;
+        private static Vector3 RStartPos;
+        private static bool isUsingR;
+
         public KawaiiLucian()
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
@@ -50,11 +57,39 @@ namespace KawaiiLucian
             Game.OnGameUpdate += Game_OnGameUpdate;
             Orbwalking.AfterAttack += Orbwalking_AfterAttack;
             Obj_AI_Base.OnProcessSpellCast += OnProcessSpellCast;
+            AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
+            Drawing.OnDraw += Drawing_OnDraw;
+
+            Game.PrintChat("KawaiiLucian by AsunaChan/DZ191 Loaded");
         }
 
-        void Orbwalking_AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
+        void Drawing_OnDraw(EventArgs args)
+        {
+            if (getTargetForR() != null)
+            {
+                var V3R = getV3ForR(getTargetForR());
+                Utility.DrawCircle(V3R, 100f, System.Drawing.Color.OrangeRed);
+            }
+        }
+        
+        void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
+        {
+            if(!boolLinks["GapClosers"].Value)return;
+
+            var startPosition = gapcloser.Start;
+            var endPosition = gapcloser.End;
+            var LineVector = Vector3.Normalize(endPosition - startPosition);
+            var PositionToE = LineVector*(-E.Range);
+            if (isSafeToE(PositionToE) && E.IsReady())
+            {
+                E.Cast(PositionToE);
+            }
+        }
+
+        void Orbwalking_AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
             if (!unit.IsMe) return;
+            
             if (!hasPassive())
             {
                 justCastedPassive = true;
@@ -62,13 +97,14 @@ namespace KawaiiLucian
             switch (Menu.Orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
-                    if (boolLinks["UseEC"].Value && E.IsReady() && justCastedPassive && canUseSkill("E")) { E.Cast(Game.CursorPos); }
+                    if (boolLinks["UseEC"].Value && E.IsReady() && justCastedPassive && canUseSkill("E") && isSafeToE(Game.CursorPos)) { E.Cast(Game.CursorPos); }
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
-                    if (boolLinks["UseEM"].Value && E.IsReady() && justCastedPassive && canUseSkill("E")) { E.Cast(Game.CursorPos); }
+                    if (boolLinks["UseEM"].Value && E.IsReady() && justCastedPassive && canUseSkill("E") && isSafeToE(Game.CursorPos)) { E.Cast(Game.CursorPos); }
                     break;
             }
             
+
         }
 
         private void OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
@@ -90,37 +126,66 @@ namespace KawaiiLucian
                 case "LucianE":
                     ShouldHavePassive = true;
                     break;
+                case "LucianR":
+                    REndPosition = args.End;
+                    RStartPos = args.Start;
+                    isUsingR = true;
+                    break;
             }
         }
 
         void Game_OnGameUpdate(EventArgs args)
         {
-            var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
             passiveCheck();
             autoQ();
-            if (!target.IsValidTarget()) return;
+            autoExtQ();
+            RCheck();
+            RLock();      
+
             switch (Menu.Orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
-                    doThings("C",target);
+                    doThings("C");
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
-                    doThings("H", target);
+                    doThings("H");
                     break;
                 case Orbwalking.OrbwalkingMode.LastHit:
+                    Farm(true);
+                    break;
+                case Orbwalking.OrbwalkingMode.LaneClear:
+                    Farm();
                     break;
                 default:
                     break;
             }
         }
 
-        void doThings(String Mode, Obj_AI_Hero target)
+        bool isKillableAAOnly(Obj_AI_Hero target)
         {
-            if (ShouldHavePassive) return;
-            if (boolLinks["UseW"+Mode].Value && W.IsReady() && canUseSkill("W")) { W.Cast(target.Position); }
-            if (boolLinks["UseQ"+Mode].Value && Q.IsReady() && canUseSkill("Q")) { Q.CastOnUnit(target);}
+            return Player.GetAutoAttackDamage(target) >= target.Health + 5;
+        }
+        void doThings(String Mode)
+        {
+            if (ShouldHavePassive || hasPassive()) return;
+            var Qtarget = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical);
+            var QExttarget = TargetSelector.GetTarget(Q2.Range, TargetSelector.DamageType.Physical);
+            var Wtarget = TargetSelector.GetTarget(W.Range, TargetSelector.DamageType.Physical);
+            if (boolLinks["UseQ" + Mode].Value && Q.IsReady() && canUseSkill("Q") && !isKillableAAOnly(Qtarget) && !ShouldHavePassive && Player.Distance(Qtarget)<=Q.Range) { Q.CastOnUnit(Qtarget); }
+            if (boolLinks["UseEQ" + Mode].Value && Q.IsReady() && canUseSkill("Q")  &&!ShouldHavePassive && Player.Distance(QExttarget) > Q.Range && Player.Distance(QExttarget)<=Q2.Range) { CastExtendedQUnit(Qtarget); }
+            if (boolLinks["UseW" + Mode].Value && W.IsReady() && canUseSkill("W")  && !ShouldHavePassive) { W.Cast(Wtarget.Position); }
         }
 
+        bool isSafeToE(Vector3 Position)
+        {
+            var EnemiesList = ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy && !hero.IsDead && hero.Distance(Position) <= 550f).ToList();
+            var AllyList = ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsAlly && !hero.IsDead && hero.Distance(Position) <= 550f).ToList();
+            var ClosestTowerToPosition =
+                ObjectManager.Get<Obj_AI_Turret>().First(turret => turret.IsEnemy && turret.Distance(Position) <= 975f);
+            if (ClosestTowerToPosition.IsValid) return false;
+            if (EnemiesList.Count > 2 && AllyList.Count < 3) return false;
+            return true;
+        }
         bool canUseSkill(String Skill)
         {
             switch (Menu.Orbwalker.ActiveMode)
@@ -137,33 +202,147 @@ namespace KawaiiLucian
             return false;
         }
 
-        void autoQ()
+        void RCheck()
         {
-            if (boolLinks["AutoQ"].Value)
+            if (!R.IsReady() && R.Level > 0)
             {
-                var Target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
-                if (getManaPercentage() >= sliderLinks["QManaAuto"].Value.Value && Target.IsValidTarget())
+                isUsingR = false;
+                REndPosition = Vector3.Zero;
+                RStartPos = Vector3.Zero;
+            }
+        }
+
+        void RLock()
+        {
+            if (isUsingR)
+            {
+                var Target = getTargetForR();
+                if (Target != null && boolLinks["RLock"].Value)
                 {
-                    Q.CastOnUnit(Target);
+                    Vector3 PosForR = getV3ForR(Target);
+                    if (isSafeToE(PosForR))
+                    {
+                        Player.IssueOrder(GameObjectOrder.MoveTo, PosForR);
+                        Menu.Orbwalker.SetOrbwalkingPoint(PosForR);
+                    }
+                }
+                else
+                {
+                    Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
                 }
             }
         }
 
-        Obj_AI_Base GetExtendedQUnit(Obj_AI_Base target)
+        void autoQ()
         {
-             var QPrediction = Prediction.GetPrediction(target, 0.25f);
-             var Vector = Vector3.Normalize(QPrediction.CastPosition - Player.Position)*1100;
-             var Units = ObjectManager.Get<Obj_AI_Base>().Where(unit => unit.IsEnemy && unit.IsValidTarget() && unit.Distance(Player) <= 550f && unit.Distance(target)<=550f);
-            foreach (var unit in Units)
+            if (boolLinks["AutoQ"].Value)
             {
-                var QEndPoint = unit.Position.To2D().Extend(Player.ServerPosition.To2D(), -1100f);
-                
+                var Target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical);
+                if (getManaPercentage() >= sliderLinks["QManaAuto"].Value.Value && Target.IsValidTarget())
+                {
+                    Q.CastOnUnit(Target, UsingPackets());
+                   // Utility.DelayAction.Add(25, Orbwalking.ResetAutoAttackTimer);
+                 //   Utility.DelayAction.Add(50, () => Player.IssueOrder(GameObjectOrder.AttackTo, Target.ServerPosition));
+                }
             }
-            return null;
+        }
+
+        void autoExtQ()
+        {
+            if (boolLinks["AutoEQ"].Value)
+            {
+                var Target = TargetSelector.GetTarget(Q2.Range, TargetSelector.DamageType.Physical);
+                if (getManaPercentage() >= sliderLinks["QManaAuto"].Value.Value && Target.IsValidTarget())
+                {
+                   CastExtendedQUnit(Target);
+                }
+            }
+        }
+
+        void CastExtendedQUnit(Obj_AI_Base target)
+        {
+            if (!Q.IsReady()) return;
+            //Credits to Mister xSalice ^^
+            var QPrediction = Q2.GetPrediction(target, true);
+            var QCollision = QPrediction.CollisionObjects;
+            if (QCollision.Count > 0)
+            {
+                Q.CastOnUnit(QCollision[0], UsingPackets());
+            }   
+        }
+
+        void Farm(bool LastHit = false)
+        {
+            var QMinions = MinionManager.GetMinions(Player.Position, Q.Range);
+            var WMinions = MinionManager.GetMinions(Player.Position, W.Range);
+            var QMinionsLH = MinionManager.GetMinions(Player.Position, Q.Range).Where(min => min.Health+10 <= Q.GetDamage(min));
+            var WMinionsLH = MinionManager.GetMinions(Player.Position, W.Range).Where(min => min.Health+10 <= W.GetDamage(min));
+            var ToGetQ = LastHit ? QMinionsLH.ToList() : QMinions.ToList();
+            var ToGetW = LastHit ? WMinionsLH.ToList() : WMinions.ToList();
+            var FarmLocation = Q.GetLineFarmLocation(ToGetQ);
+            var WFarmLocation = W.GetCircularFarmLocation(ToGetW);
+            var Location = FarmLocation.Position;
+            var MinionNear = MinionManager.GetMinions(Location.Extend(Player.ServerPosition.To2D(),Q.Range).To3D(), 65f).First();
+            
+            if (MinionNear.IsValidTarget(Q.Range) && ToGetQ.Count > 0)
+            {
+                if (canUseSkill("Q") && Q.IsReady())
+                {
+                    Q.Cast(MinionNear, UsingPackets());
+                }
+            }
+            if (canUseSkill("W") && ToGetW.Count > 0 && W.IsReady())
+            {
+                W.Cast(WFarmLocation.Position,UsingPackets());
+            }
+        }
+
+        Obj_AI_Hero getTargetForR()
+        {
+            var finalPosition = getEndPosition();
+            var checks = Player.ServerPosition.Distance(finalPosition)/150;
+            Obj_AI_Hero currentTarget = null;
+            for (int i = 0; i < checks; i++)
+            {
+                var Position = Player.ServerPosition.To2D().Extend(finalPosition.To2D(), 100);
+                foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(h => h.IsEnemy && !h.IsDead && h.Distance(Position)<=450))
+                {
+                    if (hero.Health < currentTarget.Health)
+                    {
+                        currentTarget = hero;
+                    }
+                }
+            }
+            return currentTarget;
+        }
+        Vector3 getEndPosition()
+        {
+            var EndPositionStart = REndPosition;
+            var FirstDifference = EndPositionStart - RStartPos;
+            var Perp = FirstDifference.To2D().Perpendicular();
+            var EndPosCurrent = Player.ServerPosition.To2D().Extend(Perp, 650);
+            return EndPosCurrent.To3D();
+        }
+        //Probably not right lol
+        Vector3 getV3ForR(Obj_AI_Hero target)
+        {
+            var RToMeVector3 = getEndPosition() - Player.ServerPosition;
+            var PerpendicularV2 = RToMeVector3.To2D().Perpendicular();
+            var TargetToMeV3 = target.ServerPosition - Player.ServerPosition;
+            var AngleBetween = Geometry.DegreeToRadian(Geometry.AngleBetween(TargetToMeV3.To2D(),PerpendicularV2));
+            //var DistanceTargetMe = Player.ServerPosition.Distance(target.ServerPosition);
+            //var unitsToWalk = DistanceTargetMe * (float)Math.Cos(AngleBetween);
+            var FinalPositon = TargetToMeV3*(float) Math.Cos(AngleBetween);
+            return FinalPositon;
+        }
+
+        bool UsingPackets()
+        {
+            return boolLinks["Packets"].Value;
         }
         void passiveCheck()
         {
-            if (Environment.TickCount - LastPassiveCheck < 100f) return;
+            if (Environment.TickCount - LastPassiveCheck < 50f) return;
             ShouldHavePassive = hasPassive();
             LastPassiveCheck = Environment.TickCount;
         }
@@ -220,7 +399,7 @@ namespace KawaiiLucian
             boolLinks.Add("AutoQ", MiscMenu.AddLinkedBool("Auto Q"));
             boolLinks.Add("AutoEQ", MiscMenu.AddLinkedBool("Auto Extended Q"));
             sliderLinks.Add("QManaAuto", MiscMenu.AddLinkedSlider("Auto Q Mana", 35));
-            
+            boolLinks.Add("RLock", MiscMenu.AddLinkedBool("R Lock"));
             //TODO Add Draw Menu
         }
     }
