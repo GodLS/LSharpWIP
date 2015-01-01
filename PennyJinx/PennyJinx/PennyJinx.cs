@@ -78,6 +78,8 @@ namespace PennyJinx
                 Q.Cast();
         }
         #endregion
+
+
         #region Combo Logic
 
         void ComboLogic()
@@ -96,8 +98,8 @@ namespace PennyJinx
             if (!Q.IsReady())
                 return;
             var AARange = Orbwalking.GetRealAutoAttackRange(null);
-            var target = TargetSelector.GetTarget(AARange + getFishboneRange(), TargetSelector.DamageType.Physical);
-            if (!target.IsValidTarget(AARange+getFishboneRange()))
+            var target = TargetSelector.GetTarget(AARange + getFishboneRange() + 65, TargetSelector.DamageType.Physical);
+            if (!target.IsValidTarget(AARange+getFishboneRange()+65))
                 return;
            
             switch (Menu.Item("QMode").GetValue<StringList>().SelectedIndex)
