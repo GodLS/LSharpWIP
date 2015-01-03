@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Drawing;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
+using SharpDX;
 
 namespace PennyJinx
 {
@@ -44,6 +46,7 @@ namespace PennyJinx
 
         private void Game_OnGameUpdate(EventArgs args)
         {
+            ECast();
             switch (_orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
@@ -51,6 +54,7 @@ namespace PennyJinx
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
                     //TODO Stuff
+                    AutoWHarass();
                     break;
                 case Orbwalking.OrbwalkingMode.LaneClear:
                     SwitchLc();
@@ -79,7 +83,15 @@ namespace PennyJinx
 
         private static void Drawing_OnDraw(EventArgs args)
         {
-            //TODO Stuff
+            {
+                if (!IsMenuEnabled("DrawW"))
+                {
+                    return;
+                }
+                {
+                Utility.DrawCircle(ObjectManager.Player.Position, 1500f, System.Drawing.Color.CornflowerBlue);
+                }              
+            }
         }
 
         #endregion
@@ -89,7 +101,6 @@ namespace PennyJinx
         private void ComboLogic()
         {
             WCast(_orbwalker.ActiveMode);
-            ECast();
             RCast();
             QManager();
         }
@@ -192,9 +203,34 @@ namespace PennyJinx
         {
             foreach (
                 var enemy in
-                    ObjectManager.Get<Obj_AI_Hero>().Where(h => h.IsValidTarget(_e.Range - 100) && IsEmpaired(h)))
+                    ObjectManager.Get<Obj_AI_Hero>().Where(h => h.IsValidTarget(_e.Range - 150)))
             {
-                //TODO Stuff
+                //Something from Marksman
+                if (IsMenuEnabled("AutoE") && _e.IsReady() && enemy.HasBuffOfType(BuffType.Slow))
+                {
+                    var castPosition =
+                        Prediction.GetPrediction(
+                            new PredictionInput
+                            {
+                                Unit = enemy,
+                                Delay = 0.7f,
+                                Radius = 120f,
+                                Speed = 1750f,
+                                Range = 900f,
+                                Type = SkillshotType.SkillshotCircle,
+                            }).CastPosition;
+                    if (GetSlowEndTime(enemy) >= (Game.Time + _e.Delay + 0.5f))
+                    {
+                        _e.Cast(castPosition);
+                    }
+                    if (IsMenuEnabled("AutoE") && _e.IsReady() &&
+                    (enemy.HasBuffOfType(BuffType.Stun) || enemy.HasBuffOfType(BuffType.Snare) ||
+                    enemy.HasBuffOfType(BuffType.Charm) || enemy.HasBuffOfType(BuffType.Fear) ||
+                    enemy.HasBuffOfType(BuffType.Taunt)))
+                    {
+                        _e.CastIfHitchanceEquals(enemy, HitChance.High);
+                    }
+                }
             }
         }
 
@@ -287,7 +323,21 @@ namespace PennyJinx
         {
             return (enemy.HasBuffOfType(BuffType.Stun) || enemy.HasBuffOfType(BuffType.Snare) ||
                     enemy.HasBuffOfType(BuffType.Charm) || enemy.HasBuffOfType(BuffType.Fear) ||
-                    enemy.HasBuffOfType(BuffType.Taunt) || enemy.HasBuffOfType(BuffType.Slow));
+                    enemy.HasBuffOfType(BuffType.Taunt));
+        }
+
+        private static bool IsEmpairedLight(Obj_AI_Hero enemy)
+        {
+            return (enemy.HasBuffOfType(BuffType.Slow));
+        }
+
+        private static float GetSlowEndTime(Obj_AI_Base target)
+        {
+            return
+                target.Buffs.OrderByDescending(buff => buff.EndTime - Game.Time)
+                    .Where(buff => buff.Type == BuffType.Slow)
+                    .Select(buff => buff.EndTime)
+                    .FirstOrDefault();
         }
 
         private static bool IsMenuEnabled(String opt)
@@ -305,6 +355,8 @@ namespace PennyJinx
             return mana ? Player.ManaPercentage() : Player.HealthPercentage();
         }
 
+
+
         #endregion
 
         #region Menu and spells
@@ -314,9 +366,9 @@ namespace PennyJinx
             _q = new Spell(SpellSlot.Q);
             _w = new Spell(SpellSlot.W, 1500f);
             _e = new Spell(SpellSlot.E, 900f);
-            _r = new Spell(SpellSlot.R, 25000f);
+            _r = new Spell(SpellSlot.R, 2000f);
             _w.SetSkillshot(0.6f, 60f, 3300f, true, SkillshotType.SkillshotLine);
-            _e.SetSkillshot(1.1f, 20f, 1750f, false, SkillshotType.SkillshotCircle);
+            _e.SetSkillshot(1.1f, 120f, 1750f, false, SkillshotType.SkillshotCircle);
             _r.SetSkillshot(0.6f, 140f, 1700f, false, SkillshotType.SkillshotLine);
         }
 
@@ -368,6 +420,7 @@ namespace PennyJinx
                 miscMenu.AddItem(new MenuItem("AntiGP", "Anti Gapcloser").SetValue(true));
                 miscMenu.AddItem(new MenuItem("Interrupter", "Use Interrupter").SetValue(true));
                 miscMenu.AddItem(new MenuItem("SwitchQLC", "Switch Minigun Laneclear").SetValue(true));
+                miscMenu.AddItem(new MenuItem("DrawW", "Draw W range").SetValue(false));
             }
             Menu.AddSubMenu(miscMenu);
 
