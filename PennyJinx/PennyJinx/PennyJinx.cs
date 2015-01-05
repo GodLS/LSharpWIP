@@ -34,7 +34,7 @@ namespace PennyJinx
             SetUpMenu();
             SetUpSpells();
 
-            Game.PrintChat("<font color='#7A6EFF'>PennyJinx</font> <font color='#FFFFFF'>Loaded!</font>");
+            Game.PrintChat("<font color='#7A6EFF'>PennyJinx</font> v1.1 <font color='#FFFFFF'>Loaded!</font>");
 
             Drawing.OnDraw += Drawing_OnDraw;
             Game.OnGameUpdate += Game_OnGameUpdate;
@@ -99,15 +99,15 @@ namespace PennyJinx
 
         private static void Drawing_OnDraw(EventArgs args)
         {
-            {
-                if (!IsMenuEnabled("DrawW"))
-                {
-                    return;
-                }
-                {
-                Utility.DrawCircle(ObjectManager.Player.Position, 1500f, System.Drawing.Color.CornflowerBlue);
-                }              
-            }
+                var DrawQ = Menu.Item("DrawQ").GetValue<Circle>();
+                var DrawW = Menu.Item("DrawW").GetValue<Circle>();
+                var DrawE = Menu.Item("DrawE").GetValue<Circle>();
+                var DrawR = Menu.Item("DrawR").GetValue<Circle>();
+                var QRange = IsFishBone() ? Orbwalking.GetRealAutoAttackRange(null) + GetFishboneRange() : 565f;
+                if (DrawQ.Active) { Utility.DrawCircle(Player.Position,QRange,DrawQ.Color);}
+                if (DrawW.Active) { Utility.DrawCircle(Player.Position, _w.Range, DrawW.Color); }
+                if (DrawE.Active) { Utility.DrawCircle(Player.Position, _e.Range, DrawE.Color); }
+                if (DrawR.Active) { Utility.DrawCircle(Player.Position, _r.Range, DrawR.Color); }
         }
 
         #endregion
@@ -145,8 +145,9 @@ namespace PennyJinx
                 return;
             }
 
-            var aaRange = Orbwalking.GetRealAutoAttackRange(null);
-            var target = TargetSelector.GetTarget(aaRange + GetFishboneRange() + 65, TargetSelector.DamageType.Physical);
+            var aaRange = Orbwalking.GetRealAutoAttackRange(null)+45;
+            var target = TargetSelector.GetTarget(aaRange + GetFishboneRange(), TargetSelector.DamageType.Physical);
+           
             if (!target.IsValidTarget(aaRange + GetFishboneRange() + 65))
             {
                 return;
@@ -320,8 +321,10 @@ namespace PennyJinx
             {
                 return;
             }
-
+           
             var rTarget = TargetSelector.GetTarget(_r.Range, TargetSelector.DamageType.Physical);
+            Game.PrintChat(((Player.Distance(rTarget) <= Orbwalking.GetRealAutoAttackRange(null) && (rTarget.Health < Player.GetAutoAttackDamage(rTarget) * GetSliderValue("AABuffer"))) ||
+               CountAllyPlayers(rTarget, 500) > 0).ToString());
             if (!rTarget.IsValidTarget(_r.Range))
             {
                 return;
@@ -331,11 +334,8 @@ namespace PennyJinx
             //The target can be killed with the X autoattack buffer
             //There are allies that could killsteal it
             //Or the distance is too close compared to the buffer
-            if ((rTarget.Distance(Player) <= Player.AttackRange+GetFishboneRange() && IsFishBone()) ||
-                (rTarget.Distance(Player) <= Player.AttackRange && !IsFishBone()) &&
-                (rTarget.Health < Player.GetAutoAttackDamage(rTarget) * GetSliderValue("AABuffer")) ||
-                CountAllyPlayers(rTarget,400) > 0 ||
-                Player.Distance(rTarget)<= GetSliderValue("MinRDist"))
+            if ((Player.Distance(rTarget) <= Orbwalking.GetRealAutoAttackRange(null) && (rTarget.Health < Player.GetAutoAttackDamage(rTarget) * GetSliderValue("AABuffer"))) ||
+                CountAllyPlayers(rTarget,500) > 0)
             {
                 return;
             }
@@ -521,7 +521,6 @@ namespace PennyJinx
                 comboMenu.AddItem(new MenuItem("QMode", "Q Usage Mode").SetValue(QMode));
                 comboMenu.AddItem(new MenuItem("EMode", "E Mode").SetValue(new StringList(new []{"PennyJinx","Marksman"})));
                 comboMenu.AddItem(new MenuItem("AABuffer", "AA Buffer for R").SetValue(new Slider(2, 0, 5)));
-                comboMenu.AddItem(new MenuItem("MinRDist", "Min R Distance").SetValue(new Slider(500, 0, 1200)));
             }
             var manaManagerCombo = new Menu("Mana Manager", "mm_Combo");
             {
@@ -564,6 +563,17 @@ namespace PennyJinx
                 autoMenu.AddItem(new MenuItem("AutoW_Mana", "Auto W Mana").SetValue(new Slider(40)));
             }
             Menu.AddSubMenu(autoMenu);
+
+            var DrawMenu = new Menu("[PJ] Drawings", "Drawing");
+            {
+                DrawMenu.AddItem(new MenuItem("DrawQ", "Draw Q").SetValue(new Circle(true, System.Drawing.Color.Red)));
+                DrawMenu.AddItem(
+                    new MenuItem("DrawW", "Draw W").SetValue(new Circle(true, System.Drawing.Color.MediumPurple)));
+                DrawMenu.AddItem(
+                    new MenuItem("DrawE", "Draw E").SetValue(new Circle(true, System.Drawing.Color.MediumPurple)));
+                DrawMenu.AddItem(new MenuItem("DrawR", "Draw R").SetValue(new Circle(true, System.Drawing.Color.MediumPurple)));
+            }
+            Menu.AddSubMenu(DrawMenu);
 
             Menu.AddToMainMenu();
         }
