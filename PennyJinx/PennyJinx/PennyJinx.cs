@@ -163,7 +163,7 @@ namespace PennyJinx
             if (!IsMenuEnabled("UseQLC"))
                 return;
 
-            if (CountEnemyMinions(t2, 150) < GetSliderValue("MinQMinions") || GetPerValue(true) < GetSliderValue("QManaLC"))
+            if (CountEnemyMinions(t2, 100) < GetSliderValue("MinQMinions") || GetPerValue(true) < GetSliderValue("QManaLC"))
             {
                 SwitchLc();
             }

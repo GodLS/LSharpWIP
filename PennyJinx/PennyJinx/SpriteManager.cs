@@ -22,7 +22,7 @@ namespace PennyJinx
             sprite = new Sprite(dxDevice);
             taco = Texture.FromMemory(
                      Drawing.Direct3DDevice,
-                     (byte[])new ImageConverter().ConvertTo(LoadPicture("http://puu.sh/e6NdL/f485b348f4.png"), typeof(byte[])), 70, 70, 0,
+                     (byte[])new ImageConverter().ConvertTo(LoadPicture("http://puu.sh/e6NdL/f485b348f4.png"), typeof(byte[])), 700, 700, 0,
                      Usage.None, Format.A1, Pool.Managed, Filter.Default, Filter.Default, 0);
             Drawing.OnEndScene += Drawing_OnEndScene;
             Drawing.OnPreReset += DrawingOnOnPreReset;
@@ -62,9 +62,10 @@ namespace PennyJinx
 
         static void DrawSprite()
         {
-            sprite.Begin();
-            sprite.Draw(taco, new ColorBGRA(255, 255, 255, 255), null, new Vector3(Drawing.WorldToScreen(ObjectManager.Player.Position).X, Drawing.WorldToScreen(ObjectManager.Player.Position).Y, 0));
-            sprite.End();
+           // sprite.Begin();
+           // sprite.Draw(taco, new ColorBGRA(255, 255, 255, 255), null, new Vector3(200,200, 0));
+           // sprite.End();
+            return;
             if (!PennyJinx.IsMenuEnabled("SpriteDraw"))
                 return;
             foreach (
