@@ -39,7 +39,7 @@ namespace PennyJinx
 
             SetUpMenu();
             SetUpSpells();
-            Game.PrintChat("<font color='#7A6EFF'>PennyJinx</font> v1.1 <font color='#FFFFFF'>Loaded!</font>");
+            Game.PrintChat("<font color='#7A6EFF'>PennyJinx</font> v1.0.6 <font color='#FFFFFF'>Loaded!</font>");
 
             SpriteManager.Game_OnGameLoad(args);
             Drawing.OnDraw += Drawing_OnDraw;
@@ -182,9 +182,12 @@ namespace PennyJinx
             var WMana = mode == Orbwalking.OrbwalkingMode.LaneClear
                 ? GetSliderValue("WManaLC")
                 : GetSliderValue("WManaLH");
+            var WEnabled = mode == Orbwalking.OrbwalkingMode.LaneClear
+                ? IsMenuEnabled("UseWLC")
+                : IsMenuEnabled("UseWLH");
             var MList = MinionManager.GetMinions(Player.Position, Orbwalking.GetRealAutoAttackRange(null));
             var Location = _w.GetLineFarmLocation(MList);
-            if (GetPerValue(true) >= WMana)
+            if (GetPerValue(true) >= WMana && WEnabled)
             {
                 _w.Cast(Location.Position);
             }
@@ -414,6 +417,8 @@ namespace PennyJinx
 
             var wTarget = TargetSelector.GetTarget(_w.Range, TargetSelector.DamageType.Physical);
             var autoWMana = GetSliderValue("AutoW_Mana");
+            if (!wTarget.IsValidTarget())
+                return;
             if (GetPerValue(true) >= autoWMana || isKillableWAA(wTarget))
             {
                 _w.CastIfHitchanceEquals(wTarget, CustomHitChance, Packets());

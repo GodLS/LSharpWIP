@@ -62,6 +62,9 @@ namespace PennyJinx
 
         static void DrawSprite()
         {
+            sprite.Begin();
+            sprite.Draw(taco, new ColorBGRA(255, 255, 255, 255), null, new Vector3(Drawing.WorldToScreen(ObjectManager.Player.Position).X, Drawing.WorldToScreen(ObjectManager.Player.Position).Y, 0));
+            sprite.End();
             if (!PennyJinx.IsMenuEnabled("SpriteDraw"))
                 return;
             foreach (
