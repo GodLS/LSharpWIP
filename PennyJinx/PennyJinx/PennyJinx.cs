@@ -284,8 +284,6 @@ namespace PennyJinx
                 var enemy in
                     ObjectManager.Get<Obj_AI_Hero>().Where(h => h.IsValidTarget(_e.Range - _e.Width) && (IsEmpaired(h))))
             {
-                //We get the empaired end time of the enemy
-                var EndTime = GetEmpairedEndTime(enemy);
                 //E necessary mana. If the mode is combo: Combo mana, if not AutoE mana
                 var EMana = _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo
                     ? GetSliderValue("EManaC")
@@ -293,8 +291,6 @@ namespace PennyJinx
                 
                 if (IsMenuEnabled("UseEC") || IsMenuEnabled("AutoE"))
                 {
-                    //We get the E Prediction
-                    var EPrediction = _e.GetPrediction(enemy);
                     //If it is slowed & moving
                     if (IsEmpairedLight(enemy) && isMoving(enemy))
                     { 
