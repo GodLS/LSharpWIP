@@ -162,8 +162,11 @@ namespace PennyJinx
         {
             if (!IsMenuEnabled("UseQLC"))
                 return;
-
-            if (CountEnemyMinions(t2, 100) < GetSliderValue("MinQMinions") || GetPerValue(true) < GetSliderValue("QManaLC"))
+            if (!_q.IsReady())
+                return;
+            if (GetPerValue(true) < GetSliderValue("QManaLC"))
+                return;
+            if (CountEnemyMinions(t2, 100) < GetSliderValue("MinQMinions"))
             {
                 SwitchLc();
             }
