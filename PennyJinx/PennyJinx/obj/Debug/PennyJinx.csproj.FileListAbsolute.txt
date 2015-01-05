@@ -13,3 +13,15 @@ C:\Users\Penlane\Documents\GitHub\DZ191\LSharpWIP\PennyJinx\PennyJinx\bin\Releas
 C:\Users\Penlane\Documents\GitHub\DZ191\LSharpWIP\PennyJinx\PennyJinx\obj\Debug\PennyJinx.csprojResolveAssemblyReference.cache
 C:\Users\Penlane\Documents\GitHub\DZ191\LSharpWIP\PennyJinx\PennyJinx\obj\Debug\PennyJinx.exe
 C:\Users\Penlane\Documents\GitHub\DZ191\LSharpWIP\PennyJinx\PennyJinx\obj\Debug\PennyJinx.pdb
+C:\Users\Daniel\Documents\GitHub\LSharpWIP\PennyJinx\PennyJinx\bin\Release\PennyJinx.exe.config
+C:\Users\Daniel\Documents\GitHub\LSharpWIP\PennyJinx\PennyJinx\obj\Debug\PennyJinx.exe
+C:\Users\Daniel\Documents\GitHub\LSharpWIP\PennyJinx\PennyJinx\obj\Debug\PennyJinx.pdb
+C:\Users\Daniel\Documents\GitHub\LSharpWIP\PennyJinx\PennyJinx\bin\Release\PennyJinx.exe
+C:\Users\Daniel\Documents\GitHub\LSharpWIP\PennyJinx\PennyJinx\bin\Release\PennyJinx.pdb
+C:\Users\Daniel\Documents\GitHub\LSharpWIP\PennyJinx\PennyJinx\bin\Release\SharpDX.Direct3D9.dll
+C:\Users\Daniel\Documents\GitHub\LSharpWIP\PennyJinx\PennyJinx\bin\Release\SharpDX.Toolkit.dll
+C:\Users\Daniel\Documents\GitHub\LSharpWIP\PennyJinx\PennyJinx\bin\Release\SharpDX.Toolkit.Graphics.dll
+C:\Users\Daniel\Documents\GitHub\LSharpWIP\PennyJinx\PennyJinx\bin\Release\LeagueSharp.xml
+C:\Users\Daniel\Documents\GitHub\LSharpWIP\PennyJinx\PennyJinx\bin\Release\SharpDX.Toolkit.xml
+C:\Users\Daniel\Documents\GitHub\LSharpWIP\PennyJinx\PennyJinx\bin\Release\SharpDX.Toolkit.Graphics.xml
+C:\Users\Daniel\Documents\GitHub\LSharpWIP\PennyJinx\PennyJinx\obj\Debug\PennyJinx.csprojResolveAssemblyReference.cache

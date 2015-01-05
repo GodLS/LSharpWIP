@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using LeagueSharp;
@@ -37,6 +38,17 @@ namespace PennyJinx
             Drawing.OnDraw += Drawing_OnDraw;
             Game.OnGameUpdate += Game_OnGameUpdate;
             Orbwalking.AfterAttack += Orbwalking_AfterAttack;
+            Orbwalking.BeforeAttack += Orbwalking_BeforeAttack;
+        }
+
+        void Orbwalking_BeforeAttack(Orbwalking.BeforeAttackEventArgs args)
+        {
+            var target = args.Target;
+            if (!target.IsValidTarget())
+                return;
+            if (!(target is Obj_AI_Minion) || _orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.LaneClear)
+                return;
+            SwitchLc();
         }
 
         private static void Orbwalking_AfterAttack(AttackableUnit unit, AttackableUnit target)
@@ -46,15 +58,14 @@ namespace PennyJinx
 
         private void Game_OnGameUpdate(EventArgs args)
         {
-            ECast();
+            Auto();
             switch (_orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
                     ComboLogic();
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
-                    //TODO Stuff
-                    AutoWHarass();
+                    HarrassLogic();
                     break;
                 case Orbwalking.OrbwalkingMode.LaneClear:
                     SwitchLc();
@@ -62,14 +73,14 @@ namespace PennyJinx
             }
         }
 
+        
+
         #region Various
 
         private void SwitchLc()
         {
             if (!IsMenuEnabled("SwitchQLC") || !_q.IsReady())
-            {
                 return;
-            }
 
             if (IsFishBone())
             {
@@ -96,17 +107,32 @@ namespace PennyJinx
 
         #endregion
 
-        #region Combo Logic
+        #region Combo/Harrass/Auto
 
-        private void ComboLogic()
-        {
-            WCast(_orbwalker.ActiveMode);
-            RCast();
-            QManager();
+        private void Auto()
+        {  
+            AutoWEmpaired();
+            AutoWEmpaired();
+            if(getEMode() == 0){ECast_DZ();} else{ ECast();}
         }
 
+        private void HarrassLogic()
+        {
+            WCast(_orbwalker.ActiveMode);
+            QManager("H");
+        }
 
-        private void QManager()
+        private void ComboLogic()
+        {    
+            WCast(_orbwalker.ActiveMode);
+            RCast();
+            QManager("C");
+            if (getEMode() == 0) { ECast_DZ(); } else { ECast(); }
+        }
+        #endregion
+
+        #region Spell Casting
+        private void QManager(String Mode)
         {
             if (!_q.IsReady())
             {
@@ -122,7 +148,13 @@ namespace PennyJinx
 
             switch (Menu.Item("QMode").GetValue<StringList>().SelectedIndex)
             {
+                    //AOE Mode
                 case 0:
+                    if (IsFishBone() && GetPerValue(true) <= GetSliderValue("QMana" + Mode))
+                    {
+                        _q.Cast();
+                        return;
+                    }
                     if (target.CountEnemysInRange(150) > 1)
                     {
                         if (!IsFishBone())
@@ -132,17 +164,18 @@ namespace PennyJinx
                     }
                     else
                     {
-                        if (IsFishBone())
+                        if (IsFishBone() )
                         {
                             _q.Cast();
                         }
                     }
                     break;
+                    //Range Mode
                 case 1:
                     if (IsFishBone())
                     {
                         //Switching to Minigun
-                        if (Player.Distance(target) < aaRange || GetPerValue(true) <= GetSliderValue("QManaC"))
+                        if (Player.Distance(target) < aaRange || GetPerValue(true) <= GetSliderValue("QMana" + Mode))
                         {
                             _q.Cast();
                         }
@@ -150,17 +183,18 @@ namespace PennyJinx
                     else
                     {
                         //Switching to rockets
-                        if (Player.Distance(target) > aaRange && GetPerValue(true) >= GetSliderValue("QManaC"))
+                        if (Player.Distance(target) > aaRange && GetPerValue(true) >= GetSliderValue("QMana" + Mode))
                         {
                             _q.Cast();
                         }
                     }
                     break;
+                    //Both
                 case 2:
                     if (IsFishBone())
                     {
                         //Switching to Minigun
-                        if (Player.Distance(target) < aaRange || GetPerValue(true) <= GetSliderValue("QManaC"))
+                        if (Player.Distance(target) < aaRange || GetPerValue(true) <= GetSliderValue("QMana" + Mode))
                         {
                             _q.Cast();
                         }
@@ -168,7 +202,7 @@ namespace PennyJinx
                     else
                     {
                         //Switching to rockets
-                        if (Player.Distance(target) > aaRange && GetPerValue(true) >= GetSliderValue("QManaC") ||
+                        if (Player.Distance(target) > aaRange && GetPerValue(true) >= GetSliderValue("QMana" + Mode) ||
                             target.CountEnemysInRange(150) > 1)
                         {
                             _q.Cast();
@@ -184,13 +218,12 @@ namespace PennyJinx
             {
                 return;
             }
-
+            //If the mode is combo then we use the WManaC, if the mode is Harrass we use the WManaH
             var str = (mode == Orbwalking.OrbwalkingMode.Combo) ? "C" : "H";
+            //Get a target in W range
             var wTarget = TargetSelector.GetTarget(_w.Range, TargetSelector.DamageType.Physical);
             if (!wTarget.IsValidTarget(_w.Range))
-            {
                 return;
-            }
 
             var wMana = GetSliderValue("WMana" + str);
             if (GetPerValue(true) >= wMana && IsMenuEnabled("UseWC"))
@@ -234,6 +267,38 @@ namespace PennyJinx
             }
         }
 
+        private void ECast_DZ()
+        {
+            if(!_e.IsReady())
+                return;
+
+            foreach (
+                var enemy in
+                    ObjectManager.Get<Obj_AI_Hero>().Where(h => h.IsValidTarget(_e.Range - _e.Width) && (IsEmpaired(h))))
+            {
+                //We get the empaired end time of the enemy
+                var EndTime = GetEmpairedEndTime(enemy);
+                //E necessary mana. If the mode is combo: Combo mana, if not AutoE mana
+                var EMana = _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo
+                    ? GetSliderValue("EManaC")
+                    : GetSliderValue("AutoE_Mana");
+                
+                if (IsMenuEnabled("UseEC") || IsMenuEnabled("AutoE"))
+                {
+                    //We get the E Prediction
+                    var EPrediction = _e.GetPrediction(enemy);
+                    //Calculate the ETA by summing Game.Time + Time needed for E to get there
+                    var ETA = Game.Time + Player.Distance(EPrediction.CastPosition) / _e.Speed;
+                    //If the empairement ends later, cast the E
+                    if (EndTime >= ETA && GetPerValue(true) >= EMana)
+                    {
+                        //Casting using predictions
+                        _e.CastIfHitchanceEquals(enemy, CustomHitChance, Packets());
+                    }
+                }
+            }
+        }
+
         private void RCast()
         {
             if (!_r.IsReady())
@@ -246,34 +311,33 @@ namespace PennyJinx
             {
                 return;
             }
-
+            //If the distance is lower than Rocket Range && it's rockets
+            //Or the distance is lower than minigun range && it's minigun
+            //The target can be killed with the X autoattack buffer
             if ((rTarget.Distance(Player) <= GetFishboneRange() && IsFishBone()) ||
                 (rTarget.Distance(Player) <= Player.AttackRange && !IsFishBone()) &&
-                (rTarget.Health < Player.GetAutoAttackDamage(rTarget)*GetSliderValue("AABuffer")))
+                (rTarget.Health < Player.GetAutoAttackDamage(rTarget) * GetSliderValue("AABuffer")))
             {
                 return;
             }
-
+            //Get the R Prediction
             var prediction = _r.GetPrediction(rTarget);
             var castPosition = prediction.CastPosition;
+            //Check for Mana && for target Killable. Also check for hitchance
             if (GetPerValue(true) >= GetSliderValue("RManaC") && IsMenuEnabled("UseRC") &&
                 _r.GetDamage(rTarget) >=
-                HealthPrediction.GetHealthPrediction(rTarget, (int) (Player.Distance(rTarget)/2000f)))
+                HealthPrediction.GetHealthPrediction(rTarget, (int)(Player.Distance(rTarget) / 2000f)))
             {
-                _r.Cast(castPosition, Packets());
+                _r.CastIfHitchanceEquals(rTarget,CustomHitChance, Packets());
             }
         }
-
-        #endregion
-
-        #region Spell Casting
-
         #endregion
 
         #region AutoSpells
 
         private void AutoWHarass()
         {
+            //Uses W in Harrass, factoring hitchance
             if (!IsMenuEnabled("AutoW"))
             {
                 return;
@@ -289,6 +353,7 @@ namespace PennyJinx
 
         private void AutoWEmpaired()
         {
+            //Uses W on whoever is empaired
             foreach (
                 var enemy in
                     from enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsValidTarget(_w.Range))
@@ -319,16 +384,30 @@ namespace PennyJinx
             return Player.AttackRange > 565;
         }
 
+        private int getEMode()
+        {
+            return Menu.Item("EMode").GetValue<StringList>().SelectedIndex;
+        }
+
         private static bool IsEmpaired(Obj_AI_Hero enemy)
         {
             return (enemy.HasBuffOfType(BuffType.Stun) || enemy.HasBuffOfType(BuffType.Snare) ||
                     enemy.HasBuffOfType(BuffType.Charm) || enemy.HasBuffOfType(BuffType.Fear) ||
-                    enemy.HasBuffOfType(BuffType.Taunt));
+                    enemy.HasBuffOfType(BuffType.Taunt) || IsEmpairedLight(enemy));
         }
 
         private static bool IsEmpairedLight(Obj_AI_Hero enemy)
         {
             return (enemy.HasBuffOfType(BuffType.Slow));
+        }
+
+        private static float GetEmpairedEndTime(Obj_AI_Base target)
+        {
+            return
+                target.Buffs.OrderByDescending(buff => buff.EndTime - Game.Time)
+                    .Where(buff => getEmpairedBuffs().Contains(buff.Type))
+                    .Select(buff => buff.EndTime)
+                    .FirstOrDefault();
         }
 
         private static float GetSlowEndTime(Obj_AI_Base target)
@@ -355,11 +434,14 @@ namespace PennyJinx
             return mana ? Player.ManaPercentage() : Player.HealthPercentage();
         }
 
-
+        private static List<BuffType> getEmpairedBuffs()
+        {
+            return new List<BuffType> { BuffType.Stun, BuffType.Snare, BuffType.Charm, BuffType.Fear, BuffType.Taunt, BuffType.Slow};
+        }
 
         #endregion
 
-        #region Menu and spells
+        #region Menu and spells setup
 
         private static void SetUpSpells()
         {
@@ -389,6 +471,7 @@ namespace PennyJinx
                 comboMenu.AddItem(new MenuItem("UseEC", "Use E Combo").SetValue(true));
                 comboMenu.AddItem(new MenuItem("UseRC", "Use R Combo").SetValue(true));
                 comboMenu.AddItem(new MenuItem("QMode", "Q Usage Mode").SetValue(QMode));
+                comboMenu.AddItem(new MenuItem("EMode", "E Mode").SetValue(new StringList(new []{"PennyJinx","Marksman"})));
                 comboMenu.AddItem(new MenuItem("AABuffer", "AA Buffer for R").SetValue(new Slider(2, 0, 5)));
             }
             var manaManagerCombo = new Menu("Mana Manager", "mm_Combo");
