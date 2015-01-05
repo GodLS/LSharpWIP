@@ -23,9 +23,11 @@ namespace PennyJinx
         private static Orbwalking.Orbwalker _orbwalker;
         private static readonly StringList QMode = new StringList(new[] {"AOE mode", "Range mode", "Both"}, 2);
         public static Render.Sprite Sprite;
-
+        public static PennyJinx instance;
+        public static List<SpriteManager.KillableHero> _KillableHeroes = new List<SpriteManager.KillableHero>(); 
         public PennyJinx()
         {
+            instance = this;
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
         }
 
@@ -41,11 +43,18 @@ namespace PennyJinx
             SetUpSpells();
             Game.PrintChat("<font color='#7A6EFF'>PennyJinx</font> v1.0.6 <font color='#FFFFFF'>Loaded!</font>");
 
-            SpriteManager.Game_OnGameLoad(args);
+            
             Drawing.OnDraw += Drawing_OnDraw;
             Game.OnGameUpdate += Game_OnGameUpdate;
             Orbwalking.AfterAttack += Orbwalking_AfterAttack;
             Orbwalking.BeforeAttack += Orbwalking_BeforeAttack;
+            foreach (Obj_AI_Hero hero in
+                ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.Team != ObjectManager.Player.Team))
+            {
+                var k = new SpriteManager.KillableHero(hero);
+               _KillableHeroes.Add(k);
+            }
+
         }
 
         void Orbwalking_BeforeAttack(Orbwalking.BeforeAttackEventArgs args)
@@ -160,11 +169,7 @@ namespace PennyJinx
         #region Farm
         void QSwitchLC(Obj_AI_Minion t2)
         {
-            if (!IsMenuEnabled("UseQLC"))
-                return;
-            if (!_q.IsReady())
-                return;
-            if (GetPerValue(true) < GetSliderValue("QManaLC"))
+            if (!IsMenuEnabled("UseQLC") ||!_q.IsReady() || GetPerValue(true) < GetSliderValue("QManaLC"))
                 return;
             if (CountEnemyMinions(t2, 100) < GetSliderValue("MinQMinions"))
             {

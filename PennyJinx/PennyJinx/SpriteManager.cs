@@ -12,76 +12,72 @@ namespace PennyJinx
 {
     class SpriteManager
     {
-        public static SharpDX.Direct3D9.Texture taco;
-        public static SharpDX.Direct3D9.Sprite sprite;
-        public static SharpDX.Direct3D9.Device dxDevice = Drawing.Direct3DDevice;
-        public static int i = 0;
-
-        public static void Game_OnGameLoad(EventArgs args)
+        public class KillableHero
         {
-            sprite = new Sprite(dxDevice);
-            taco = Texture.FromMemory(
-                     Drawing.Direct3DDevice,
-                     (byte[])new ImageConverter().ConvertTo(LoadPicture("http://puu.sh/e6NdL/f485b348f4.png"), typeof(byte[])), 700, 700, 0,
-                     Usage.None, Format.A1, Pool.Managed, Filter.Default, Filter.Default, 0);
-            Drawing.OnEndScene += Drawing_OnEndScene;
-            Drawing.OnPreReset += DrawingOnOnPreReset;
-            Drawing.OnPostReset += DrawingOnOnPostReset;
-            AppDomain.CurrentDomain.DomainUnload += CurrentDomainOnDomainUnload;
-            AppDomain.CurrentDomain.ProcessExit += CurrentDomainOnDomainUnload;
-        }
-
-        private static void CurrentDomainOnDomainUnload(object sender, EventArgs e)
-        {
-            sprite.Dispose();
-        }
-
-        private static void DrawingOnOnPostReset(EventArgs args)
-        {
-            sprite.OnResetDevice();
-        }
-
-        private static void DrawingOnOnPreReset(EventArgs args)
-        {
-            sprite.OnLostDevice();
-        }
-        private static Bitmap LoadPicture(string url)
-        {
-            System.Net.WebRequest request = System.Net.WebRequest.Create(url);
-            System.Net.WebResponse response = request.GetResponse();
-            System.IO.Stream responseStream = response.GetResponseStream();
-            Bitmap bitmap2 = new Bitmap(responseStream);
-            Console.WriteLine(bitmap2.Size);
-            return (bitmap2);
-        }
-
-        static void Drawing_OnEndScene(EventArgs args)
-        {
-            DrawSprite();
-        }
-
-        static void DrawSprite()
-        {
-           // sprite.Begin();
-           // sprite.Draw(taco, new ColorBGRA(255, 255, 255, 255), null, new Vector3(200,200, 0));
-           // sprite.End();
-            return;
-            if (!PennyJinx.IsMenuEnabled("SpriteDraw"))
-                return;
-            foreach (
-                var hero in
-                    ObjectManager.Get<Obj_AI_Hero>()
-                        .Where(
-                            h =>
-                                h.IsValidTarget(PennyJinx._r.Range) &&
-                                PennyJinx._r.GetDamage(h) >=
-                                HealthPrediction.GetHealthPrediction(h, (int) (ObjectManager.Player.Distance(h) / 2000f) * 1000)))
+            private readonly Render.Sprite _sprite;
+            private readonly Obj_AI_Hero _hero;
+            private bool _active;
+            private bool _Killable;
+            public KillableHero(Obj_AI_Hero hero)
             {
-                sprite.Begin();
-                sprite.Draw(taco, new ColorBGRA(255, 255, 255, 255), null, new Vector3(Drawing.WorldToScreen(hero.Position).X, Drawing.WorldToScreen(hero.Position).Y,0));
-                sprite.End();
+                _active = PennyJinx.IsMenuEnabled("SpriteDraw");
+                if (!_active)
+                    return;
+                _Killable = false;
+                _hero = hero;
+                _sprite = new Render.Sprite(Properties.Resources.scope, new Vector2(0, 0))
+                {
+                    VisibleCondition = sender => _Killable,
+                    PositionUpdate =
+                        () =>
+                            new Vector2(Drawing.WorldToScreen(hero.Position).X-65, Drawing.WorldToScreen(hero.Position).Y-75)
+                            
+                };
+                _sprite.Scale = new Vector2(0.60f, 0.60f);
+                _sprite.Add(0);
+                Game.OnGameUpdate += Game_OnGameUpdate;
+                Drawing.OnDraw += Drawing_OnDraw;
+                Drawing.OnEndScene += Drawing_OnEndScene;
+                Drawing.OnPreReset += Drawing_OnPreReset;
+                Drawing.OnPostReset += Drawing_OnPostReset;
             }
-        
+
+            void Drawing_OnPostReset(EventArgs args)
+            {
+               _sprite.OnPostReset();
+            }
+
+            void Drawing_OnPreReset(EventArgs args)
+            {
+                _sprite.OnPreReset();
+            }
+
+            void Drawing_OnEndScene(EventArgs args)
+            {
+               _sprite.OnEndScene();
+            }
+
+            void Drawing_OnDraw(EventArgs args)
+            {
+                _sprite.OnDraw();
+            }
+
+            private void Game_OnGameUpdate(EventArgs args)
+            {
+              
+                if (_hero.IsValidTarget(PennyJinx._r.Range) &&
+                    PennyJinx._r.GetDamage(_hero) >=
+                    HealthPrediction.GetHealthPrediction(
+                        _hero, (int) (ObjectManager.Player.Distance(_hero) / 2000f) * 1000))
+                {
+                    _Killable = true;
+                }
+                else
+                {
+                    _Killable = false;
+                }
+            } 
         }
+        
     }
 }
