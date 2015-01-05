@@ -22,7 +22,7 @@ namespace PennyJinx
             sprite = new Sprite(dxDevice);
             taco = Texture.FromMemory(
                      Drawing.Direct3DDevice,
-                     (byte[])new ImageConverter().ConvertTo(LoadPicture("http://puu.sh/e6NdL/f485b348f4.png"), typeof(byte[])), 513, 744, 0,
+                     (byte[])new ImageConverter().ConvertTo(LoadPicture("http://puu.sh/e6NdL/f485b348f4.png"), typeof(byte[])), 70, 70, 0,
                      Usage.None, Format.A1, Pool.Managed, Filter.Default, Filter.Default, 0);
             Drawing.OnEndScene += Drawing_OnEndScene;
             Drawing.OnPreReset += DrawingOnOnPreReset;
