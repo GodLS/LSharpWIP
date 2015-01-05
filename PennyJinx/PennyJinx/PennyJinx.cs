@@ -39,7 +39,6 @@ namespace PennyJinx
 
             SetUpMenu();
             SetUpSpells();
-            Game.PrintChat(Orbwalking.GetRealAutoAttackRange(null).ToString());
             Game.PrintChat("<font color='#7A6EFF'>PennyJinx</font> v1.1 <font color='#FFFFFF'>Loaded!</font>");
 
             SpriteManager.Game_OnGameLoad(args);
@@ -124,7 +123,7 @@ namespace PennyJinx
                 var DrawW = Menu.Item("DrawW").GetValue<Circle>();
                 var DrawE = Menu.Item("DrawE").GetValue<Circle>();
                 var DrawR = Menu.Item("DrawR").GetValue<Circle>();
-                var QRange = IsFishBone() ? Orbwalking.GetRealAutoAttackRange(null) + GetFishboneRange() : 565f;
+                var QRange = IsFishBone() ? GetMinigunRange(null)+ GetFishboneRange() : GetMinigunRange(null);
                 if (DrawQ.Active) { Utility.DrawCircle(Player.Position,QRange,DrawQ.Color);}
                 if (DrawW.Active) { Utility.DrawCircle(Player.Position, _w.Range, DrawW.Color); }
                 if (DrawE.Active) { Utility.DrawCircle(Player.Position, _e.Range, DrawE.Color); }
@@ -460,7 +459,7 @@ namespace PennyJinx
 
         private static float GetMinigunRange(GameObject target)
         {
-            return 525f + ObjectManager.Player.BoundingRadius + target.BoundingRadius;
+            return 525f + ObjectManager.Player.BoundingRadius + (target != null ? target.BoundingRadius : 0);
         }
 
         private static HitChance getHitchance()
