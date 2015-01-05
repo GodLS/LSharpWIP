@@ -92,7 +92,7 @@ namespace PennyJinx
 
         private void SwitchLc()
         {
-            if (!IsMenuEnabled("SwitchQLC") || !_q.IsReady())
+            if (!_q.IsReady())
                 return;
 
             if (IsFishBone())
@@ -161,13 +161,16 @@ namespace PennyJinx
         #region Farm
         void QSwitchLC(Obj_AI_Minion t2)
         {
-            if (CountEnemyMinions(t2, 150) < GetSliderValue("MinQMinions"))
+            if (!IsMenuEnabled("UseQLC"))
+                return;
+
+            if (CountEnemyMinions(t2, 150) < GetSliderValue("MinQMinions") || GetPerValue(true) < GetSliderValue("QManaLC"))
             {
                 SwitchLc();
             }
             else
             {
-                if (!IsFishBone() && GetPerValue(true) >= GetSliderValue("UseQLC"))
+                if (!IsFishBone() && GetPerValue(true) >= GetSliderValue("QManaLC"))
                 {
                     _q.Cast();
                 }
@@ -647,7 +650,6 @@ namespace PennyJinx
                 miscMenu.AddItem(new MenuItem("Packets", "Use Packets").SetValue(true));
                 miscMenu.AddItem(new MenuItem("AntiGP", "Anti Gapcloser").SetValue(true));
                 miscMenu.AddItem(new MenuItem("Interrupter", "Use Interrupter").SetValue(true));
-                miscMenu.AddItem(new MenuItem("SwitchQLC", "Switch Minigun Laneclear").SetValue(true));
                 miscMenu.AddItem(new MenuItem("SwitchQNoEn", "Switch to Minigun when no enemies").SetValue(true));
                 miscMenu.AddItem(new MenuItem("C_Hit", "Hitchance").SetValue(new StringList(new[] {"Low","Medium","High","Very High"},2)));
                 miscMenu.AddItem(new MenuItem("SpriteDraw", "Draw Sprite for R Killable").SetValue(true));
