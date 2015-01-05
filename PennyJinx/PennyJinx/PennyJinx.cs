@@ -48,7 +48,11 @@ namespace PennyJinx
                 return;
             if (!(target is Obj_AI_Minion) || _orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.LaneClear)
                 return;
-            SwitchLc();
+            var t2 = target as Obj_AI_Minion;
+            if (CountEnemyMinions(t2, 150) < 4)
+            {
+                SwitchLc();
+            }
         }
 
         private static void Orbwalking_AfterAttack(AttackableUnit unit, AttackableUnit target)
@@ -132,6 +136,7 @@ namespace PennyJinx
         #endregion
 
         #region Spell Casting
+
         private void QManager(String Mode)
         {
             if (!_q.IsReady())
@@ -218,6 +223,9 @@ namespace PennyJinx
             {
                 return;
             }
+            if (Player.CountEnemysInRange((int) Player.AttackRange) != 0)
+                return;
+
             //If the mode is combo then we use the WManaC, if the mode is Harrass we use the WManaH
             var str = (mode == Orbwalking.OrbwalkingMode.Combo) ? "C" : "H";
             //Get a target in W range
@@ -287,13 +295,22 @@ namespace PennyJinx
                 {
                     //We get the E Prediction
                     var EPrediction = _e.GetPrediction(enemy);
-                    //Calculate the ETA by summing Game.Time + Time needed for E to get there
-                    var ETA = Game.Time + Player.Distance(EPrediction.CastPosition) / _e.Speed;
+                    //If it is slowed & moving
+                    if (IsEmpairedLight(enemy) && isMoving(enemy))
+                    { 
+                        //Has enough E Mana ?
+                        if (GetPerValue(true) >= EMana)
+                        {
+                            //Casting using predictions
+                            _e.CastIfHitchanceEquals(enemy, HitChance.High, Packets());
+                            return;
+                        }
+                    }
                     //If the empairement ends later, cast the E
-                    if (EndTime >= ETA && GetPerValue(true) >= EMana)
+                    if (GetPerValue(true) >= EMana)
                     {
                         //Casting using predictions
-                        _e.CastIfHitchanceEquals(enemy, CustomHitChance, Packets());
+                        _e.CastIfHitchanceEquals(enemy, HitChance.High, Packets());
                     }
                 }
             }
@@ -301,6 +318,7 @@ namespace PennyJinx
 
         private void RCast()
         {
+            //TODO R Collision
             if (!_r.IsReady())
             {
                 return;
@@ -314,23 +332,26 @@ namespace PennyJinx
             //If the distance is lower than Rocket Range && it's rockets
             //Or the distance is lower than minigun range && it's minigun
             //The target can be killed with the X autoattack buffer
+            //There are allies that could killsteal it
+            //Or the distance is too close compared to the buffer
             if ((rTarget.Distance(Player) <= GetFishboneRange() && IsFishBone()) ||
                 (rTarget.Distance(Player) <= Player.AttackRange && !IsFishBone()) &&
-                (rTarget.Health < Player.GetAutoAttackDamage(rTarget) * GetSliderValue("AABuffer")))
+                (rTarget.Health < Player.GetAutoAttackDamage(rTarget) * GetSliderValue("AABuffer")) ||
+                CountAllyPlayers(rTarget,400) > 0 ||
+                Player.Distance(rTarget)<= GetSliderValue("MinRDist"))
             {
                 return;
             }
-            //Get the R Prediction
-            var prediction = _r.GetPrediction(rTarget);
-            var castPosition = prediction.CastPosition;
+
             //Check for Mana && for target Killable. Also check for hitchance
             if (GetPerValue(true) >= GetSliderValue("RManaC") && IsMenuEnabled("UseRC") &&
                 _r.GetDamage(rTarget) >=
-                HealthPrediction.GetHealthPrediction(rTarget, (int)(Player.Distance(rTarget) / 2000f)))
+                HealthPrediction.GetHealthPrediction(rTarget, (int)(Player.Distance(rTarget) / 2000f)*1000))
             {
                 _r.CastIfHitchanceEquals(rTarget,CustomHitChance, Packets());
             }
         }
+
         #endregion
 
         #region AutoSpells
@@ -345,9 +366,10 @@ namespace PennyJinx
 
             var wTarget = TargetSelector.GetTarget(_w.Range, TargetSelector.DamageType.Physical);
             var autoWMana = GetSliderValue("AutoW_Mana");
-            if (GetPerValue(true) >= autoWMana)
+            if (GetPerValue(true) >= autoWMana || isKillableWAA(wTarget))
             {
                 _w.CastIfHitchanceEquals(wTarget, CustomHitChance, Packets());
+                
             }
         }
 
@@ -377,6 +399,29 @@ namespace PennyJinx
         private static float GetFishboneRange()
         {
             return 50 + 25*ObjectManager.Player.Spellbook.GetSpell(SpellSlot.Q).Level;
+        }
+
+        private static bool isKillableWAA(Obj_AI_Hero wTarget)
+        {
+            return (Player.GetAutoAttackDamage(wTarget) + _w.GetDamage(wTarget) >
+                    HealthPrediction.GetHealthPrediction(
+                        wTarget,
+                        (int)
+                            ((Player.Distance(wTarget) / _w.Speed) * 1000 +
+                             (Player.Distance(wTarget) / Orbwalking.GetMyProjectileSpeed()) * 1000) + (Game.Ping / 2)) &&
+                    Player.Distance(wTarget) > Orbwalking.GetRealAutoAttackRange(null));
+
+        }
+
+
+        private static int CountAllyPlayers(Obj_AI_Hero from,float distance)
+        {
+            return ObjectManager.Get<Obj_AI_Hero>().Where(h => h.IsAlly && !h.IsMe && h.Distance(from) <= distance).ToList().Count;
+        }
+
+        private static int CountEnemyMinions(Obj_AI_Base from, float distance)
+        {
+            return MinionManager.GetMinions(from.Position, distance).ToList().Count;
         }
 
         private static bool IsFishBone()
@@ -434,6 +479,11 @@ namespace PennyJinx
             return mana ? Player.ManaPercentage() : Player.HealthPercentage();
         }
 
+        private static bool isMoving(Obj_AI_Base obj)
+        {
+            return obj.Path.Count() > 1;
+        }
+
         private static List<BuffType> getEmpairedBuffs()
         {
             return new List<BuffType> { BuffType.Stun, BuffType.Snare, BuffType.Charm, BuffType.Fear, BuffType.Taunt, BuffType.Slow};
@@ -473,6 +523,7 @@ namespace PennyJinx
                 comboMenu.AddItem(new MenuItem("QMode", "Q Usage Mode").SetValue(QMode));
                 comboMenu.AddItem(new MenuItem("EMode", "E Mode").SetValue(new StringList(new []{"PennyJinx","Marksman"})));
                 comboMenu.AddItem(new MenuItem("AABuffer", "AA Buffer for R").SetValue(new Slider(2, 0, 5)));
+                comboMenu.AddItem(new MenuItem("MinRDist", "Min R Distance").SetValue(new Slider(500, 0, 1200)));
             }
             var manaManagerCombo = new Menu("Mana Manager", "mm_Combo");
             {
