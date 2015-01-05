@@ -334,7 +334,9 @@ namespace PennyJinx
             //The target can be killed with the X autoattack buffer
             //There are allies that could killsteal it
             //Or the distance is too close compared to the buffer
-            if ((Player.Distance(rTarget) <= Orbwalking.GetRealAutoAttackRange(null) && (rTarget.Health < Player.GetAutoAttackDamage(rTarget) * GetSliderValue("AABuffer"))) ||
+            if ((rTarget.Distance(Player) <= GetFishboneRange() && IsFishBone()) ||
+                (rTarget.Distance(Player) <= Player.AttackRange && !IsFishBone()) || 
+                (Player.Distance(rTarget) <= Orbwalking.GetRealAutoAttackRange(null) && (rTarget.Health < Player.GetAutoAttackDamage(rTarget) * GetSliderValue("AABuffer"))) ||
                 CountAllyPlayers(rTarget,500) > 0)
             {
                 return;
