@@ -11,12 +11,18 @@ namespace PennyJinx
     internal class PennyJinx
     {
         private const String ChampName = "Jinx";
-        private const HitChance CustomHitChance = HitChance.Medium;
+
+        private static HitChance CustomHitChance
+        {
+            get { return getHitchance(); }
+        }
+
         public static Obj_AI_Hero Player;
-        private static Spell _q, _w, _e, _r;
+        public static Spell _q, _w, _e, _r;
         public static Menu Menu;
         private static Orbwalking.Orbwalker _orbwalker;
         private static readonly StringList QMode = new StringList(new[] {"AOE mode", "Range mode", "Both"}, 2);
+        public static Render.Sprite Sprite;
 
         public PennyJinx()
         {
@@ -33,9 +39,10 @@ namespace PennyJinx
 
             SetUpMenu();
             SetUpSpells();
-
+            Game.PrintChat(Orbwalking.GetRealAutoAttackRange(null).ToString());
             Game.PrintChat("<font color='#7A6EFF'>PennyJinx</font> v1.1 <font color='#FFFFFF'>Loaded!</font>");
 
+            SpriteManager.Game_OnGameLoad(args);
             Drawing.OnDraw += Drawing_OnDraw;
             Game.OnGameUpdate += Game_OnGameUpdate;
             Orbwalking.AfterAttack += Orbwalking_AfterAttack;
@@ -47,13 +54,10 @@ namespace PennyJinx
             var target = args.Target;
             if (!target.IsValidTarget())
                 return;
-            if (!(target is Obj_AI_Minion) || _orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.LaneClear)
+            if (!(target is Obj_AI_Minion) || _orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.LaneClear || _orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.LastHit)
                 return;
             var t2 = target as Obj_AI_Minion;
-            if (CountEnemyMinions(t2, 150) < 4)
-            {
-                SwitchLc();
-            }
+            QSwitchLC(t2);
         }
 
         private static void Orbwalking_AfterAttack(AttackableUnit unit, AttackableUnit target)
@@ -73,12 +77,16 @@ namespace PennyJinx
                     HarrassLogic();
                     break;
                 case Orbwalking.OrbwalkingMode.LaneClear:
-                    SwitchLc();
+                    WUsageFarm();
+                    break;
+                case Orbwalking.OrbwalkingMode.LastHit:
+                    WUsageFarm();
                     break;
             }
         }
 
         
+
 
         #region Various
 
@@ -93,6 +101,19 @@ namespace PennyJinx
             }
         }
 
+        private void SwitchNoEn()
+        {
+            if (!IsMenuEnabled("SwitchQNoEn"))
+                return;
+            var Range = IsFishBone() ? Orbwalking.GetRealAutoAttackRange(null) : Player.AttackRange + GetFishboneRange();
+            if (Player.CountEnemysInRange(Range) == 0)
+            {
+                if (IsFishBone())
+                    _q.Cast();
+            }
+        }
+
+        
         #endregion
 
         #region Drawing
@@ -115,8 +136,9 @@ namespace PennyJinx
         #region Combo/Harrass/Auto
 
         private void Auto()
-        {  
-            AutoWEmpaired();
+        {
+            SwitchNoEn();
+            AutoWHarass();
             AutoWEmpaired();
             if(getEMode() == 0){ECast_DZ();} else{ ECast();}
         }
@@ -136,6 +158,37 @@ namespace PennyJinx
         }
         #endregion
 
+        #region Farm
+        void QSwitchLC(Obj_AI_Minion t2)
+        {
+            if (CountEnemyMinions(t2, 150) < GetSliderValue("MinQMinions"))
+            {
+                SwitchLc();
+            }
+            else
+            {
+                if (!IsFishBone() && GetPerValue(true) >= GetSliderValue("UseQLC"))
+                {
+                    _q.Cast();
+                }
+            }
+        }
+
+        void WUsageFarm()
+        {
+            var mode = _orbwalker.ActiveMode;
+            var WMana = mode == Orbwalking.OrbwalkingMode.LaneClear
+                ? GetSliderValue("WManaLC")
+                : GetSliderValue("WManaLH");
+            var MList = MinionManager.GetMinions(Player.Position, Orbwalking.GetRealAutoAttackRange(null));
+            var Location = _w.GetLineFarmLocation(MList);
+            if (GetPerValue(true) >= WMana)
+            {
+                _w.Cast(Location.Position);
+            }
+        }
+        #endregion
+
         #region Spell Casting
 
         private void QManager(String Mode)
@@ -145,9 +198,10 @@ namespace PennyJinx
                 return;
             }
 
-            var aaRange = Orbwalking.GetRealAutoAttackRange(null)+45;
-            var target = TargetSelector.GetTarget(aaRange + GetFishboneRange(), TargetSelector.DamageType.Physical);
-           
+            var aaRange = GetMinigunRange(null) + GetFishboneRange();
+            var target = TargetSelector.GetTarget(aaRange, TargetSelector.DamageType.Physical);
+            var JinxBaseRange = GetMinigunRange(target);
+
             if (!target.IsValidTarget(aaRange + GetFishboneRange() + 65))
             {
                 return;
@@ -182,7 +236,7 @@ namespace PennyJinx
                     if (IsFishBone())
                     {
                         //Switching to Minigun
-                        if (Player.Distance(target) < aaRange || GetPerValue(true) <= GetSliderValue("QMana" + Mode))
+                        if (Player.Distance(target) < JinxBaseRange || GetPerValue(true) <= GetSliderValue("QMana" + Mode))
                         {
                             _q.Cast();
                         }
@@ -190,7 +244,7 @@ namespace PennyJinx
                     else
                     {
                         //Switching to rockets
-                        if (Player.Distance(target) > aaRange && GetPerValue(true) >= GetSliderValue("QMana" + Mode))
+                        if (Player.Distance(target) > JinxBaseRange && GetPerValue(true) >= GetSliderValue("QMana" + Mode))
                         {
                             _q.Cast();
                         }
@@ -201,7 +255,7 @@ namespace PennyJinx
                     if (IsFishBone())
                     {
                         //Switching to Minigun
-                        if (Player.Distance(target) < aaRange || GetPerValue(true) <= GetSliderValue("QMana" + Mode))
+                        if (Player.Distance(target) < JinxBaseRange|| GetPerValue(true) <= GetSliderValue("QMana" + Mode))
                         {
                             _q.Cast();
                         }
@@ -209,7 +263,7 @@ namespace PennyJinx
                     else
                     {
                         //Switching to rockets
-                        if (Player.Distance(target) > aaRange && GetPerValue(true) >= GetSliderValue("QMana" + Mode) ||
+                        if (Player.Distance(target) > JinxBaseRange && GetPerValue(true) >= GetSliderValue("QMana" + Mode) ||
                             target.CountEnemysInRange(150) > 1)
                         {
                             _q.Cast();
@@ -323,20 +377,13 @@ namespace PennyJinx
             }
            
             var rTarget = TargetSelector.GetTarget(_r.Range, TargetSelector.DamageType.Physical);
-            Game.PrintChat(((Player.Distance(rTarget) <= Orbwalking.GetRealAutoAttackRange(null) && (rTarget.Health < Player.GetAutoAttackDamage(rTarget) * GetSliderValue("AABuffer"))) ||
-               CountAllyPlayers(rTarget, 500) > 0).ToString());
             if (!rTarget.IsValidTarget(_r.Range))
             {
                 return;
             }
-            //If the distance is lower than Rocket Range && it's rockets
-            //Or the distance is lower than minigun range && it's minigun
-            //The target can be killed with the X autoattack buffer
-            //There are allies that could killsteal it
-            //Or the distance is too close compared to the buffer
-            if ((rTarget.Distance(Player) <= GetFishboneRange() && IsFishBone()) ||
-                (rTarget.Distance(Player) <= Player.AttackRange && !IsFishBone()) || 
-                (Player.Distance(rTarget) <= Orbwalking.GetRealAutoAttackRange(null) && (rTarget.Health < Player.GetAutoAttackDamage(rTarget) * GetSliderValue("AABuffer"))) ||
+            //If is killable with W and AA
+            //Or the ally players in there are > 0
+            if (isKillableWAA(rTarget) ||
                 CountAllyPlayers(rTarget,500) > 0)
             {
                 return;
@@ -374,15 +421,23 @@ namespace PennyJinx
 
         private void AutoWEmpaired()
         {
+            if (!IsMenuEnabled("AutoWEmp"))
+            {
+                return;
+            }
+
             //Uses W on whoever is empaired
             foreach (
                 var enemy in
                     from enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsValidTarget(_w.Range))
-                    let autoWMana = GetSliderValue("AutoW_Mana")
+                    let autoWMana = GetSliderValue("AutoWEmp_Mana")
                     where GetPerValue(true) >= autoWMana
                     select enemy)
             {
-                _w.CastIfHitchanceEquals(enemy, CustomHitChance, Packets());
+                if (IsEmpaired(enemy) || IsEmpairedLight(enemy))
+                {
+                    _w.CastIfHitchanceEquals(enemy, CustomHitChance, Packets());
+                }
             }
         }
 
@@ -400,16 +455,39 @@ namespace PennyJinx
             return 50 + 25*ObjectManager.Player.Spellbook.GetSpell(SpellSlot.Q).Level;
         }
 
+        private static float GetMinigunRange(GameObject target)
+        {
+            return 525f + ObjectManager.Player.BoundingRadius + target.BoundingRadius;
+        }
+
+        private static HitChance getHitchance()
+        {
+            switch (Menu.Item("C_Hit").GetValue<StringList>().SelectedIndex)
+            {
+                case 0:
+                    return HitChance.Low;
+                case 1:
+                    return HitChance.Medium;
+                case 2:
+                    return HitChance.High;
+                case 3:
+                    return HitChance.VeryHigh;
+                default:
+                    return HitChance.Medium;
+
+            }
+        }
         private static bool isKillableWAA(Obj_AI_Hero wTarget)
         {
-
+            if (Player.Distance(wTarget) > _w.Range)
+                return false;
             return (Player.GetAutoAttackDamage(wTarget) + _w.GetDamage(wTarget) >
                     HealthPrediction.GetHealthPrediction(
                         wTarget,
                         (int)
                             ((Player.Distance(wTarget) / _w.Speed) * 1000 +
                              (Player.Distance(wTarget) / Orbwalking.GetMyProjectileSpeed()) * 1000) + (Game.Ping / 2)) &&
-                    Player.Distance(wTarget) > Orbwalking.GetRealAutoAttackRange(null));
+                    Player.Distance(wTarget) <= Orbwalking.GetRealAutoAttackRange(null));
 
         }
 
@@ -547,13 +625,31 @@ namespace PennyJinx
             harassMenu.AddSubMenu(manaManagerHarrass);
             Menu.AddSubMenu(harassMenu);
 
+            var FarmMenu = new Menu("[PJ] Farm", "Farm");
+            {
+                FarmMenu.AddItem(new MenuItem("UseQLC", "Use Q Laneclear").SetValue(true));
+                FarmMenu.AddItem(new MenuItem("UseWLH", "Use W Lasthit").SetValue(true));
+                FarmMenu.AddItem(new MenuItem("UseWLC", "Use W Laneclear").SetValue(true));
+                FarmMenu.AddItem(new MenuItem("MinQMinions", "Min Minions for Q").SetValue(new Slider(0,4,6)));
+            }
+            var manaManagerFarm = new Menu("Mana Manager", "mm_Farm");
+            {
+                manaManagerFarm.AddItem(new MenuItem("QManaLC", "Q Mana Laneclear").SetValue(new Slider(15)));
+                manaManagerFarm.AddItem(new MenuItem("WManaLH", "W Mana Lasthit").SetValue(new Slider(35)));
+                manaManagerFarm.AddItem(new MenuItem("WManaLC", "W Mana Laneclear").SetValue(new Slider(35)));
+            }
+
+            FarmMenu.AddSubMenu(manaManagerFarm);
+            Menu.AddSubMenu(FarmMenu);
+
             var miscMenu = new Menu("[PJ] Misc", "Misc");
             {
                 miscMenu.AddItem(new MenuItem("Packets", "Use Packets").SetValue(true));
                 miscMenu.AddItem(new MenuItem("AntiGP", "Anti Gapcloser").SetValue(true));
                 miscMenu.AddItem(new MenuItem("Interrupter", "Use Interrupter").SetValue(true));
                 miscMenu.AddItem(new MenuItem("SwitchQLC", "Switch Minigun Laneclear").SetValue(true));
-                miscMenu.AddItem(new MenuItem("DrawW", "Draw W range").SetValue(false));
+                miscMenu.AddItem(new MenuItem("SwitchQNoEn", "Switch to Minigun when no enemies").SetValue(true));
+                miscMenu.AddItem(new MenuItem("C_Hit", "Hitchance").SetValue(new StringList(new[] {"Low","Medium","High","Very High"},2)));
             }
             Menu.AddSubMenu(miscMenu);
 
@@ -563,6 +659,8 @@ namespace PennyJinx
                 autoMenu.AddItem(new MenuItem("AutoE_Mana", "Auto E Mana").SetValue(new Slider(35)));
                 autoMenu.AddItem(new MenuItem("AutoW", "Auto W").SetValue(true));
                 autoMenu.AddItem(new MenuItem("AutoW_Mana", "Auto W Mana").SetValue(new Slider(40)));
+                autoMenu.AddItem(new MenuItem("AutoWEmp", "Auto W Slow/Immobile").SetValue(true));
+                autoMenu.AddItem(new MenuItem("AutoWEmp_Mana", "Auto W Slow/Imm Mana").SetValue(new Slider(40)));
             }
             Menu.AddSubMenu(autoMenu);
 
