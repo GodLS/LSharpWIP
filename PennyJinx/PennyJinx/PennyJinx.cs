@@ -51,8 +51,8 @@ namespace PennyJinx
             foreach (Obj_AI_Hero hero in
                 ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.Team != ObjectManager.Player.Team))
             {
-                var k = new SpriteManager.KillableHero(hero);
-               _KillableHeroes.Add(k);
+              // var k = new SpriteManager.KillableHero(hero);
+        //   _KillableHeroes.Add(k);
             }
 
         }
