@@ -1,0 +1,3 @@
+C:\Users\Daniel\Documents\GitHub\LSharpWIP\PennyJinx\PennyJinx\obj\Release\PennyJinx.csprojResolveAssemblyReference.cache
+C:\Users\Daniel\Documents\GitHub\LSharpWIP\PennyJinx\PennyJinx\obj\Release\PennyJinx.Properties.Resources.resources
+C:\Users\Daniel\Documents\GitHub\LSharpWIP\PennyJinx\PennyJinx\obj\Release\PennyJinx.csproj.GenerateResource.Cache
