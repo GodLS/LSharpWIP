@@ -62,6 +62,8 @@ namespace PennyJinx
 
         static void DrawSprite()
         {
+            if (!PennyJinx.IsMenuEnabled("SpriteDraw"))
+                return;
             foreach (
                 var hero in
                     ObjectManager.Get<Obj_AI_Hero>()

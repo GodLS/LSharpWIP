@@ -542,7 +542,7 @@ namespace PennyJinx
                     .FirstOrDefault();
         }
 
-        private static bool IsMenuEnabled(String opt)
+        public static bool IsMenuEnabled(String opt)
         {
             return Menu.Item(opt).GetValue<bool>();
         }
@@ -650,6 +650,7 @@ namespace PennyJinx
                 miscMenu.AddItem(new MenuItem("SwitchQLC", "Switch Minigun Laneclear").SetValue(true));
                 miscMenu.AddItem(new MenuItem("SwitchQNoEn", "Switch to Minigun when no enemies").SetValue(true));
                 miscMenu.AddItem(new MenuItem("C_Hit", "Hitchance").SetValue(new StringList(new[] {"Low","Medium","High","Very High"},2)));
+                miscMenu.AddItem(new MenuItem("SpriteDraw", "Draw Sprite for R Killable").SetValue(true));
             }
             Menu.AddSubMenu(miscMenu);
 
