@@ -34,7 +34,8 @@ namespace PennyJinx
             SetUpMenu();
             SetUpSpells();
 
-            Game.PrintChat("PennyJinx Loaded!");
+            Game.PrintChat("<font color='#7A6EFF'>PennyJinx</font> <font color='#FFFFFF'>Loaded!</font>");
+
             Drawing.OnDraw += Drawing_OnDraw;
             Game.OnGameUpdate += Game_OnGameUpdate;
             Orbwalking.AfterAttack += Orbwalking_AfterAttack;
@@ -330,7 +331,7 @@ namespace PennyJinx
             //The target can be killed with the X autoattack buffer
             //There are allies that could killsteal it
             //Or the distance is too close compared to the buffer
-            if ((rTarget.Distance(Player) <= GetFishboneRange() && IsFishBone()) ||
+            if ((rTarget.Distance(Player) <= Player.AttackRange+GetFishboneRange() && IsFishBone()) ||
                 (rTarget.Distance(Player) <= Player.AttackRange && !IsFishBone()) &&
                 (rTarget.Health < Player.GetAutoAttackDamage(rTarget) * GetSliderValue("AABuffer")) ||
                 CountAllyPlayers(rTarget,400) > 0 ||
@@ -399,6 +400,7 @@ namespace PennyJinx
 
         private static bool isKillableWAA(Obj_AI_Hero wTarget)
         {
+
             return (Player.GetAutoAttackDamage(wTarget) + _w.GetDamage(wTarget) >
                     HealthPrediction.GetHealthPrediction(
                         wTarget,
