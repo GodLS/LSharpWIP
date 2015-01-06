@@ -75,7 +75,7 @@ namespace PennyJinx
             //Constructor
             public ScopeSprite()
             {
-                var Condition = (hero != null && PennyJinx.IsMenuEnabled("SpriteDraw") && PennyJinx._r.IsReady());
+                var Condition = Render.OnScreen(_pos) && (hero != null && PennyJinx.IsMenuEnabled("SpriteDraw") && PennyJinx._r.IsReady());
 
                 _sprite = new Render.Sprite(Properties.Resources.scope, new Vector2(0, 0))
                 {
@@ -92,6 +92,14 @@ namespace PennyJinx
                 Drawing.OnEndScene += Drawing_OnEndScene;
                 Drawing.OnPreReset += Drawing_OnPreReset;
                 Drawing.OnPostReset += Drawing_OnPostReset;
+                AppDomain.CurrentDomain.DomainUnload += CurrentDomainOnDomainUnload;
+                AppDomain.CurrentDomain.ProcessExit += CurrentDomainOnDomainUnload;
+
+            }
+
+            private void CurrentDomainOnDomainUnload(object sender, EventArgs e)
+            {
+                _sprite.Dispose();
             }
 
            
