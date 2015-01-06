@@ -24,7 +24,7 @@ namespace PennyJinx
         private static readonly StringList QMode = new StringList(new[] {"AOE mode", "Range mode", "Both"}, 2);
         public static Render.Sprite Sprite;
         public static PennyJinx instance;
-        public static List<SpriteManager.KillableHero> _KillableHeroes = new List<SpriteManager.KillableHero>(); 
+        public static List<SpriteManager.ScopeSprite> _KillableHeroes = new List<SpriteManager.ScopeSprite>(); 
         public PennyJinx()
         {
             instance = this;
@@ -48,7 +48,24 @@ namespace PennyJinx
             Game.OnGameUpdate += Game_OnGameUpdate;
             Orbwalking.AfterAttack += Orbwalking_AfterAttack;
             Orbwalking.BeforeAttack += Orbwalking_BeforeAttack;
-            new SpriteManager.KillableHero();
+            Interrupter.OnPossibleToInterrupt += Interrupter_OnPossibleToInterrupt;
+            AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
+            new SpriteManager.ScopeSprite();
+        }
+
+        void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
+        {
+            var Sender = (Obj_AI_Hero)gapcloser.Sender;
+            if (!Sender.IsValidTarget() || !IsMenuEnabled("AntiGP") || !_e.IsReady()) return;
+            _e.CastIfHitchanceEquals(Sender, CustomHitChance, Packets());
+        }
+
+        void Interrupter_OnPossibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
+        {
+            var Sender = (Obj_AI_Hero)unit;
+            if(!Sender.IsValidTarget() || !IsMenuEnabled("Interrupter") || !_e.IsReady())return;
+            _e.CastIfHitchanceEquals(Sender, CustomHitChance, Packets());
+
         }
 
         void Orbwalking_BeforeAttack(Orbwalking.BeforeAttackEventArgs args)
@@ -56,7 +73,7 @@ namespace PennyJinx
             var target = args.Target;
             if (!target.IsValidTarget())
                 return;
-            if (!(target is Obj_AI_Minion) || _orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.LaneClear || _orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.LastHit)
+            if (!(target is Obj_AI_Minion) || (_orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.LaneClear && _orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.LastHit))
                 return;
             var t2 = target as Obj_AI_Minion;
             QSwitchLC(t2);
@@ -130,7 +147,7 @@ namespace PennyJinx
                 var DrawW = Menu.Item("DrawW").GetValue<Circle>();
                 var DrawE = Menu.Item("DrawE").GetValue<Circle>();
                 var DrawR = Menu.Item("DrawR").GetValue<Circle>();
-                var QRange = IsFishBone() ? GetMinigunRange(null) : GetMinigunRange(null) + GetFishboneRange();;
+                var QRange = IsFishBone() ? GetMinigunRange(null) : (GetMinigunRange(null) + GetFishboneRange());
                 if (DrawQ.Active) { Utility.DrawCircle(Player.Position,QRange,DrawQ.Color);}
                 if (DrawW.Active) { Utility.DrawCircle(Player.Position, _w.Range, DrawW.Color); }
                 if (DrawE.Active) { Utility.DrawCircle(Player.Position, _e.Range, DrawE.Color); }

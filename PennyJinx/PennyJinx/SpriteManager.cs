@@ -13,7 +13,7 @@ namespace PennyJinx
 {
     class SpriteManager
     {
-        public class KillableHero
+        public class ScopeSprite
         {
             private readonly Render.Sprite _sprite;
 
@@ -21,6 +21,7 @@ namespace PennyJinx
             {
                 get
                 {
+                    //return ObjectManager.Player;
                     var HList = ObjectManager.Get<Obj_AI_Hero>()
                             .Where(
                                 hero =>
@@ -38,15 +39,15 @@ namespace PennyJinx
             private bool _active {
                 get { return PennyJinx.IsMenuEnabled("SpriteDraw"); }
                 }
-            public KillableHero()
+            public ScopeSprite()
             {
-                
+                var Condition = (hero != null && PennyJinx.IsMenuEnabled("SpriteDraw") && PennyJinx._r.IsReady());
                 _sprite = new Render.Sprite(Properties.Resources.scope, new Vector2(0, 0))
                 {
-                    VisibleCondition = s => (hero != null && PennyJinx.IsMenuEnabled("SpriteDraw") && PennyJinx._r.IsReady()),
+                    VisibleCondition = s => Condition,
                     PositionUpdate =
-                        () =>
-                            new Vector2(Drawing.WorldToScreen(hero.Position).X-105, Drawing.WorldToScreen(hero.Position).Y-105)
+                        () => hero!=null && Condition?
+                            new Vector2(Drawing.WorldToScreen(hero.Position).X-hero.BoundingRadius*2+hero.BoundingRadius/2.5f, Drawing.WorldToScreen(hero.Position).Y-hero.BoundingRadius*2):new Vector2(0, 0)
                             
                 };
                 _sprite.Scale = new Vector2(0.65f, 0.65f);
@@ -57,6 +58,8 @@ namespace PennyJinx
                 Drawing.OnPreReset += Drawing_OnPreReset;
                 Drawing.OnPostReset += Drawing_OnPostReset;
             }
+
+           
 
             void Drawing_OnPostReset(EventArgs args)
             {
