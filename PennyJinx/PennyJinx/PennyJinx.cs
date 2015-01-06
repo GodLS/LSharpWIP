@@ -42,7 +42,7 @@ namespace PennyJinx
 
             SetUpMenu();
             SetUpSpells();
-            Game.PrintChat("<font color='#7A6EFF'>PennyJinx</font> v 1.0.0.9 <font color='#FFFFFF'>Loaded!</font>");
+            Game.PrintChat("<font color='#7A6EFF'>PennyJinx</font> v 1.0.1.1 <font color='#FFFFFF'>Loaded!</font>");
 
             
             Drawing.OnDraw += Drawing_OnDraw;
@@ -97,6 +97,8 @@ namespace PennyJinx
             Cleanser.cleanserByBuffType();
 
             Auto();
+            AutoPot();
+
             if (Menu.Item("ManualR").GetValue<KeyBind>().Active){RCast();}
             switch (_orbwalker.ActiveMode)
             {
@@ -119,6 +121,31 @@ namespace PennyJinx
 
 
         #region Various
+        private void AutoPot()
+        {
+            if (ObjectManager.Player.HasBuff("Recall") || Utility.InFountain() && Utility.InShopRange())
+                return;
+
+            //Health Pots
+            if (IsMenuEnabled("APH") && GetPerValue(false) <= Menu.Item("APH_Slider").GetValue<Slider>().Value && !Player.HasBuff("RegenerationPotion", true))
+            {
+                UseItem(2003);
+            }
+            //Mana Pots
+            if (IsMenuEnabled("APM") && GetPerValue(true) <= Menu.Item("APM_Slider").GetValue<Slider>().Value && !Player.HasBuff("FlaskOfCrystalWater", true))
+            {
+                UseItem(2004);
+            }
+            //Summoner Heal
+            if (IsMenuEnabled("APHeal") && GetPerValue(false) <= Menu.Item("APHeal_Slider").GetValue<Slider>().Value)
+            {
+                var heal = Player.GetSpellSlot("summonerheal");
+                if (heal != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(heal) == SpellState.Ready)
+                {
+                    Player.Spellbook.CastSpell(heal);
+                }
+            }
+        }
 
         private void SwitchLc()
         {
@@ -764,6 +791,14 @@ namespace PennyJinx
             Cleanser.CreateTypeQSSMenu();
             Menu.AddSubMenu(new Menu("[PJ] QSS Spells", "QSSSpell"));
             Cleanser.CreateQSSSpellMenu();
+
+            Menu.AddSubMenu(new Menu("[PJ] AutoPot", "AutoPot"));
+            Menu.SubMenu("AutoPot").AddItem(new MenuItem("APH", "Health Pot").SetValue(true));
+            Menu.SubMenu("AutoPot").AddItem(new MenuItem("APM", "Mana Pot").SetValue(true));
+            Menu.SubMenu("AutoPot").AddItem(new MenuItem("APH_Slider", "Health Pot %").SetValue(new Slider(35, 1)));
+            Menu.SubMenu("AutoPot").AddItem(new MenuItem("APM_Slider", "Mana Pot %").SetValue(new Slider(35, 1)));
+            Menu.SubMenu("AutoPot").AddItem(new MenuItem("APHeal", "Use Heal").SetValue(true));
+            Menu.SubMenu("AutoPot").AddItem(new MenuItem("APHeal_Slider", "Heal %").SetValue(new Slider(35, 1)));
 
             var DrawMenu = new Menu("[PJ] Drawings", "Drawing");
             {
