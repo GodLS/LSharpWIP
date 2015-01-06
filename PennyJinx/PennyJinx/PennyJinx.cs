@@ -64,7 +64,11 @@ namespace PennyJinx
 
         private static void Orbwalking_AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
-            //TODO Stuff
+            if (!unit.IsMe)
+                return;
+            if (!(target is Obj_AI_Hero)) return;
+            var tar = (Obj_AI_Hero)target;
+            UseItems(tar);
         }
 
         private void Game_OnGameUpdate(EventArgs args)
@@ -165,7 +169,7 @@ namespace PennyJinx
         {
             if (!IsMenuEnabled("UseQLC") ||!_q.IsReady() || GetPerValue(true) < GetSliderValue("QManaLC"))
                 return;
-            Game.PrintChat(CountEnemyMinions(t2, 100).ToString());
+
             if (CountEnemyMinions(t2, 100) < GetSliderValue("MinQMinions"))
             {
                 SwitchLc();
@@ -392,7 +396,7 @@ namespace PennyJinx
             //If is killable with W and AA
             //Or the ally players in there are > 0
             if (isKillableWAA(rTarget) ||
-                CountAllyPlayers(rTarget,500) > 0)
+                CountAllyPlayers(rTarget,500) > 0 || Player.Distance(rTarget)<(_w.Range/2))
             {
                 return;
             }
@@ -454,6 +458,13 @@ namespace PennyJinx
         #endregion
 
         #region Utility
+        private static void UseItem(int id, Obj_AI_Hero target = null)
+        {
+            if (Items.HasItem(id) && Items.CanUseItem(id))
+            {
+                Items.UseItem(id, target);
+            }
+        }
 
         private bool Packets()
         {
@@ -579,6 +590,39 @@ namespace PennyJinx
 
         #endregion
 
+        #region Items
+        static void UseItems(Obj_AI_Hero tar)
+        {
+            var ownH = GetPerValue(false);
+            if ((Menu.Item("BotrkC").GetValue<bool>() && _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo) && (Menu.Item("OwnHPercBotrk").GetValue<Slider>().Value <= ownH) &&
+                ((Menu.Item("EnHPercBotrk").GetValue<Slider>().Value <= tar.HealthPercentage())))
+            {
+                UseItem(3153, tar);
+            }
+            if ((Menu.Item("BotrkH").GetValue<bool>() && _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed) && (Menu.Item("OwnHPercBotrk").GetValue<Slider>().Value <= ownH) &&
+               ((Menu.Item("EnHPercBotrk").GetValue<Slider>().Value <= tar.HealthPercentage())))
+            {
+                UseItem(3153, tar);
+            }
+            if (Menu.Item("YoumuuC").GetValue<bool>() && _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
+            {
+                UseItem(3142);
+            }
+            if (Menu.Item("YoumuuH").GetValue<bool>() && _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed)
+            {
+                UseItem(3142);
+            }
+            if (Menu.Item("BilgeC").GetValue<bool>() && _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
+            {
+                UseItem(3144, tar);
+            }
+            if (Menu.Item("BilgeH").GetValue<bool>() && _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed)
+            {
+                UseItem(3144, tar);
+            }
+        }
+        #endregion
+
         #region Menu and spells setup
 
         private static void SetUpSpells()
@@ -673,6 +717,19 @@ namespace PennyJinx
                 autoMenu.AddItem(new MenuItem("AutoWEmp_Mana", "Auto W Slow/Imm Mana").SetValue(new Slider(40)));
             }
             Menu.AddSubMenu(autoMenu);
+
+            var ItemsMenu = new Menu("[PJ] Items", "Items");
+            {
+                ItemsMenu.AddItem(new MenuItem("BotrkC", "Botrk Combo").SetValue(true));
+                ItemsMenu.AddItem(new MenuItem("BotrkH", "Botrk Harrass").SetValue(false));
+                ItemsMenu.AddItem(new MenuItem("YoumuuC", "Youmuu Combo").SetValue(true));
+                ItemsMenu.AddItem(new MenuItem("YoumuuH", "Youmuu Harrass").SetValue(false));
+                ItemsMenu.AddItem(new MenuItem("BilgeC", "Cutlass Combo").SetValue(true));
+                ItemsMenu.AddItem(new MenuItem("BilgeH", "Cutlass Harrass").SetValue(false));
+                ItemsMenu.AddItem(new MenuItem("OwnHPercBotrk", "Min Own H. % Botrk").SetValue(new Slider(50, 1, 100)));
+                ItemsMenu.AddItem(new MenuItem("EnHPercBotrk", "Min Enemy H. % Botrk").SetValue(new Slider(20, 1, 100)));   
+            }
+            Menu.AddSubMenu(ItemsMenu);
 
             var DrawMenu = new Menu("[PJ] Drawings", "Drawing");
             {
