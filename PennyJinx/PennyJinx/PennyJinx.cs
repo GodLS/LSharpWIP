@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using LeagueSharp;
 using LeagueSharp.Common;
+using LeagueSharp.Network.Packets;
 using SharpDX;
 
 namespace PennyJinx
@@ -99,6 +100,7 @@ namespace PennyJinx
             Auto();
             AutoPot();
 
+            if (Menu.Item("ThreshLantern").GetValue<KeyBind>().Active) takeLantern();
             if (Menu.Item("ManualR").GetValue<KeyBind>().Active){RCast();}
             switch (_orbwalker.ActiveMode)
             {
@@ -145,6 +147,25 @@ namespace PennyJinx
                     Player.Spellbook.CastSpell(heal);
                 }
             }
+        }
+
+        void takeLantern()
+        {
+            foreach (GameObject obj in ObjectManager.Get<GameObject>())
+            {
+                if (obj.Name.Contains("ThreshLantern") && obj.Position.Distance(ObjectManager.Player.ServerPosition) <= 500 && obj.IsAlly)
+                {
+                    var InteractPKT = new PKT_InteractReq
+                    {
+                        NetworkId = Player.NetworkId,
+                        TargetNetworkId = obj.NetworkId
+                    };
+                    //Credits to Trees
+                    Game.SendPacket(InteractPKT.Encode(), PacketChannel.C2S, PacketProtocolFlags.Reliable);
+                    return;
+                }
+            }
+
         }
 
         private void SwitchLc()
@@ -760,6 +781,10 @@ namespace PennyJinx
                 miscMenu.AddItem(new MenuItem("C_Hit", "Hitchance").SetValue(new StringList(new[] {"Low","Medium","High","Very High"},2)));
                 miscMenu.AddItem(new MenuItem("SpriteDraw", "Draw Sprite for R Killable").SetValue(true));
                 miscMenu.AddItem(new MenuItem("ManualR", "Manual R").SetValue(new KeyBind("T".ToCharArray()[0],KeyBindType.Press)));
+                miscMenu
+                    .AddItem(
+                        new MenuItem("ThreshLantern", "Grab Thresh Lantern").SetValue(new KeyBind("S".ToCharArray()[0],
+                            KeyBindType.Press)));
             }
             Menu.AddSubMenu(miscMenu);
 
