@@ -130,7 +130,7 @@ namespace PennyJinx
                 var DrawW = Menu.Item("DrawW").GetValue<Circle>();
                 var DrawE = Menu.Item("DrawE").GetValue<Circle>();
                 var DrawR = Menu.Item("DrawR").GetValue<Circle>();
-                var QRange = IsFishBone() ? Orbwalking.GetRealAutoAttackRange(null) : Orbwalking.GetRealAutoAttackRange(null) + GetFishboneRange();
+                var QRange = IsFishBone() ? GetMinigunRange(null) : GetMinigunRange(null) + GetFishboneRange();;
                 if (DrawQ.Active) { Utility.DrawCircle(Player.Position,QRange,DrawQ.Color);}
                 if (DrawW.Active) { Utility.DrawCircle(Player.Position, _w.Range, DrawW.Color); }
                 if (DrawE.Active) { Utility.DrawCircle(Player.Position, _e.Range, DrawE.Color); }
