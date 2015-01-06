@@ -42,7 +42,7 @@ namespace PennyJinx
 
             SetUpMenu();
             SetUpSpells();
-            Game.PrintChat("<font color='#7A6EFF'>PennyJinx</font> v 1.0.0.8 <font color='#FFFFFF'>Loaded!</font>");
+            Game.PrintChat("<font color='#7A6EFF'>PennyJinx</font> v 1.0.0.9 <font color='#FFFFFF'>Loaded!</font>");
 
             
             Drawing.OnDraw += Drawing_OnDraw;
@@ -92,6 +92,7 @@ namespace PennyJinx
         private void Game_OnGameUpdate(EventArgs args)
         {
             Auto();
+            if (Menu.Item("ManualR").GetValue<KeyBind>().Active){RCast();}
             switch (_orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
@@ -724,6 +725,7 @@ namespace PennyJinx
                 miscMenu.AddItem(new MenuItem("SwitchQNoEn", "Switch to Minigun when no enemies").SetValue(true));
                 miscMenu.AddItem(new MenuItem("C_Hit", "Hitchance").SetValue(new StringList(new[] {"Low","Medium","High","Very High"},2)));
                 miscMenu.AddItem(new MenuItem("SpriteDraw", "Draw Sprite for R Killable").SetValue(true));
+                miscMenu.AddItem(new MenuItem("ManualR", "Manual R").SetValue(new KeyBind("T".ToCharArray()[0],KeyBindType.Press)));
             }
             Menu.AddSubMenu(miscMenu);
 
