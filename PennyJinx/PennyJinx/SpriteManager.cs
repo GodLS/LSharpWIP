@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -16,6 +16,17 @@ namespace PennyJinx
         public class ScopeSprite
         {
             private readonly Render.Sprite _sprite;
+            private readonly Render.Text _KillableText;
+
+            private static readonly Font _font = new Font(
+            Drawing.Direct3DDevice,
+            new FontDescription
+            {
+               FaceName = "Calibri",
+               Height = 15,
+               OutputPrecision = FontPrecision.Default,
+               Quality = FontQuality.Default,
+            });
 
             private Obj_AI_Hero hero
             {
@@ -36,23 +47,47 @@ namespace PennyJinx
 
                 }
             }
-            private bool _active {
-                get { return PennyJinx.IsMenuEnabled("SpriteDraw"); }
+
+            private Vector2 _pos
+            {
+                get {
+                    var Condition = (hero != null && PennyJinx.IsMenuEnabled("SpriteDraw") && PennyJinx._r.IsReady());
+                    return Condition?new Vector2(Drawing.WorldToScreen(hero.Position).X-hero.BoundingRadius*2+hero.BoundingRadius/2.5f, Drawing.WorldToScreen(hero.Position).Y-hero.BoundingRadius*2):Drawing.WorldToScreen(new Vector2(-200, -200).To3D()); 
                 }
+            }
+
+            private Vector2 _TextPos
+            {
+                get
+                {
+                    return  Drawing.WorldToScreen(new Vector2(_pos.X,_pos.Y+25).To3D());
+                }
+            }
+
+            private String getHP
+            {
+                get
+                {
+                    var Condition = (hero != null && PennyJinx.IsMenuEnabled("SpriteDraw") && PennyJinx._r.IsReady());
+                    return Condition?"Killable! " + hero.Health + " HP":"Error getting HP";
+                }
+            }
+            //Constructor
             public ScopeSprite()
             {
                 var Condition = (hero != null && PennyJinx.IsMenuEnabled("SpriteDraw") && PennyJinx._r.IsReady());
+
                 _sprite = new Render.Sprite(Properties.Resources.scope, new Vector2(0, 0))
                 {
                     VisibleCondition = s => Condition,
                     PositionUpdate =
-                        () => hero!=null && Condition?
-                            new Vector2(Drawing.WorldToScreen(hero.Position).X-hero.BoundingRadius*2+hero.BoundingRadius/2.5f, Drawing.WorldToScreen(hero.Position).Y-hero.BoundingRadius*2):new Vector2(0, 0)
-                            
+                        () => _pos                   
                 };
+                
+
+                
                 _sprite.Scale = new Vector2(0.65f, 0.65f);
                 _sprite.Add(0);
-                Game.OnGameUpdate += Game_OnGameUpdate;
                 Drawing.OnDraw += Drawing_OnDraw;
                 Drawing.OnEndScene += Drawing_OnEndScene;
                 Drawing.OnPreReset += Drawing_OnPreReset;
@@ -80,11 +115,6 @@ namespace PennyJinx
             {
                 _sprite.OnDraw();
             }
-
-            private void Game_OnGameUpdate(EventArgs args)
-            {
-                
-            } 
         }
         
     }

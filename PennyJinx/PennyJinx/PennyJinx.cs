@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
@@ -41,7 +42,7 @@ namespace PennyJinx
 
             SetUpMenu();
             SetUpSpells();
-            Game.PrintChat("<font color='#7A6EFF'>PennyJinx</font> v1.0.6 <font color='#FFFFFF'>Loaded!</font>");
+            Game.PrintChat("<font color='#7A6EFF'>PennyJinx</font> v 1.0.0.8 <font color='#FFFFFF'>Loaded!</font>");
 
             
             Drawing.OnDraw += Drawing_OnDraw;
