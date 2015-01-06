@@ -43,7 +43,7 @@ namespace PennyJinx
 
             SetUpMenu();
             SetUpSpells();
-            Game.PrintChat("<font color='#7A6EFF'>PennyJinx</font> v 1.0.1.1 <font color='#FFFFFF'>Loaded!</font>");
+            Game.PrintChat("<font color='#7A6EFF'>PennyJinx</font> v 1.0.1.2 <font color='#FFFFFF'>Loaded!</font>");
 
             
             Drawing.OnDraw += Drawing_OnDraw;
@@ -202,7 +202,7 @@ namespace PennyJinx
                 var DrawW = Menu.Item("DrawW").GetValue<Circle>();
                 var DrawE = Menu.Item("DrawE").GetValue<Circle>();
                 var DrawR = Menu.Item("DrawR").GetValue<Circle>();
-                var QRange = IsFishBone() ? GetMinigunRange(null) : (GetMinigunRange(null) + GetFishboneRange());
+                var QRange = IsFishBone() ? 525f + ObjectManager.Player.BoundingRadius + 65f :525f + ObjectManager.Player.BoundingRadius + 65f + GetFishboneRange() + 20f;
                 if (DrawQ.Active) { Utility.DrawCircle(Player.Position,QRange,DrawQ.Color);}
                 if (DrawW.Active) { Utility.DrawCircle(Player.Position, _w.Range, DrawW.Color); }
                 if (DrawE.Active) { Utility.DrawCircle(Player.Position, _e.Range, DrawE.Color); }
@@ -282,11 +282,11 @@ namespace PennyJinx
                 return;
             }
 
-            var aaRange = GetMinigunRange(null) + GetFishboneRange() +35;
+            var aaRange = GetMinigunRange(null) + GetFishboneRange() +25f;
             var target = TargetSelector.GetTarget(aaRange, TargetSelector.DamageType.Physical);
             var JinxBaseRange = GetMinigunRange(target);
 
-            if (!target.IsValidTarget(aaRange + GetFishboneRange() + 35))
+            if (!target.IsValidTarget(aaRange + GetFishboneRange() + 25f))
             {
                 return;
             }
