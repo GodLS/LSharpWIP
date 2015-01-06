@@ -192,7 +192,7 @@ namespace PennyJinx
             var WEnabled = mode == Orbwalking.OrbwalkingMode.LaneClear
                 ? IsMenuEnabled("UseWLC")
                 : IsMenuEnabled("UseWLH");
-            var MList = MinionManager.GetMinions(Player.Position, Orbwalking.GetRealAutoAttackRange(null));
+            var MList = MinionManager.GetMinions(Player.Position, _w.Range);
             var Location = _w.GetLineFarmLocation(MList);
             if (GetPerValue(true) >= WMana && WEnabled)
             {
