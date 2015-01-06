@@ -73,9 +73,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\scope.bmp" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\scope %28Custom%29.png" />
   </ItemGroup>
   <ItemGroup>

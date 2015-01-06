@@ -210,11 +210,11 @@ namespace PennyJinx
                 return;
             }
 
-            var aaRange = GetMinigunRange(null) + GetFishboneRange();
+            var aaRange = GetMinigunRange(null) + GetFishboneRange() +35;
             var target = TargetSelector.GetTarget(aaRange, TargetSelector.DamageType.Physical);
             var JinxBaseRange = GetMinigunRange(target);
 
-            if (!target.IsValidTarget(aaRange + GetFishboneRange() + 65))
+            if (!target.IsValidTarget(aaRange + GetFishboneRange() + 35))
             {
                 return;
             }
@@ -525,7 +525,7 @@ namespace PennyJinx
 
         private static bool IsFishBone()
         {
-            return Player.AttackRange > 565;
+            return Player.AttackRange > 565f;
         }
 
         private int getEMode()
