@@ -57,7 +57,7 @@ namespace PennyJinx
         {
             var Sender = (Obj_AI_Hero)gapcloser.Sender;
             if (!Sender.IsValidTarget() || !IsMenuEnabled("AntiGP") || !_e.IsReady()) return;
-            _e.CastIfHitchanceEquals(Sender, CustomHitChance, Packets());
+            _e.Cast(gapcloser.End, Packets());
         }
 
         void Interrupter_OnPossibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
@@ -327,11 +327,13 @@ namespace PennyJinx
 
         private void ECast()
         {
+            //Credits to Marksman
+            //http://github.com/Esk0r/Leaguesharp/
+
             foreach (
                 var enemy in
                     ObjectManager.Get<Obj_AI_Hero>().Where(h => h.IsValidTarget(_e.Range - 150)))
             {
-                //Something from Marksman
                 if (IsMenuEnabled("AutoE") && _e.IsReady() && enemy.HasBuffOfType(BuffType.Slow))
                 {
                     var castPosition =
