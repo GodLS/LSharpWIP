@@ -48,13 +48,7 @@ namespace PennyJinx
             Game.OnGameUpdate += Game_OnGameUpdate;
             Orbwalking.AfterAttack += Orbwalking_AfterAttack;
             Orbwalking.BeforeAttack += Orbwalking_BeforeAttack;
-            foreach (Obj_AI_Hero hero in
-                ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.Team != ObjectManager.Player.Team))
-            {
-              // var k = new SpriteManager.KillableHero(hero);
-        //   _KillableHeroes.Add(k);
-            }
-
+            new SpriteManager.KillableHero();
         }
 
         void Orbwalking_BeforeAttack(Orbwalking.BeforeAttackEventArgs args)
@@ -171,6 +165,7 @@ namespace PennyJinx
         {
             if (!IsMenuEnabled("UseQLC") ||!_q.IsReady() || GetPerValue(true) < GetSliderValue("QManaLC"))
                 return;
+            Game.PrintChat(CountEnemyMinions(t2, 100).ToString());
             if (CountEnemyMinions(t2, 100) < GetSliderValue("MinQMinions"))
             {
                 SwitchLc();
