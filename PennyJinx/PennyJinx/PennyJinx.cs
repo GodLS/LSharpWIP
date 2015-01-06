@@ -51,6 +51,8 @@ namespace PennyJinx
             Orbwalking.BeforeAttack += Orbwalking_BeforeAttack;
             Interrupter.OnPossibleToInterrupt += Interrupter_OnPossibleToInterrupt;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
+            GameObject.OnCreate += Cleanser.OnCreateObj;
+            GameObject.OnDelete += Cleanser.OnDeleteObj;
             new SpriteManager.ScopeSprite();
         }
 
@@ -91,6 +93,9 @@ namespace PennyJinx
 
         private void Game_OnGameUpdate(EventArgs args)
         {
+            Cleanser.cleanserBySpell();
+            Cleanser.cleanserByBuffType();
+
             Auto();
             if (Menu.Item("ManualR").GetValue<KeyBind>().Active){RCast();}
             switch (_orbwalker.ActiveMode)
@@ -479,7 +484,7 @@ namespace PennyJinx
         #endregion
 
         #region Utility
-        private static void UseItem(int id, Obj_AI_Hero target = null)
+        public static void UseItem(int id, Obj_AI_Hero target = null)
         {
             if (Items.HasItem(id) && Items.CanUseItem(id))
             {
@@ -659,6 +664,8 @@ namespace PennyJinx
 
         private static void SetUpMenu()
         {
+            Cleanser.CreateQSSSpellList();
+
             Menu = new Menu("PennyJinx", "PJinx", true);
 
             var orbMenu = new Menu("Orbwalker", "OW");
@@ -752,6 +759,11 @@ namespace PennyJinx
                 ItemsMenu.AddItem(new MenuItem("EnHPercBotrk", "Min Enemy H. % Botrk").SetValue(new Slider(20, 1, 100)));   
             }
             Menu.AddSubMenu(ItemsMenu);
+
+            Menu.AddSubMenu(new Menu("[PJ] QSS Buff Types", "QSST"));
+            Cleanser.CreateTypeQSSMenu();
+            Menu.AddSubMenu(new Menu("[PJ] QSS Spells", "QSSSpell"));
+            Cleanser.CreateQSSSpellMenu();
 
             var DrawMenu = new Menu("[PJ] Drawings", "Drawing");
             {
