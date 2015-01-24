@@ -136,16 +136,19 @@ namespace DZAIO.Champions
             {
                 _spells[SpellSlot.Q].CastIfHitchanceEquals(target, DZUtility.GetHitchance());
             }
+
             if (_spells[SpellSlot.W].IsEnabledAndReady(Mode.Combo))
             {
                 _spells[SpellSlot.W].CastIfWillHit(target, DZUtility.getSliderValue("OnlyWEn"));
             }
+
             if (_spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo) && target.IsValidTarget(_spells[SpellSlot.R].Range) && _spells[SpellSlot.R].IsKillable(RTarget) &&
                 !(DZAIO.Player.Distance(RTarget) < DZAIO.Player.AttackRange) &&
                 !(_spells[SpellSlot.Q].IsKillable(RTarget)))
             {
                 _spells[SpellSlot.R].CastIfHitchanceEquals(RTarget,DZUtility.GetHitchance());
             }
+
             if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo) && (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo)) && OkToE())
             {
                 var FinalPosition = DZAIO.Player.Position.Extend(Game.CursorPos,_spells[SpellSlot.E].Range);
@@ -163,10 +166,12 @@ namespace DZAIO.Champions
         private void Harrass()
         {
             var target = TargetSelector.GetTarget(_spells[SpellSlot.Q].Range, TargetSelector.DamageType.Physical);
+
             if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Harrass))
             {
                 _spells[SpellSlot.Q].CastIfHitchanceEquals(target, DZUtility.GetHitchance());
             }
+
             if (_spells[SpellSlot.W].IsEnabledAndReady(Mode.Harrass))
             {
                 _spells[SpellSlot.W].CastIfWillHit(target, DZUtility.getSliderValue("OnlyWEnH"));
@@ -192,10 +197,12 @@ namespace DZAIO.Champions
             var allies = HeroHelper.GetAlliesNearMouse(ObjectManager.Player.AttackRange).Count();
             var enemies = HeroHelper.GetEnemiesNearMouse(ObjectManager.Player.AttackRange);
             var lhEnemies = HeroHelper.GetLhEnemiesNearMouse(ObjectManager.Player.AttackRange).Count();
+
             if (enemies.Count() == 1) //It's a 1v1, safe to assume I can E
             {
                 return true;
             }
+
             float totalEnH = enemies.Sum(x => x.Health); //Borrowed from Ahri#. Thanks Beaving
             //Adding 1 for the Player
             return (allies + 1 > enemies.Count()-lhEnemies) || ObjectManager.Player.HealthPercentage()/totalEnH > 0.7f; 
@@ -208,10 +215,12 @@ namespace DZAIO.Champions
             var allies = position.CountAlliesInRange(ObjectManager.Player.AttackRange);
             var enemies = position.CountEnemiesInRange(ObjectManager.Player.AttackRange);
             var lhEnemies = HeroHelper.GetLhEnemiesNearPosition(position,ObjectManager.Player.AttackRange).Count();
+
             if (enemies == 1) //It's a 1v1, safe to assume I can E
             {
                 return true;
             }
+
             //Adding 1 for the Player
             return (allies + 1 > enemies - lhEnemies);
         }
