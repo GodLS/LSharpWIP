@@ -65,6 +65,7 @@
     <Compile Include="Utility\Cleanser.cs" />
     <Compile Include="Utility\Helpers\DZUtility.cs" />
     <Compile Include="Utility\Helpers\HeroHelper.cs" />
+    <Compile Include="Utility\Helpers\ScopeDrawer.cs" />
     <Compile Include="Utility\ItemManager.cs" />
     <Compile Include="Utility\PotionManager.cs" />
   </ItemGroup>
