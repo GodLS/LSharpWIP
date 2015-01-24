@@ -61,7 +61,7 @@
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>vY7Lq6W1gmDYNOJ7Y06ocPqSZjs5hIvYI+w2tD7Kg34=</dsig:DigestValue>
+        <dsig:DigestValue>k+YTQHGeyEfwCJoQOKid9zUhH3YiBG3xT+TvLpv1It0=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -78,14 +78,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="LeagueSharp.Common.dll" size="841728">
-      <assemblyIdentity name="LeagueSharp.Common" version="1.0.0.25" language="neutral" processorArchitecture="x86" />
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="LeagueSharp.Common.dll" size="841216">
+      <assemblyIdentity name="LeagueSharp.Common" version="1.0.0.26" language="neutral" processorArchitecture="x86" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>DAPnS3vctxzqdODT+du6LxzNuKhHzn8bPeB5hSLHst8=</dsig:DigestValue>
+        <dsig:DigestValue>JTLF/2evj1982YL6Mjx5yJS7P16oWciVJ4ueMOdelns=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
