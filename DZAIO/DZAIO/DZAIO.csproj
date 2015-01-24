@@ -53,7 +53,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>B8B33A8F314A1A4337878A8F70CBA1DF927F2B81</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>2D66CCEEA2F95C10BB3AF29AA53C0728959D94F6</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestKeyFile>DZAIO_TemporaryKey.pfx</ManifestKeyFile>
@@ -98,6 +98,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="DZAIO_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ItemManager\" />
