@@ -24,9 +24,12 @@ namespace DZAIO.Champions
             var comboMenu = new Menu(cName + " - Combo", "Combo");
             comboMenu.addModeMenu(Mode.Combo, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E, SpellSlot.R }, new[] { true, true, true, true });
             comboMenu.addManaManager(Mode.Combo, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E, SpellSlot.R }, new[] { 30, 35, 20, 5 });
-            comboMenu.AddItem(new MenuItem("OnlyWEn", "Only W if hit x enemies").SetValue(new Slider(2, 1, 5)));
-            comboMenu.AddItem(new MenuItem("ESlideRange", "E Slide By").SetValue(new Slider(350, 1, 425)));
-            comboMenu.AddItem(new MenuItem("ECancelDisable", "E Slide By").SetValue(new Slider(350, 1, 425)));
+            var comboOptions = new Menu("Skills Options", "COptions");
+            {
+                comboOptions.AddItem(new MenuItem("OnlyWEn", "Only W if hit x enemies").SetValue(new Slider(2, 1, 5)));
+                comboOptions.AddItem(new MenuItem("ESlideRange", "E Distance").SetValue(new Slider(350, 1, 425)));
+            }
+            comboMenu.AddSubMenu(comboOptions);
             menu.AddSubMenu(comboMenu);
             var harrassMenu = new Menu(cName + " - Harrass", "Harrass");
             harrassMenu.addModeMenu(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.W }, new[] { true, true });
