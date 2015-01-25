@@ -166,8 +166,8 @@ namespace DZAIO.Champions
                         _spells[SpellSlot.E].Cast(Game.CursorPos);
                         var time =
                             DZAIO.Player.Distance(
-                                DZAIO.Player.Position.Extend(Game.CursorPos, _spells[SpellSlot.E].Range) /
-                                _spells[SpellSlot.E].Speed);
+                                DZAIO.Player.Position.Extend(Game.CursorPos, _spells[SpellSlot.E].Range)) /
+                                _spells[SpellSlot.E].Speed;
                         LeagueSharp.Common.Utility.DelayAction.Add(
                             (int) time, () => _spells[SpellSlot.E].Cast(Game.CursorPos));
                     }
@@ -180,11 +180,11 @@ namespace DZAIO.Champions
                     _spells[SpellSlot.R].UpdateSourcePosition(FinalPosition);
                     if (_spells[SpellSlot.R].GetPrediction(ERTarget).Hitchance >= DZUtility.GetHitchance() &&
                         _spells[SpellSlot.R].IsKillable(ERTarget) &&
-                        !(DZAIO.Player.Distance(RTarget) < DZAIO.Player.AttackRange) &&
-                        !(_spells[SpellSlot.Q].IsKillable(ERTarget)))
+                        !(DZAIO.Player.Distance(ERTarget) < DZAIO.Player.AttackRange) &&
+                        !(_spells[SpellSlot.Q].IsKillable(ERTarget) && ERTarget.IsValidTarget(_spells[SpellSlot.Q].Range)))
                     {
                         _spells[SpellSlot.E].Cast(Game.CursorPos);
-                        var time = DZAIO.Player.Distance(DZAIO.Player.Position.Extend(Game.CursorPos, _spells[SpellSlot.E].Range) / _spells[SpellSlot.E].Speed);
+                        var time = DZAIO.Player.Distance(DZAIO.Player.Position.Extend(Game.CursorPos, _spells[SpellSlot.E].Range)) / _spells[SpellSlot.E].Speed;
                         LeagueSharp.Common.Utility.DelayAction.Add((int)time, () => _spells[SpellSlot.E].Cast(Game.CursorPos));
                     }
                     _spells[SpellSlot.R].UpdateSourcePosition(DZAIO.Player.Position);
