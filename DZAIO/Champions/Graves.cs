@@ -28,7 +28,7 @@ namespace DZAIO.Champions
             {
                 comboOptions.AddItem(new MenuItem("OnlyWEn", "Only W if hit x enemies").SetValue(new Slider(2, 1, 5)));
                 comboOptions.AddItem(new MenuItem("ESlideRange", "E Distance").SetValue(new Slider(350, 1, 425)));
-                comboOptions.AddItem(new MenuItem("DoECancel", "Use E to cancel Q & R animation").SetValue(true);
+                comboOptions.AddItem(new MenuItem("DoECancel", "Use E to cancel Q & R animation").SetValue(true));
             }
             comboMenu.AddSubMenu(comboOptions);
             menu.AddSubMenu(comboMenu);
