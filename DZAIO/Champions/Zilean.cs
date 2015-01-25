@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using DZAIO.Utility;
 using DZAIO.Utility.DamagePrediction;
 using LeagueSharp;
@@ -31,7 +30,7 @@ namespace DZAIO.Champions
             menu.AddSubMenu(comboMenu);
 
             var harrassMenu = new Menu(cName + " - Harrass", "Harrass");
-            harrassMenu.addModeMenu(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E }, new[] { true, true, false });
+            harrassMenu.addModeMenu(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.W }, new[] { true, true });
             harrassMenu.addManaManager(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E }, new[] { 30, 35, 20 });
 
             menu.AddSubMenu(harrassMenu);
@@ -96,72 +95,91 @@ namespace DZAIO.Champions
         }
         private void Combo()
         {
-            var Target =
-                ObjectManager.Get<Obj_AI_Hero>().First(h => h.Distance(DZAIO.Player) < _spells[SpellSlot.Q].Range && h.HasBuff("ZileanBomb", true)) ??
+            var target =
+                ObjectManager.Get<Obj_AI_Hero>().First(h => h.Distance(DZAIO.Player) < _spells[SpellSlot.Q].Range && h.HasBuff("timebombenemybuff", true)) ??
                 TargetSelector.GetTarget(_spells[SpellSlot.Q].Range,TargetSelector.DamageType.Magical);
             if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo))
             {
-                _spells[SpellSlot.Q].Cast(Target);
+                _spells[SpellSlot.Q].Cast(target);
             }
             if (!_spells[SpellSlot.Q].IsReady() && _spells[SpellSlot.W].IsEnabledAndReady(Mode.Combo))
             {
                 _spells[SpellSlot.W].Cast();
             }
-            var ETarget = TargetSelector.GetTarget(_spells[SpellSlot.E].Range, TargetSelector.DamageType.Magical);
-            if (!ETarget.IsFacing(DZAIO.Player))
+            var eTarget = TargetSelector.GetTarget(_spells[SpellSlot.E].Range, TargetSelector.DamageType.Magical);
+            if (!eTarget.IsFacing(DZAIO.Player) && DZAIO.Player.IsFacing(eTarget))
             {
+                if (!eTarget.IsMoving || !DZAIO.Player.IsMoving)
+                    return;
+                //The target is not facing us, but we are facing them. And we are both moving
+                //Is the Spell Enabled and Ready in combo
                 if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo))
                 {
-                    _spells[SpellSlot.E].Cast(ETarget);
+                    _spells[SpellSlot.E].Cast(eTarget);
                 }
+                //The W spell is ready. Do E on the target and boost an ally/me
                 if (_spells[SpellSlot.W].IsEnabledAndReady(Mode.Combo))
                 {
+                    //Allies in range > 1
                     if (DZAIO.Player.GetAlliesInRange(_spells[SpellSlot.E].Range).Count > 1)
                     {
-                        var ClosestToTargetAD =
+                        //The highest AD ally chasing too
+                        var closestToTargetAd =
                             DZAIO.Player.GetAlliesInRange(_spells[SpellSlot.E].Range)
-                                .Where(h => h.IsFacing(ETarget))
+                                .Where(h => h.IsFacing(eTarget))
                                 .OrderByDescending(h => h.PhysicalDamageDealtPlayer)
                                 .First();
-                        var ClosestToTargetAP =
+                        //The highest AP ally chasing too
+                        var closestToTargetAp =
                             DZAIO.Player.GetAlliesInRange(_spells[SpellSlot.E].Range)
-                                .Where(h => h.IsFacing(ETarget))
+                                .Where(h => h.IsFacing(eTarget))
                                 .OrderByDescending(h => h.MagicDamageDealtPlayer)
                                 .First();
-                        if (ClosestToTargetAD.PhysicalDamageDealtPlayer >= ClosestToTargetAP.MagicDamageDealtPlayer)
+                        //If the phisical has done more dmg speed him, otherwise speed the other guy
+                        if (closestToTargetAd.PhysicalDamageDealtPlayer >= closestToTargetAp.MagicDamageDealtPlayer)
                         {
                             _spells[SpellSlot.W].Cast();
                             LeagueSharp.Common.Utility.DelayAction.Add(
-                                150, () => _spells[SpellSlot.E].Cast(ClosestToTargetAD));
+                                150, () => _spells[SpellSlot.E].Cast(closestToTargetAd));
                         }
                         else
                         {
                             _spells[SpellSlot.W].Cast();
                             LeagueSharp.Common.Utility.DelayAction.Add(
-                                150, () => _spells[SpellSlot.E].Cast(ClosestToTargetAP));
+                                150, () => _spells[SpellSlot.E].Cast(closestToTargetAp));
                         }
 
                     }
                     else
                     {
+                        //I'm the only one chasing
                         _spells[SpellSlot.W].Cast();
                         LeagueSharp.Common.Utility.DelayAction.Add(150, () => _spells[SpellSlot.E].Cast(DZAIO.Player));
                     }
                 }
-            }
-            else
+            }else
             {
-                if (!DZAIO.Player.IsFacing(ETarget))
-                {
-                    _spells[SpellSlot.E].Cast(DZAIO.Player);
-                }
+                //The E Target is facing us and we are not facing them -> We are running away
+                if (!eTarget.IsMoving)
+                    return;
+                _spells[SpellSlot.E].Cast(DZAIO.Player);
             }
             
         }
 
         private void Harrass()
         {
-
+            var target =
+                ObjectManager.Get<Obj_AI_Hero>().First(h => h.Distance(DZAIO.Player) < _spells[SpellSlot.Q].Range && h.HasBuff("timebombenemybuff", true)) ??
+                TargetSelector.GetTarget(_spells[SpellSlot.Q].Range, TargetSelector.DamageType.Magical);
+            if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Harrass))
+            {
+                _spells[SpellSlot.Q].Cast(target);
+            }
+            if (!_spells[SpellSlot.Q].IsReady() && _spells[SpellSlot.W].IsEnabledAndReady(Mode.Harrass))
+            {
+                _spells[SpellSlot.W].Cast();
+            }
         }
 
         private void Farm()
@@ -188,7 +206,7 @@ namespace DZAIO.Champions
 
         void Drawing_OnDraw(EventArgs args)
         {
-            throw new NotImplementedException();
+            
         }
 
         private Orbwalking.Orbwalker _orbwalker
