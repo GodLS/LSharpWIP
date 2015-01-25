@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using DZAIO;
 using DZAIO.Champions;
 using DZAIO.Utility;
@@ -26,7 +27,7 @@ namespace DZAIO
             Config = new Menu("DZ/Asuna AIO", "AsunaAIO", true);
             TargetSelector.AddToMenu(Config.SubMenu("Target selector"));
             Orbwalker = new Orbwalking.Orbwalker(Config.SubMenu("Orbwalking"));
-            Game.PrintChat("<font color='#FF0000'>DZ/Asuna</font><font color='#FFFFFF'> AIO Loaded!</font>");
+            Game.PrintChat("<font color='#FF0000'>DZ/Asuna</font><font color='#FFFFFF'> AIO Loaded! Version: </font>"+Assembly.GetExecutingAssembly().ImageRuntimeVersion);
 
             if (champList.ContainsKey(Player.ChampionName))
             {

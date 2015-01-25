@@ -83,19 +83,19 @@ namespace DZAIO.Champions
             {
                 return;
             }
-
             switch (args.SData.Name)
             {
                 case "GravesClusterShot":
-                    if (OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"))) && _spells[SpellSlot.E].IsReady())
+                    if (OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"))) && _spells[SpellSlot.E].IsReady() && DZUtility.isMenuEnabled("DoECancel"))
                     {
-                        LeagueSharp.Common.Utility.DelayAction.Add(100, () => _spells[SpellSlot.E].Cast(DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"))));
+
+                        LeagueSharp.Common.Utility.DelayAction.Add(70, () => _spells[SpellSlot.E].Cast(DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"))));
                     }
                     break;
                 case "GravesChargeShot":
-                    if (OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"))) && _spells[SpellSlot.E].IsReady())
+                    if (OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"))) && _spells[SpellSlot.E].IsReady() && DZUtility.isMenuEnabled("DoECancel"))
                     {
-                        LeagueSharp.Common.Utility.DelayAction.Add(100, () => _spells[SpellSlot.E].Cast(DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"))));
+                        LeagueSharp.Common.Utility.DelayAction.Add(70, () => _spells[SpellSlot.E].Cast(DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"))));
                     }
                     break;
             }
@@ -165,6 +165,7 @@ namespace DZAIO.Champions
 
             if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo) &&
                     (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo)) &&
+                    DZAIO.Player.Distance(eqTarget) >  _spells[SpellSlot.Q].Range &&
                     OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"))))
             {
                 var finalPosition = DZAIO.Player.Position.Extend(
@@ -187,6 +188,7 @@ namespace DZAIO.Champions
 
             if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo) &&
                 (_spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo)) &&
+                DZAIO.Player.Distance(erTarget) > _spells[SpellSlot.R].Range &&
                 OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"))))
             {
                 var finalPosition = DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"));
