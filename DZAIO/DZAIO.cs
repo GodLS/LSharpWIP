@@ -12,6 +12,14 @@ namespace DZAIO
 {
     class DZAIO
     {
+        /**
+         ____ _____   _    ___ ___  
+        |  _ \__  /  / \  |_ _/ _ \ 
+        | | | |/ /  / _ \  | | | | |
+        | |_| / /_ / ___ \ | | |_| |
+        |____/____/_/   \_\___\___/ 
+         */
+                            
         public static Dictionary<String, Func<IChampion>> champList = new Dictionary<string, Func<IChampion>>
         { 
            {"Jinx",() => new Jinx()},
