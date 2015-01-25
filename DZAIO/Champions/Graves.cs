@@ -15,7 +15,7 @@ namespace DZAIO.Champions
             { SpellSlot.Q, new Spell(SpellSlot.Q, 950f) },
             { SpellSlot.W, new Spell(SpellSlot.W, 950f) },
             { SpellSlot.E, new Spell(SpellSlot.E, 425f) },
-            { SpellSlot.R, new Spell(SpellSlot.R, 1200f) }
+            { SpellSlot.R, new Spell(SpellSlot.R, 1600f) } //TODO Tweak this. It has 1000 range + 800 in cone
         };
 
         public void OnLoad(Menu menu)
@@ -28,6 +28,7 @@ namespace DZAIO.Champions
             {
                 comboOptions.AddItem(new MenuItem("OnlyWEn", "Only W if hit x enemies").SetValue(new Slider(2, 1, 5)));
                 comboOptions.AddItem(new MenuItem("ESlideRange", "E Distance").SetValue(new Slider(350, 1, 425)));
+                comboOptions.AddItem(new MenuItem("DoECancel", "Use E to cancel Q & R animation").SetValue(true);
             }
             comboMenu.AddSubMenu(comboOptions);
             menu.AddSubMenu(comboMenu);
@@ -78,7 +79,7 @@ namespace DZAIO.Champions
 
         void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            if (!sender.IsMe || !_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo) || _orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo)
+            if (!sender.IsMe || !_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo) || _orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo || !DZUtility.isMenuEnabled("DoECancel"))
             {
                 return;
             }
