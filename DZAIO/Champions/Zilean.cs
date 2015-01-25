@@ -58,6 +58,7 @@ namespace DZAIO.Champions
             Drawing.OnDraw += Drawing_OnDraw;
             DamagePrediction.OnSpellWillKill += DamagePrediction_OnSpellWillKill;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
+            DamageIndicator.Initialize(GetComboDamage);
         }
 
         void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
@@ -71,6 +72,11 @@ namespace DZAIO.Champions
 
         public void SetUpSpells()
         {
+        }
+
+        public float GetComboDamage(Obj_AI_Hero unit)
+        {
+            return _spells.Where(spell => spell.Value.IsReady()).Sum(spell => (float)DZAIO.Player.GetSpellDamage(unit, spell.Key));
         }
 
         void Game_OnGameUpdate(EventArgs args)

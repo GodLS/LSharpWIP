@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using DZAIO.Utility;
 using LeagueSharp;
 using LeagueSharp.Common;
@@ -49,6 +50,11 @@ namespace DZAIO.Champions
             _spells[SpellSlot.Q].SetSkillshot(0.26f, 10f * 2 * (float)Math.PI / 180, 1950f, false, SkillshotType.SkillshotCone);
             _spells[SpellSlot.W].SetSkillshot(0.30f, 250f, 1650f, false, SkillshotType.SkillshotCircle);
             _spells[SpellSlot.R].SetSkillshot(0.22f, 150f, 2100, true, SkillshotType.SkillshotLine);
+        }
+
+        public float getComboDamage(Obj_AI_Hero unit)
+        {
+            return _spells.Where(spell => spell.Value.IsReady()).Sum(spell => (float)DZAIO.Player.GetSpellDamage(unit, spell.Key));
         }
 
         void Game_OnGameUpdate(EventArgs args)

@@ -66,12 +66,13 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\Cleanser.cs" />
+    <Compile Include="Utility\Drawing\DamageIndicator.cs" />
     <Compile Include="Utility\DamagePrediction\DamagePrediction.cs" />
     <Compile Include="Utility\Helpers\ChatHook.cs" />
     <Compile Include="Utility\Helpers\DebugHelper.cs" />
     <Compile Include="Utility\Helpers\MenuHelper.cs" />
     <Compile Include="Utility\Helpers\HeroHelper.cs" />
-    <Compile Include="Utility\Helpers\ScopeHelper.cs" />
+    <Compile Include="Utility\Drawing\ScopeHelper.cs" />
     <Compile Include="Utility\ItemManager.cs" />
     <Compile Include="Utility\PotionManager.cs" />
   </ItemGroup>
