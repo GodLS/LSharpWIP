@@ -26,6 +26,7 @@ namespace DZAIO
             Config = new Menu("DZ/Asuna AIO", "AsunaAIO", true);
             TargetSelector.AddToMenu(Config.SubMenu("Target selector"));
             Orbwalker = new Orbwalking.Orbwalker(Config.SubMenu("Orbwalking"));
+            Game.PrintChat("<font color='#FF0000'>DZ/Asuna</font><font color='#FFFFFF'> AIO Loaded!</font>");
 
             if (champList.ContainsKey(Player.ChampionName))
             {
@@ -34,11 +35,12 @@ namespace DZAIO
                 CurrentChampion.SetUpSpells();
                 CurrentChampion.RegisterEvents();
                 Cleanser.initList();
+                Game.PrintChat("Loaded <font color='#FF0000'>" + Player.ChampionName + "</font> plugin! <font color='#FFFFFF'> Have fun! </font>");
             }
             Config.AddToMainMenu();
 
-            Game.PrintChat("<font color='#FF0000'>DZ/Asuna</font><font color='#FFFFFF'> AIO Loaded!</font>");
-            Game.PrintChat("Playing as <font color='#FF0000'>" + Player.ChampionName + "</font><font color='#FFFFFF'> Have fun! </font>");
+            
+           
         }
     }
 }
