@@ -201,11 +201,12 @@ namespace DZAIO.Champions
                 var finalPosition = DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"));
                 _spells[SpellSlot.R].UpdateSourcePosition(finalPosition);
                 if (_spells[SpellSlot.R].GetPrediction(erTarget).Hitchance >= DZUtility.GetHitchance() &&
-                    _spells[SpellSlot.R].IsKillable(erTarget))
+                    _spells[SpellSlot.R].IsKillable(erTarget)
+                     && erTarget.IsValidTarget(_spells[SpellSlot.R].Range + DZUtility.getSliderValue("ESlideRange")))
                 {
                     _spells[SpellSlot.E].Cast(Game.CursorPos);
                     var time = DZUtility.getSliderValue("ESlideRange") / 900f;
-                    LeagueSharp.Common.Utility.DelayAction.Add((int)time, () => _spells[SpellSlot.E].Cast(Game.CursorPos));
+                    LeagueSharp.Common.Utility.DelayAction.Add((int)time, () => _spells[SpellSlot.R].Cast(Game.CursorPos));
                 }
                 _spells[SpellSlot.R].UpdateSourcePosition(DZAIO.Player.Position);    
            
