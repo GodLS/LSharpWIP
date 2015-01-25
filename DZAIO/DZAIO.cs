@@ -41,6 +41,7 @@ namespace DZAIO
                 Cleanser.initList();
                 Game.PrintChat("Loaded <font color='#FF0000'>" + Player.ChampionName + "</font> plugin! <font color='#FFFFFF'> Have fun! </font>");
             }
+            ChatHook.OnLoad();
             DebugHelper.OnLoad();
             PotionManager.OnLoad(Config);
 

@@ -15,17 +15,17 @@ namespace DZAIO.Utility.Helpers
         public static Dictionary<String,String> DebugDictionary = new Dictionary<string, string>();
         public static void OnLoad()
         {
-            if (!DZAIO.IsDebug)
-                return;
             Drawing.OnDraw += Drawing_OnDraw;
         }
 
         static void Drawing_OnDraw(EventArgs args)
         {
+            if (!DZAIO.IsDebug)
+                return;
             var counter = 1;
             foreach (var entry in DebugDictionary)
             {
-                Drawing.DrawText(100f, 100f + (20f * counter), System.Drawing.Color.White, entry.Key + ": " + entry.Value);
+                Drawing.DrawText(25f, 10f + (20f * counter), System.Drawing.Color.White, entry.Key + ": " + entry.Value);
                 counter++;
             }
         }
@@ -41,6 +41,11 @@ namespace DZAIO.Utility.Helpers
                 DebugDictionary.Add(Key,Value);
                 
             }
+        }
+
+        public static void PrintDebug(String Message)
+        {
+            Game.PrintChat("<font='#FF0000'>[DZAIO - Debug]</font><font color='#FFFFFF'>"+Message+"</font>");
         }
     }
 }
