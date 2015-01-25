@@ -23,7 +23,7 @@ namespace DZAIO
         public static void OnLoad()
         {
             Player = ObjectManager.Player;
-            Config = new Menu("DZ/Asuna's - AIO", "AsunaAIO", true);
+            Config = new Menu("DZ/Asuna AIO", "AsunaAIO", true);
             TargetSelector.AddToMenu(Config.SubMenu("Target selector"));
             Orbwalker = new Orbwalking.Orbwalker(Config.SubMenu("Orbwalking"));
 

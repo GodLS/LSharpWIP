@@ -133,9 +133,9 @@ namespace DZAIO.Champions
             var target = TargetSelector.GetTarget(_spells[SpellSlot.Q].Range, TargetSelector.DamageType.Physical);
             var RTarget = TargetSelector.GetTarget(_spells[SpellSlot.R].Range, TargetSelector.DamageType.Physical);
             var EQTarget = TargetSelector.GetTarget(
-                _spells[SpellSlot.Q].Range + _spells[SpellSlot.E].Range, TargetSelector.DamageType.Physical);
+                _spells[SpellSlot.Q].Range + DZUtility.getSliderValue("ESlideRange"), TargetSelector.DamageType.Physical);
             var ERTarget = TargetSelector.GetTarget(
-                _spells[SpellSlot.Q].Range + _spells[SpellSlot.E].Range, TargetSelector.DamageType.Physical);
+                _spells[SpellSlot.Q].Range + DZUtility.getSliderValue("ESlideRange"), TargetSelector.DamageType.Physical);
 
             if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo))
             {
@@ -149,39 +149,47 @@ namespace DZAIO.Champions
 
             if (_spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo) && target.IsValidTarget(_spells[SpellSlot.R].Range) && _spells[SpellSlot.R].IsKillable(RTarget) &&
                 !(DZAIO.Player.Distance(RTarget) < DZAIO.Player.AttackRange) &&
-                !(_spells[SpellSlot.Q].IsKillable(RTarget)))
+                !(_spells[SpellSlot.Q].IsKillable(RTarget) && RTarget.IsValidTarget(_spells[SpellSlot.Q].Range)))
             {
                 _spells[SpellSlot.R].CastIfHitchanceEquals(RTarget, DZUtility.GetHitchance());
             }
 
-            if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo) && (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo)) && OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"))))
-            {
-                var FinalPosition = DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"));
-                _spells[SpellSlot.Q].UpdateSourcePosition(FinalPosition);
-                if (_spells[SpellSlot.Q].GetPrediction(EQTarget).Hitchance >= DZUtility.GetHitchance())
+                if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo) &&
+                    (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo)) &&
+                    OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"))))
                 {
-                    _spells[SpellSlot.E].Cast(Game.CursorPos);
-                    var time = DZAIO.Player.Distance(DZAIO.Player.Position.Extend(Game.CursorPos, _spells[SpellSlot.E].Range) / _spells[SpellSlot.E].Speed);
-                    LeagueSharp.Common.Utility.DelayAction.Add((int)time, () => _spells[SpellSlot.E].Cast(Game.CursorPos));
+                    var FinalPosition = DZAIO.Player.Position.Extend(
+                        Game.CursorPos, DZUtility.getSliderValue("ESlideRange"));
+                    _spells[SpellSlot.Q].UpdateSourcePosition(FinalPosition);
+                    if (_spells[SpellSlot.Q].GetPrediction(EQTarget).Hitchance >= DZUtility.GetHitchance())
+                    {
+                        _spells[SpellSlot.E].Cast(Game.CursorPos);
+                        var time =
+                            DZAIO.Player.Distance(
+                                DZAIO.Player.Position.Extend(Game.CursorPos, _spells[SpellSlot.E].Range) /
+                                _spells[SpellSlot.E].Speed);
+                        LeagueSharp.Common.Utility.DelayAction.Add(
+                            (int) time, () => _spells[SpellSlot.E].Cast(Game.CursorPos));
+                    }
+                    _spells[SpellSlot.Q].UpdateSourcePosition(DZAIO.Player.Position);
                 }
-                _spells[SpellSlot.Q].UpdateSourcePosition(DZAIO.Player.Position);
-            }
-
-            if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo) && (_spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo)) && OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"))))
-            {
-                var FinalPosition = DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"));
-                _spells[SpellSlot.R].UpdateSourcePosition(FinalPosition);
-                if (_spells[SpellSlot.R].GetPrediction(ERTarget).Hitchance >= DZUtility.GetHitchance() && 
-                    _spells[SpellSlot.R].IsKillable(RTarget) &&
-                    !(DZAIO.Player.Distance(RTarget) < DZAIO.Player.AttackRange) &&
-                    !(_spells[SpellSlot.Q].IsKillable(RTarget)))
+            
+                if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo) && (_spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo)) && OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"))))
                 {
-                    _spells[SpellSlot.E].Cast(Game.CursorPos);
-                    var time = DZAIO.Player.Distance(DZAIO.Player.Position.Extend(Game.CursorPos, _spells[SpellSlot.E].Range) / _spells[SpellSlot.E].Speed);
-                    LeagueSharp.Common.Utility.DelayAction.Add((int)time, () => _spells[SpellSlot.E].Cast(Game.CursorPos));
+                    var FinalPosition = DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"));
+                    _spells[SpellSlot.R].UpdateSourcePosition(FinalPosition);
+                    if (_spells[SpellSlot.R].GetPrediction(ERTarget).Hitchance >= DZUtility.GetHitchance() &&
+                        _spells[SpellSlot.R].IsKillable(ERTarget) &&
+                        !(DZAIO.Player.Distance(RTarget) < DZAIO.Player.AttackRange) &&
+                        !(_spells[SpellSlot.Q].IsKillable(ERTarget)))
+                    {
+                        _spells[SpellSlot.E].Cast(Game.CursorPos);
+                        var time = DZAIO.Player.Distance(DZAIO.Player.Position.Extend(Game.CursorPos, _spells[SpellSlot.E].Range) / _spells[SpellSlot.E].Speed);
+                        LeagueSharp.Common.Utility.DelayAction.Add((int)time, () => _spells[SpellSlot.E].Cast(Game.CursorPos));
+                    }
+                    _spells[SpellSlot.R].UpdateSourcePosition(DZAIO.Player.Position);
                 }
-                _spells[SpellSlot.Q].UpdateSourcePosition(DZAIO.Player.Position);
-            }
+            
         }
 
         private void Harrass()
