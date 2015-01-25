@@ -67,7 +67,7 @@ namespace DZAIO.Utility
 
             if (DZAIO.Player.IsDead || DZAIO.Player.IsRecalling() || DZAIO.Player.InFountain() || DZAIO.Player.InShop())
                 return;
-            if (!HealthBuff() && DZAIO.Player.HealthPercentage() < DZUtility.getSliderValue("minHP"))
+            if (!HealthBuff() && DZAIO.Player.HealthPercentage() < MenuHelper.getSliderValue("minHP"))
             {
                 var hpSlot = GetHpSlot();
 
@@ -77,7 +77,7 @@ namespace DZAIO.Utility
                     return;
                 }
             }
-            if (!ManaBuff() && DZAIO.Player.ManaPercentage() < DZUtility.getSliderValue("minMana"))
+            if (!ManaBuff() && DZAIO.Player.ManaPercentage() < MenuHelper.getSliderValue("minMana"))
             {
                 var manaSlot = GetManaSlot();
                 if (manaSlot != SpellSlot.Unknown && manaSlot.IsReady())
@@ -123,7 +123,7 @@ namespace DZAIO.Utility
                     ObjectManager.Player.InventoryItems.Where(
                         item =>
                             GetHpIds().Contains((int)item.Id) &&
-                            DZUtility.isMenuEnabled(((int)item.Id).ToString())))
+                            MenuHelper.isMenuEnabled(((int)item.Id).ToString())))
             {
                 var currentPriority = Potions.First(it => it.ItemId == Item.Id).Priority;
                 if (currentPriority <= lastPriority)
@@ -146,7 +146,7 @@ namespace DZAIO.Utility
                     ObjectManager.Player.InventoryItems.Where(
                         item =>
                             GetManaIds().Contains((int)item.Id) &&
-                            DZUtility.isMenuEnabled(((int)item.Id).ToString())))
+                            MenuHelper.isMenuEnabled(((int)item.Id).ToString())))
             {
                 var currentPriority = Potions.First(it => it.ItemId == Item.Id).Priority;
                 if (currentPriority <= lastPriority)

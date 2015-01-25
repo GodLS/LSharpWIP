@@ -8,7 +8,7 @@ using LeagueSharp.Common;
 
 namespace DZAIO.Utility
 {
-    static class DZUtility
+    static class MenuHelper
     {
 
         //Utility Methods will go here
@@ -29,7 +29,6 @@ namespace DZAIO.Utility
             }
             return false;
         }
-
         public static void addManaManager(this Menu menu, Mode mode, SpellSlot[] spellList, int[] ManaCosts)
         {
             var mm_Menu = new Menu("Mana Manager", "mm_" + getStringFromMode(mode));
@@ -58,6 +57,16 @@ namespace DZAIO.Utility
             menu.AddItem(
                     new MenuItem("C_Hit", "Hitchance").SetValue(
                         new StringList(new[] { "Low", "Medium", "High", "Very High" }, 2)));
+        }
+
+        public static void addNoUltiMenu(this Menu menu,bool allies)
+        {
+            var _menu = menu.AddSubMenu(new Menu("Don't ult", "NUlti"));
+            foreach (var Player in ObjectManager.Get<Obj_AI_Hero>().Where(h => !h.IsMe && allies ? h.IsAlly : h.IsEnemy))
+            {
+                _menu.AddItem(new MenuItem("noUlt"+Player.ChampionName, Player.ChampionName).SetValue(false));
+            }
+            menu.AddSubMenu(_menu);
         }
 
         public static bool isMenuEnabled(String item)

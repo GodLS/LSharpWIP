@@ -64,11 +64,11 @@ namespace DZAIO.Champions
         void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
             var endPoint = gapcloser.End;
-            if (DZUtility.isMenuEnabled("AntiGPW") && _spells[SpellSlot.W].IsReady())
+            if (MenuHelper.isMenuEnabled("AntiGPW") && _spells[SpellSlot.W].IsReady())
             {
                 _spells[SpellSlot.W].Cast(endPoint);
             }
-            if (DZUtility.isMenuEnabled("AntiGPE") && _spells[SpellSlot.E].IsReady())
+            if (MenuHelper.isMenuEnabled("AntiGPE") && _spells[SpellSlot.E].IsReady())
             {
                 var extended = ObjectManager.Player.Position.Extend(gapcloser.Start, -_spells[SpellSlot.E].Range);
                 if (OkToE(extended))
@@ -80,23 +80,23 @@ namespace DZAIO.Champions
 
         void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            if (!sender.IsMe || _orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo || !DZUtility.isMenuEnabled("DoECancel"))
+            if (!sender.IsMe || _orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo || !MenuHelper.isMenuEnabled("DoECancel"))
             {
                 return;
             }
             switch (args.SData.Name)
             {
                 case "GravesClusterShot":
-                    if (OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"))) && _spells[SpellSlot.E].IsReady() && DZUtility.isMenuEnabled("DoECancel"))
+                    if (OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("ESlideRange"))) && _spells[SpellSlot.E].IsReady() && MenuHelper.isMenuEnabled("DoECancel"))
                     {
 
-                        LeagueSharp.Common.Utility.DelayAction.Add(70, () => _spells[SpellSlot.E].Cast(DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"))));
+                        LeagueSharp.Common.Utility.DelayAction.Add(70, () => _spells[SpellSlot.E].Cast(DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("ESlideRange"))));
                     }
                     break;
                 case "GravesChargeShot":
-                    if (OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"))) && _spells[SpellSlot.E].IsReady() && DZUtility.isMenuEnabled("DoECancel"))
+                    if (OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("ESlideRange"))) && _spells[SpellSlot.E].IsReady() && MenuHelper.isMenuEnabled("DoECancel"))
                     {
-                        LeagueSharp.Common.Utility.DelayAction.Add(70, () => _spells[SpellSlot.E].Cast(DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"))));
+                        LeagueSharp.Common.Utility.DelayAction.Add(70, () => _spells[SpellSlot.E].Cast(DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("ESlideRange"))));
                     }
                     break;
             }
@@ -135,21 +135,21 @@ namespace DZAIO.Champions
             var target = TargetSelector.GetTarget(_spells[SpellSlot.Q].Range, TargetSelector.DamageType.Physical);
             var rTarget = TargetSelector.GetTarget(_spells[SpellSlot.R].Range, TargetSelector.DamageType.Physical);
             var eqTarget = TargetSelector.GetTarget(
-                _spells[SpellSlot.Q].Range + DZUtility.getSliderValue("ESlideRange"), TargetSelector.DamageType.Physical);
+                _spells[SpellSlot.Q].Range + MenuHelper.getSliderValue("ESlideRange"), TargetSelector.DamageType.Physical);
             var erTarget = TargetSelector.GetTarget(
-                _spells[SpellSlot.Q].Range + DZUtility.getSliderValue("ESlideRange"), TargetSelector.DamageType.Physical);
+                _spells[SpellSlot.Q].Range + MenuHelper.getSliderValue("ESlideRange"), TargetSelector.DamageType.Physical);
             //Q Casting in Combo
 
             if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo) && target.IsValidTarget(_spells[SpellSlot.Q].Range))
             {
-                _spells[SpellSlot.Q].CastIfHitchanceEquals(target, DZUtility.GetHitchance());
+                _spells[SpellSlot.Q].CastIfHitchanceEquals(target, MenuHelper.GetHitchance());
             }
 
             //W Casting in Combo
 
             if (_spells[SpellSlot.W].IsEnabledAndReady(Mode.Combo))
             {
-                _spells[SpellSlot.W].CastIfWillHit(target, DZUtility.getSliderValue("OnlyWEn"));
+                _spells[SpellSlot.W].CastIfWillHit(target, MenuHelper.getSliderValue("OnlyWEn"));
             }
 
             //Normal R Casting in Combo
@@ -157,33 +157,33 @@ namespace DZAIO.Champions
             if (_spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo) && target.IsValidTarget(_spells[SpellSlot.R].Range) && _spells[SpellSlot.R].IsKillable(rTarget) &&
                 !(DZAIO.Player.Distance(rTarget) < DZAIO.Player.AttackRange))
             {
-                _spells[SpellSlot.R].CastIfHitchanceEquals(rTarget, DZUtility.GetHitchance());
+                _spells[SpellSlot.R].CastIfHitchanceEquals(rTarget, MenuHelper.GetHitchance());
             }
 
-            //E-Q Casting in Combo
+            //Debug
             DebugHelper.AddEntry("Target", eqTarget.ChampionName);
             DebugHelper.AddEntry("E Ready", _spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo).ToString());
             DebugHelper.AddEntry("Q Ready", _spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo).ToString());
             DebugHelper.AddEntry("Distance Check", (DZAIO.Player.Distance(eqTarget) > _spells[SpellSlot.Q].Range).ToString());
-            DebugHelper.AddEntry("OkToE", OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"))).ToString());
-            DebugHelper.AddEntry("Time", (DZUtility.getSliderValue("ESlideRange") / 900f).ToString());
-            DebugHelper.AddEntry("Prediction Check", (_spells[SpellSlot.Q].GetPrediction(eqTarget).Hitchance >= DZUtility.GetHitchance()).ToString());
-            DebugHelper.AddEntry("Valid", (eqTarget.IsValidTarget(_spells[SpellSlot.Q].Range + DZUtility.getSliderValue("ESlideRange"))).ToString());
-            //
+            DebugHelper.AddEntry("OkToE", OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("ESlideRange"))).ToString());
+            DebugHelper.AddEntry("Time", (MenuHelper.getSliderValue("ESlideRange") / 900f).ToString());
+            DebugHelper.AddEntry("Prediction Check", (_spells[SpellSlot.Q].GetPrediction(eqTarget).Hitchance >= MenuHelper.GetHitchance()).ToString());
+            DebugHelper.AddEntry("Valid", (eqTarget.IsValidTarget(_spells[SpellSlot.Q].Range + MenuHelper.getSliderValue("ESlideRange"))).ToString());
+            //E-Q Casting in Combo
             if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo) &&
                     (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo)) &&
                     DZAIO.Player.Distance(eqTarget) >  _spells[SpellSlot.Q].Range &&
-                    OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange")))
-                    && eqTarget.IsValidTarget(_spells[SpellSlot.Q].Range + DZUtility.getSliderValue("ESlideRange")))
+                    OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("ESlideRange")))
+                    && eqTarget.IsValidTarget(_spells[SpellSlot.Q].Range + MenuHelper.getSliderValue("ESlideRange")))
             {
                 var finalPosition = DZAIO.Player.Position.Extend(
-                    Game.CursorPos, DZUtility.getSliderValue("ESlideRange"));
+                    Game.CursorPos, MenuHelper.getSliderValue("ESlideRange"));
                 _spells[SpellSlot.Q].UpdateSourcePosition(finalPosition);
-                if (_spells[SpellSlot.Q].GetPrediction(eqTarget).Hitchance >= DZUtility.GetHitchance())
+                if (_spells[SpellSlot.Q].GetPrediction(eqTarget).Hitchance >= MenuHelper.GetHitchance())
                 {
                     Game.PrintChat("Done");
                     _spells[SpellSlot.E].Cast(Game.CursorPos);
-                    var time = DZUtility.getSliderValue("ESlideRange") / 900f;
+                    var time = MenuHelper.getSliderValue("ESlideRange") / 900f;
                     LeagueSharp.Common.Utility.DelayAction.Add(
                         (int)time, () => _spells[SpellSlot.E].Cast(Game.CursorPos));
                 }
@@ -195,16 +195,16 @@ namespace DZAIO.Champions
             if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo) &&
                 (_spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo)) &&
                 DZAIO.Player.Distance(erTarget) > _spells[SpellSlot.R].Range &&
-                OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"))))
+                OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("ESlideRange"))))
             {
-                var finalPosition = DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"));
+                var finalPosition = DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("ESlideRange"));
                 _spells[SpellSlot.R].UpdateSourcePosition(finalPosition);
-                if (_spells[SpellSlot.R].GetPrediction(erTarget).Hitchance >= DZUtility.GetHitchance() &&
+                if (_spells[SpellSlot.R].GetPrediction(erTarget).Hitchance >= MenuHelper.GetHitchance() &&
                     _spells[SpellSlot.R].IsKillable(erTarget)
-                     && erTarget.IsValidTarget(_spells[SpellSlot.R].Range + DZUtility.getSliderValue("ESlideRange")))
+                     && erTarget.IsValidTarget(_spells[SpellSlot.R].Range + MenuHelper.getSliderValue("ESlideRange")))
                 {
                     _spells[SpellSlot.E].Cast(Game.CursorPos);
-                    var time = DZUtility.getSliderValue("ESlideRange") / 900f;
+                    var time = MenuHelper.getSliderValue("ESlideRange") / 900f;
                     LeagueSharp.Common.Utility.DelayAction.Add((int)time, () => _spells[SpellSlot.R].Cast(Game.CursorPos));
                 }
                 _spells[SpellSlot.R].UpdateSourcePosition(DZAIO.Player.Position);    
@@ -218,22 +218,22 @@ namespace DZAIO.Champions
 
             if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Harrass))
             {
-                _spells[SpellSlot.Q].CastIfHitchanceEquals(target, DZUtility.GetHitchance());
+                _spells[SpellSlot.Q].CastIfHitchanceEquals(target, MenuHelper.GetHitchance());
             }
 
             if (_spells[SpellSlot.W].IsEnabledAndReady(Mode.Harrass))
             {
-                _spells[SpellSlot.W].CastIfWillHit(target, DZUtility.getSliderValue("OnlyWEnH"));
+                _spells[SpellSlot.W].CastIfWillHit(target, MenuHelper.getSliderValue("OnlyWEnH"));
             }
         }
 
         private void Farm()
         {
-            var FarmLocation = _spells[SpellSlot.Q].GetLineFarmLocation(
+            var farmLocation = _spells[SpellSlot.Q].GetLineFarmLocation(
                 MinionManager.GetMinions(DZAIO.Player.Position, _spells[SpellSlot.Q].Range));
-            if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Farm) && FarmLocation.MinionsHit > 2)
+            if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Farm) && farmLocation.MinionsHit > 2)
             {
-                _spells[SpellSlot.Q].Cast(FarmLocation.Position);
+                _spells[SpellSlot.Q].Cast(farmLocation.Position);
             }
         }
 

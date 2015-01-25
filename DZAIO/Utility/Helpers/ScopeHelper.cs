@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DZAIO.Utility.Helpers
 {
-    class ScopeDrawer
+    class ScopeHelper
     {
         //TODO Scope sprite drawing here
     }
