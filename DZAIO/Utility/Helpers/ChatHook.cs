@@ -16,6 +16,11 @@ namespace DZAIO.Utility.Helpers
 
         static void Game_OnGameInput(GameInputEventArgs args)
         {
+            if (args.Input.StartsWith("."))
+            {
+                args.Process = false;
+            }
+
             switch (args.Input)
             {
                 case ".debug":

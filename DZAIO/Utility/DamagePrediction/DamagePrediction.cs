@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
-using System.Linq;
-using System.Runtime.Remoting.Channels;
-using System.Text;
-using System.Threading.Tasks;
-using DZAIO.Utility.Helpers;
+﻿using DZAIO.Utility.Helpers;
 using LeagueSharp;
 using LeagueSharp.Common;
 
@@ -27,24 +20,24 @@ namespace DZAIO.Utility.DamagePrediction
         {
             if (!(sender is Obj_AI_Hero) || !(args.Target is Obj_AI_Hero))
                 return;
-            var sender_H = sender as Obj_AI_Hero;
-            var target_H = args.Target as Obj_AI_Hero;
-            var damage = getDamage(sender_H,target_H, sender_H.GetSpellSlot(args.SData.Name));
+            var senderH = sender as Obj_AI_Hero;
+            var targetH = args.Target as Obj_AI_Hero;
+            var damage = GetDamage(senderH,targetH, senderH.GetSpellSlot(args.SData.Name));
 
-            DebugHelper.AddEntry("Damage to "+target_H.ChampionName,damage.ToString());
+            DebugHelper.AddEntry("Damage to "+targetH.ChampionName,damage.ToString());
 
-            if (damage > target_H.Health + 20)
+            if (damage > targetH.Health + 20)
             {
                 if (OnSpellWillKill != null)
                 {
-                    OnSpellWillKill(sender_H, target_H);
+                    OnSpellWillKill(senderH, targetH);
                 }
             }
         }
 
-        static float getDamage(Obj_AI_Hero hero,Obj_AI_Hero target,SpellSlot Slot)
+        static float GetDamage(Obj_AI_Hero hero,Obj_AI_Hero target,SpellSlot slot)
         {
-            return (float)hero.GetSpellDamage(target, Slot);
+            return (float)hero.GetSpellDamage(target, slot);
         }
     }
 }

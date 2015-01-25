@@ -90,13 +90,13 @@ namespace DZAIO.Champions
                     if (OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("ESlideRange"))) && _spells[SpellSlot.E].IsReady() && MenuHelper.isMenuEnabled("DoECancel"))
                     {
 
-                        LeagueSharp.Common.Utility.DelayAction.Add(70, () => _spells[SpellSlot.E].Cast(DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("ESlideRange"))));
+                        LeagueSharp.Common.Utility.DelayAction.Add(100, () => _spells[SpellSlot.E].Cast(DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("ESlideRange"))));
                     }
                     break;
                 case "GravesChargeShot":
                     if (OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("ESlideRange"))) && _spells[SpellSlot.E].IsReady() && MenuHelper.isMenuEnabled("DoECancel"))
                     {
-                        LeagueSharp.Common.Utility.DelayAction.Add(70, () => _spells[SpellSlot.E].Cast(DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("ESlideRange"))));
+                        LeagueSharp.Common.Utility.DelayAction.Add(100, () => _spells[SpellSlot.E].Cast(DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("ESlideRange"))));
                     }
                     break;
             }
@@ -179,7 +179,7 @@ namespace DZAIO.Champions
                 var finalPosition = DZAIO.Player.Position.Extend(
                     Game.CursorPos, MenuHelper.getSliderValue("ESlideRange"));
                 _spells[SpellSlot.Q].UpdateSourcePosition(finalPosition);
-                if (_spells[SpellSlot.Q].GetPrediction(eqTarget).Hitchance >= MenuHelper.GetHitchance())
+                if (_spells[SpellSlot.Q].GetPrediction(eqTarget).Hitchance >= MenuHelper.GetHitchance() && eqTarget.IsValidTarget(_spells[SpellSlot.Q].Range,true,finalPosition))
                 {
                     Game.PrintChat("Done");
                     _spells[SpellSlot.E].Cast(Game.CursorPos);
@@ -201,7 +201,7 @@ namespace DZAIO.Champions
                 _spells[SpellSlot.R].UpdateSourcePosition(finalPosition);
                 if (_spells[SpellSlot.R].GetPrediction(erTarget).Hitchance >= MenuHelper.GetHitchance() &&
                     _spells[SpellSlot.R].IsKillable(erTarget)
-                     && erTarget.IsValidTarget(_spells[SpellSlot.R].Range + MenuHelper.getSliderValue("ESlideRange")))
+                     && erTarget.IsValidTarget(_spells[SpellSlot.R].Range + MenuHelper.getSliderValue("ESlideRange")) && erTarget.IsValidTarget(_spells[SpellSlot.R].Range,true,finalPosition))
                 {
                     _spells[SpellSlot.E].Cast(Game.CursorPos);
                     var time = MenuHelper.getSliderValue("ESlideRange") / 900f;
