@@ -191,7 +191,7 @@ namespace DZAIO.Champions
                 {
                     Game.PrintChat("Done");
                     _spells[SpellSlot.E].Cast(Game.CursorPos);
-                    var time = MenuHelper.getSliderValue("ESlideRange") / 900f;
+                    var time = 1000*(MenuHelper.getSliderValue("ESlideRange") / 900f);
                     LeagueSharp.Common.Utility.DelayAction.Add(
                         (int)time, () => _spells[SpellSlot.E].Cast(Game.CursorPos));
                 }
@@ -212,7 +212,7 @@ namespace DZAIO.Champions
                      && erTarget.IsValidTarget(_spells[SpellSlot.R].Range + MenuHelper.getSliderValue("ESlideRange")) && erTarget.IsValidTarget(_spells[SpellSlot.R].Range,true,finalPosition))
                 {
                     _spells[SpellSlot.E].Cast(Game.CursorPos);
-                    var time = MenuHelper.getSliderValue("ESlideRange") / 900f;
+                    var time = 1000*(MenuHelper.getSliderValue("ESlideRange") / 900f);
                     LeagueSharp.Common.Utility.DelayAction.Add((int)time, () => _spells[SpellSlot.R].Cast(Game.CursorPos));
                 }
                 _spells[SpellSlot.R].UpdateSourcePosition(DZAIO.Player.Position);    
