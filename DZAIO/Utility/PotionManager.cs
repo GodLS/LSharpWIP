@@ -64,12 +64,13 @@ namespace DZAIO.Utility
 
         private static void UsePotion()
         {
+
             if (DZAIO.Player.IsDead || DZAIO.Player.IsRecalling() || DZAIO.Player.InFountain() || DZAIO.Player.InShop())
                 return;
-
             if (!HealthBuff() && DZAIO.Player.HealthPercentage() < DZUtility.getSliderValue("minHP"))
             {
                 var hpSlot = GetHpSlot();
+
                 if (hpSlot != SpellSlot.Unknown && hpSlot.IsReady())
                 {
                     DZAIO.Player.Spellbook.CastSpell(hpSlot, DZAIO.Player);
@@ -93,7 +94,7 @@ namespace DZAIO.Utility
             var potItems = new Menu("Potions", "Pots");
             foreach (var potion in Potions)
             {
-                potItems.AddItem(new MenuItem(potion.ItemId.ToString(),potion.Name).SetValue(true));
+                potItems.AddItem(new MenuItem(((int)potion.ItemId).ToString(),potion.Name).SetValue(true));
             }
             potMenu.AddSubMenu(potItems);
             potMenu.AddItem(new MenuItem("minHP", "Min Health %").SetValue(new Slider(30)));
@@ -115,21 +116,19 @@ namespace DZAIO.Utility
         {
             var ordered = Potions.Where(p => p.Type == PotionType.Health || p.Type == PotionType.Flask).OrderByDescending(pot => pot.Priority);
             var potSlot = SpellSlot.Unknown;
-            var charges = 0;
-            var maxPriority = ordered.First().Priority;
-
+            var lastPriority = ordered.First().Priority;
+            
             foreach (
                 var Item in
                     ObjectManager.Player.InventoryItems.Where(
                         item =>
-                            GetHpIds().Contains(item.Id) && item.Charges > charges &&
-                            DZUtility.isMenuEnabled(item.Id.ToString())))
+                            GetHpIds().Contains((int)item.Id) &&
+                            DZUtility.isMenuEnabled(((int)item.Id).ToString())))
             {
                 var currentPriority = Potions.First(it => it.ItemId == Item.Id).Priority;
-                if (currentPriority > maxPriority)
+                if (currentPriority <= lastPriority)
                 {
                     potSlot = Item.SpellSlot;
-                    charges = Item.Charges;
                 }
             }
             return potSlot;
@@ -138,35 +137,50 @@ namespace DZAIO.Utility
 
         private static SpellSlot GetManaSlot()
         {
-            var ordered = Potions.Where(p => p.Type == PotionType.Mana || p.Type == PotionType.Flask).OrderByDescending(pot => pot.Priority);
+            var ordered = Potions.Where(p => p.Type == PotionType.Health || p.Type == PotionType.Flask).OrderByDescending(pot => pot.Priority);
             var potSlot = SpellSlot.Unknown;
-            var charges = 0;
-            var maxPriority = ordered.First().Priority;
+            var lastPriority = ordered.First().Priority;
+
             foreach (
-                var item in
+                var Item in
                     ObjectManager.Player.InventoryItems.Where(
                         item =>
-                            GetManaIds().Contains(item.Id) && item.Charges > charges &&
-                            DZUtility.isMenuEnabled(item.Id.ToString())))
+                            GetManaIds().Contains((int)item.Id) &&
+                            DZUtility.isMenuEnabled(((int)item.Id).ToString())))
             {
-                var currentPriority = Potions.First(it => it.ItemId == item.Id).Priority;
-                if (currentPriority > maxPriority)
+                var currentPriority = Potions.First(it => it.ItemId == Item.Id).Priority;
+                if (currentPriority <= lastPriority)
                 {
-                    potSlot = item.SpellSlot;
-                    charges = item.Charges;
+                    potSlot = Item.SpellSlot;
                 }
             }
             return potSlot;
         }
 
-        private static List<ItemId> GetHpIds()
+        private static List<int> GetHpIds()
         {
-            return (from pot in Potions where pot.Type == PotionType.Health || pot.Type == PotionType.Flask select pot.ItemId).ToList();
+            var HPIds = new List<int>();
+            foreach (var pot in Potions)
+            {
+                if (pot.Type == PotionType.Health || pot.Type == PotionType.Flask && Items.HasItem((int)pot.ItemId))
+                {
+                    HPIds.Add((int)pot.ItemId);
+                }
+            }
+            return HPIds;
         }
 
-        private static List<ItemId> GetManaIds()
+        private static List<int> GetManaIds()
         {
-            return (from pot in Potions where pot.Type == PotionType.Mana || pot.Type == PotionType.Flask select pot.ItemId).ToList();
+            var ManaIds = new List<int>();
+            foreach (var pot in Potions)
+            {
+                if (pot.Type == PotionType.Mana || pot.Type == PotionType.Flask && Items.HasItem((int)pot.ItemId))
+                {
+                    ManaIds.Add((int)pot.ItemId);
+                }
+            }
+            return ManaIds;
         }
     }
 

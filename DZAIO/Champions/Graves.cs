@@ -79,7 +79,7 @@ namespace DZAIO.Champions
 
         void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            if (!sender.IsMe || !_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo) || _orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo || !DZUtility.isMenuEnabled("DoECancel"))
+            if (!sender.IsMe || _orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo || !DZUtility.isMenuEnabled("DoECancel"))
             {
                 return;
             }
@@ -87,13 +87,13 @@ namespace DZAIO.Champions
             switch (args.SData.Name)
             {
                 case "GravesClusterShot":
-                    if (OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"))) && _spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo))
+                    if (OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"))) && _spells[SpellSlot.E].IsReady())
                     {
                         LeagueSharp.Common.Utility.DelayAction.Add(100, () => _spells[SpellSlot.E].Cast(DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"))));
                     }
                     break;
                 case "GravesChargeShot":
-                    if (OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"))) && _spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo))
+                    if (OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"))) && _spells[SpellSlot.E].IsReady())
                     {
                         LeagueSharp.Common.Utility.DelayAction.Add(100, () => _spells[SpellSlot.E].Cast(DZAIO.Player.Position.Extend(Game.CursorPos, DZUtility.getSliderValue("ESlideRange"))));
                     }
