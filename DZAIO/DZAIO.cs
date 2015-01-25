@@ -22,7 +22,7 @@ namespace DZAIO
         public static Obj_AI_Hero Player { get; set; }
         public static IChampion CurrentChampion { get; set; }
 
-        public static bool IsDebug = true;
+        public static bool IsDebug = false;
 
         public static void OnLoad()
         {
