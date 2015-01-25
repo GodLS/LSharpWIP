@@ -23,6 +23,7 @@ namespace DZAIO
         public static IChampion CurrentChampion { get; set; }
 
         public static bool IsDebug = false;
+        public static int Revision = 7;
 
         public static void OnLoad()
         {
@@ -30,7 +31,7 @@ namespace DZAIO
             Config = new Menu("DZ/Asuna AIO", "AsunaAIO", true);
             TargetSelector.AddToMenu(Config.SubMenu("Target selector"));
             Orbwalker = new Orbwalking.Orbwalker(Config.SubMenu("Orbwalking"));
-            Game.PrintChat("<font color='#FF0000'>DZ/Asuna</font><font color='#FFFFFF'> AIO Loaded! Version: </font>"+Assembly.GetExecutingAssembly().ImageRuntimeVersion);
+            Game.PrintChat("<font color='#FF0000'>DZ/Asuna</font><font color='#FFFFFF'> AIO Loaded!</font> v{0}", Assembly.GetExecutingAssembly().GetName().Version);
 
             if (champList.ContainsKey(Player.ChampionName))
             {
@@ -39,7 +40,7 @@ namespace DZAIO
                 CurrentChampion.SetUpSpells();
                 CurrentChampion.RegisterEvents();
                 Cleanser.initList();
-                Game.PrintChat("Loaded <font color='#FF0000'>" + Player.ChampionName + "</font> plugin! <font color='#FFFFFF'> Have fun! </font>");
+                Game.PrintChat("Loaded <font color='#FF0000'>{0}</font> plugin! <font color='#FFFFFF'> Have fun! </font>", Player.ChampionName);
             }
             ChatHook.OnLoad();
             DebugHelper.OnLoad();
