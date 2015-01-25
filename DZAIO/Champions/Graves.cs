@@ -229,7 +229,12 @@ namespace DZAIO.Champions
 
         private void Farm()
         {
-
+            var FarmLocation = _spells[SpellSlot.Q].GetLineFarmLocation(
+                MinionManager.GetMinions(DZAIO.Player.Position, _spells[SpellSlot.Q].Range));
+            if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Farm) && FarmLocation.MinionsHit > 2)
+            {
+                _spells[SpellSlot.Q].Cast(FarmLocation.Position);
+            }
         }
 
         void Drawing_OnDraw(EventArgs args)
