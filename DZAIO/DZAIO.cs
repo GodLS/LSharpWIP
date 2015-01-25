@@ -4,6 +4,7 @@ using System.Reflection;
 using DZAIO;
 using DZAIO.Champions;
 using DZAIO.Utility;
+using DZAIO.Utility.Helpers;
 using LeagueSharp;
 using LeagueSharp.Common;
 
@@ -20,6 +21,8 @@ namespace DZAIO
         public static Orbwalking.Orbwalker Orbwalker { get; set; }
         public static Obj_AI_Hero Player { get; set; }
         public static IChampion CurrentChampion { get; set; }
+
+        public static bool IsDebug = true;
 
         public static void OnLoad()
         {
@@ -38,6 +41,7 @@ namespace DZAIO
                 Cleanser.initList();
                 Game.PrintChat("Loaded <font color='#FF0000'>" + Player.ChampionName + "</font> plugin! <font color='#FFFFFF'> Have fun! </font>");
             }
+            DebugHelper.OnLoad();
             PotionManager.OnLoad(Config);
 
             Config.AddToMainMenu();
