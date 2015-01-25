@@ -155,8 +155,7 @@ namespace DZAIO.Champions
             //Normal R Casting in Combo
 
             if (_spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo) && target.IsValidTarget(_spells[SpellSlot.R].Range) && _spells[SpellSlot.R].IsKillable(rTarget) &&
-                !(DZAIO.Player.Distance(rTarget) < DZAIO.Player.AttackRange) &&
-                !(_spells[SpellSlot.Q].IsKillable(rTarget) && rTarget.IsValidTarget(_spells[SpellSlot.Q].Range)))
+                !(DZAIO.Player.Distance(rTarget) < DZAIO.Player.AttackRange))
             {
                 _spells[SpellSlot.R].CastIfHitchanceEquals(rTarget, DZUtility.GetHitchance());
             }
