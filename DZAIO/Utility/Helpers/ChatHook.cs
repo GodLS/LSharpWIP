@@ -25,8 +25,7 @@ namespace DZAIO.Utility.Helpers
             {
                 case ".debug":
                     DZAIO.IsDebug = !DZAIO.IsDebug;
-                    DebugHelper.PrintDebug("Status: "+DZAIO.IsDebug);
-                    args.Process = false;
+                    Game.PrintChat("[DZAIO] Debug Status: "+DZAIO.IsDebug);
                     break;
                 default:
                     return;
