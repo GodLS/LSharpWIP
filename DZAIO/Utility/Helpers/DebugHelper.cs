@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using LeagueSharp;
-using SharpDX;
 
 using Colro = System.Drawing.Color;
 namespace DZAIO.Utility.Helpers
@@ -13,6 +8,8 @@ namespace DZAIO.Utility.Helpers
     class DebugHelper
     {
         public static Dictionary<String,String> DebugDictionary = new Dictionary<string, string>();
+        private static float _lastPrint;
+
         public static void OnLoad()
         {
             Drawing.OnDraw += Drawing_OnDraw;
@@ -30,16 +27,15 @@ namespace DZAIO.Utility.Helpers
             }
         }
 
-        public static void AddEntry(String Key, String Value)
+        public static void AddEntry(String key, String value)
         {
-            if (DebugDictionary.ContainsKey(Key))
+            if (DebugDictionary.ContainsKey(key))
             {
-                DebugDictionary[Key] = Value;
+                DebugDictionary[key] = value;
             }
             else
             {
-                DebugDictionary.Add(Key,Value);
-                
+                DebugDictionary.Add(key,value); 
             }
         }
 
@@ -47,8 +43,11 @@ namespace DZAIO.Utility.Helpers
         {
             if (!DZAIO.IsDebug)
                 return;
-
-            Game.PrintChat("<font='#FF0000'>[DZAIO]</font><font color='#FFFFFF'>"+message+"</font>");
+            if (Environment.TickCount - _lastPrint > 150)
+            {
+                _lastPrint = Environment.TickCount;
+                Game.PrintChat("<font='#FF0000'>[DZAIO]</font><font color='#FFFFFF'>" + message + "</font>");
+            }
         }
     }
 }
