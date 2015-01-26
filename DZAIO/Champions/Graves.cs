@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DZAIO.Utility;
+using DZAIO.Utility.Drawing;
 using DZAIO.Utility.Helpers;
 using LeagueSharp;
 using LeagueSharp.Common;
@@ -13,7 +14,7 @@ namespace DZAIO.Champions
     {
         private readonly Dictionary<SpellSlot, Spell> _spells = new Dictionary<SpellSlot, Spell>
         {
-            { SpellSlot.Q, new Spell(SpellSlot.Q, 950f) },
+            { SpellSlot.Q, new Spell(SpellSlot.Q, 800f) },
             { SpellSlot.W, new Spell(SpellSlot.W, 950f) },
             { SpellSlot.E, new Spell(SpellSlot.E, 425f) },
             { SpellSlot.R, new Spell(SpellSlot.R, 1100f) } //TODO Tweak this. It has 1000 range + 800 in cone
@@ -27,6 +28,7 @@ namespace DZAIO.Champions
             comboMenu.addManaManager(Mode.Combo, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E, SpellSlot.R }, new[] { 30, 35, 20, 5 });
             var comboOptions = new Menu("Skills Options", "COptions");
             {
+
                 comboOptions.AddItem(new MenuItem("OnlyWEn", "Only W if hit x enemies").SetValue(new Slider(2, 1, 5)));
                 comboOptions.AddItem(new MenuItem("ESlideRange", "E Distance").SetValue(new Slider(350, 1, 425)));
                 comboOptions.AddItem(new MenuItem("DoECancel", "Use E to cancel Q & R animation").SetValue(true));
@@ -114,7 +116,7 @@ namespace DZAIO.Champions
 
         public float getComboDamage(Obj_AI_Hero unit)
         {
-            return _spells.Where(spell => spell.Value.IsReady()).Sum(spell => (float) DZAIO.Player.GetSpellDamage(unit, spell.Key));
+            return _spells.Where(spell => spell.Value.IsReady()).Sum(spell => (float) DZAIO.Player.GetSpellDamage(unit, spell.Key)) + (float)DZAIO.Player.GetAutoAttackDamage(unit)*2;
         }
 
         void Game_OnGameUpdate(EventArgs args)
@@ -162,7 +164,7 @@ namespace DZAIO.Champions
 
             //Normal R Casting in Combo
 
-            if (_spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo) && target.IsValidTarget(_spells[SpellSlot.R].Range) && _spells[SpellSlot.R].IsKillable(rTarget) &&
+            if (_spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo) && _spells[SpellSlot.R].IsKillable(rTarget) &&
                 !(DZAIO.Player.Distance(rTarget) < DZAIO.Player.AttackRange))
             {
                 _spells[SpellSlot.R].CastIfHitchanceEquals(rTarget, MenuHelper.GetHitchance());
@@ -182,7 +184,7 @@ namespace DZAIO.Champions
             if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo) && OkToE(finalPosition))
             {
                 _spells[SpellSlot.Q].UpdateSourcePosition(finalPosition);
-                if (_spells[SpellSlot.Q].IsKillable(eqTarget) &&
+                if (_spells[SpellSlot.Q].IsKillable(eqTarget) && _spells[SpellSlot.Q].IsReady() &&
                     eqTarget.IsValidTarget(MenuHelper.getSliderValue("ESlideRange") + _spells[SpellSlot.Q].Range ) &&
                     _spells[SpellSlot.Q].GetPrediction(eqTarget).Hitchance >= MenuHelper.GetHitchance())
                 {
@@ -192,7 +194,7 @@ namespace DZAIO.Champions
                 _spells[SpellSlot.Q].UpdateSourcePosition(DZAIO.Player.ServerPosition);
 
                 _spells[SpellSlot.R].UpdateSourcePosition(finalPosition);
-                if (_spells[SpellSlot.R].IsKillable(erTarget) &&
+                if (_spells[SpellSlot.R].IsKillable(erTarget) && _spells[SpellSlot.R].IsReady() &&
                     erTarget.IsValidTarget(MenuHelper.getSliderValue("ESlideRange") + _spells[SpellSlot.R].Range) &&
                     _spells[SpellSlot.R].GetPrediction(erTarget).Hitchance >= MenuHelper.GetHitchance())
                 {

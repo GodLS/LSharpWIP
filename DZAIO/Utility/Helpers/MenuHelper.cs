@@ -19,8 +19,8 @@ namespace DZAIO.Utility
 
             try
             {
-                var mana = getSliderValue(getStringFromSpellSlot(spell.Slot) + "Mana" + getStringFromMode(mode));
-                var isEn = isMenuEnabled("Use" + getStringFromSpellSlot(spell.Slot) + getStringFromMode(mode));
+                var mana = getSliderValue(DZAIO.Player.ChampionName + getStringFromSpellSlot(spell.Slot) + "Mana" + getStringFromMode(mode));
+                var isEn = isMenuEnabled(DZAIO.Player.ChampionName + "Use" + getStringFromSpellSlot(spell.Slot) + getStringFromMode(mode));
                 return spell.IsReady() && (ObjectManager.Player.ManaPercentage() >= mana) && isEn;
             }
             catch (Exception e)
@@ -36,7 +36,7 @@ namespace DZAIO.Utility
             {
                 mm_Menu.AddItem(
                     new MenuItem(
-                        getStringFromSpellSlot(spellList[i]) + "Mana" + getStringFromMode(mode),
+                        DZAIO.Player.ChampionName+getStringFromSpellSlot(spellList[i]) + "Mana" + getStringFromMode(mode),
                         getStringFromSpellSlot(spellList[i]) + " Mana").SetValue(new Slider(ManaCosts[i])));
             }
             menu.AddSubMenu(mm_Menu);
@@ -47,7 +47,7 @@ namespace DZAIO.Utility
             {
                 menu.AddItem(
                     new MenuItem(
-                        "Use" + getStringFromSpellSlot(spellList[i]) + getStringFromMode(mode),
+                        DZAIO.Player.ChampionName+"Use" + getStringFromSpellSlot(spellList[i]) + getStringFromMode(mode),
                         "Use " + getStringFromSpellSlot(spellList[i]) + " " + getFullNameFromMode(mode)).SetValue(values[i]));
             }
         }
@@ -71,7 +71,8 @@ namespace DZAIO.Utility
 
         public static bool isMenuEnabled(String item)
         {
-            return DZAIO.Config.Item(item).GetValue<bool>();
+            var startString = item.StartsWith("Use") ? DZAIO.Player.ChampionName : "";
+            return DZAIO.Config.Item(startString+item).GetValue<bool>();
         }
 
         public static int getSliderValue(String item)

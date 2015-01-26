@@ -24,13 +24,14 @@ namespace DZAIO
         { 
            {"Jinx",() => new Jinx()},
            {"Graves",() => new Graves()},
+           {"Zilean",() => new Zilean()}
         };
         public static Menu Config { get; set; }
         public static Orbwalking.Orbwalker Orbwalker { get; set; }
         public static Obj_AI_Hero Player { get; set; }
         public static IChampion CurrentChampion { get; set; }
 
-        public static bool IsDebug = false;
+        public static bool IsDebug = true;
         public static int Revision = 7;
 
         public static void OnLoad()
@@ -52,7 +53,7 @@ namespace DZAIO
             }
             ChatHook.OnLoad();
             DebugHelper.OnLoad();
-            PotionManager.OnLoad(Config);
+            //PotionManager.OnLoad(Config);
 
             Config.AddToMainMenu();
         }

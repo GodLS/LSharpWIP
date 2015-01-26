@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using LeagueSharp;
-
 using Colro = System.Drawing.Color;
 namespace DZAIO.Utility.Helpers
 {
@@ -12,7 +11,7 @@ namespace DZAIO.Utility.Helpers
 
         public static void OnLoad()
         {
-            Drawing.OnDraw += Drawing_OnDraw;
+            LeagueSharp.Drawing.OnDraw += Drawing_OnDraw;
         }
 
         static void Drawing_OnDraw(EventArgs args)
@@ -22,7 +21,7 @@ namespace DZAIO.Utility.Helpers
             var counter = 1;
             foreach (var entry in DebugDictionary)
             {
-                Drawing.DrawText(25f, 10f + (20f * counter), System.Drawing.Color.White, entry.Key + ": " + entry.Value);
+                LeagueSharp.Drawing.DrawText(25f, 10f + (20f * counter), System.Drawing.Color.White, entry.Key + ": " + entry.Value);
                 counter++;
             }
         }

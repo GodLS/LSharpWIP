@@ -1,29 +1,23 @@
-﻿﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
+﻿using System;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using LeagueSharp;
 using LeagueSharp.Common;
-
 using SharpDX;
 using SharpDX.Direct3D9;
 
-namespace DZAIO
+namespace DZAIO.Utility.Drawing
 {
     /**
      * Full Credits to Hellsing
      * */
     public class DamageIndicator
     {
-        private static bool initialized = false;
-        private const float BAR_WIDTH = 104;
+        private static bool _initialized = false;
+        private const float BarWidth = 104;
 
-        private static readonly Line line = new Line(Drawing.Direct3DDevice) { Width = 9 };
+        private static readonly Line Line = new Line(LeagueSharp.Drawing.Direct3DDevice) { Width = 9 };
 
-        private static LeagueSharp.Common.Utility.HpBarDamageIndicator.DamageToUnitDelegate damageToUnit;
+        private static LeagueSharp.Common.Utility.HpBarDamageIndicator.DamageToUnitDelegate _damageToUnit;
 
         private static Vector2 BarOffset
         {
@@ -44,21 +38,21 @@ namespace DZAIO
 
         public static void Initialize(LeagueSharp.Common.Utility.HpBarDamageIndicator.DamageToUnitDelegate damageToUnit)
         {
-            if (initialized)
+            if (_initialized)
                 return;
 
             // Apply needed field delegate for damage calculation
-            DamageIndicator.damageToUnit = damageToUnit;
-            Color = System.Drawing.Color.Aqua;
+            DamageIndicator._damageToUnit = damageToUnit;
+            Color = System.Drawing.Color.DarkOrange;
 
             // Register event handlers
-            Drawing.OnDraw += Drawing_OnDraw;
-            Drawing.OnPreReset += Drawing_OnPreReset;
-            Drawing.OnPostReset += Drawing_OnOnPostReset;
+            LeagueSharp.Drawing.OnDraw += Drawing_OnDraw;
+            LeagueSharp.Drawing.OnPreReset += Drawing_OnPreReset;
+            LeagueSharp.Drawing.OnPostReset += Drawing_OnOnPostReset;
             AppDomain.CurrentDomain.DomainUnload += OnProcessExit;
             AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
 
-            initialized = true;
+            _initialized = true;
         }
 
         private static void Drawing_OnDraw(EventArgs args)
@@ -66,7 +60,7 @@ namespace DZAIO
             foreach (var unit in ObjectManager.Get<Obj_AI_Hero>().Where(u => u.IsValidTarget()))
             {
                 // Get damage to unit
-                var damage = damageToUnit(unit);
+                var damage = _damageToUnit(unit);
 
                 // Continue on 0 damage
                 if (damage == 0)
@@ -77,29 +71,29 @@ namespace DZAIO
                 var currentHealthPercentage = unit.Health / unit.MaxHealth;
 
                 // Calculate start and end point of the bar indicator
-                var startPoint = new Vector2((int)(unit.HPBarPosition.X + BarOffset.X + damagePercentage * BAR_WIDTH), (int)(unit.HPBarPosition.Y + BarOffset.Y) + 4);
-                var endPoint = new Vector2((int)(unit.HPBarPosition.X + BarOffset.X + currentHealthPercentage * BAR_WIDTH) + 1, (int)(unit.HPBarPosition.Y + BarOffset.Y) + 4);
+                var startPoint = new Vector2((int)(unit.HPBarPosition.X + BarOffset.X + damagePercentage * BarWidth), (int)(unit.HPBarPosition.Y + BarOffset.Y) + 4);
+                var endPoint = new Vector2((int)(unit.HPBarPosition.X + BarOffset.X + currentHealthPercentage * BarWidth) + 1, (int)(unit.HPBarPosition.Y + BarOffset.Y) + 4);
 
                 // Draw the DirectX line
-                line.Begin();
-                line.Draw(new[] { startPoint, endPoint }, _colorBgra);
-                line.End();
+                Line.Begin();
+                Line.Draw(new[] { startPoint, endPoint }, _colorBgra);
+                Line.End();
             }
         }
 
         private static void Drawing_OnPreReset(EventArgs args)
         {
-            line.OnLostDevice();
+            Line.OnLostDevice();
         }
 
         private static void Drawing_OnOnPostReset(EventArgs args)
         {
-            line.OnResetDevice();
+            Line.OnResetDevice();
         }
 
         private static void OnProcessExit(object sender, EventArgs eventArgs)
         {
-            line.Dispose();
+            Line.Dispose();
         }
     }
 }
