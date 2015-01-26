@@ -43,9 +43,12 @@ namespace DZAIO.Utility.Helpers
             }
         }
 
-        public static void PrintDebug(String Message)
+        public static void PrintDebug(String message)
         {
-            Game.PrintChat("<font='#FF0000'>[DZAIO]</font><font color='#FFFFFF'>"+Message+"</font>");
+            if (!DZAIO.IsDebug)
+                return;
+
+            Game.PrintChat("<font='#FF0000'>[DZAIO]</font><font color='#FFFFFF'>"+message+"</font>");
         }
     }
 }

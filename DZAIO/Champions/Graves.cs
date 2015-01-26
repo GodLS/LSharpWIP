@@ -177,46 +177,29 @@ namespace DZAIO.Champions
             DebugHelper.AddEntry("Time", (MenuHelper.getSliderValue("ESlideRange") / 900f).ToString());
             DebugHelper.AddEntry("Prediction Check", (_spells[SpellSlot.Q].GetPrediction(eqTarget).Hitchance >= MenuHelper.GetHitchance()).ToString());
             DebugHelper.AddEntry("Valid", (eqTarget.IsValidTarget(_spells[SpellSlot.Q].Range + MenuHelper.getSliderValue("ESlideRange"))).ToString());
-            //E-Q Casting in Combo
-            if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo) &&
-                    (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo)) &&
-                    DZAIO.Player.Distance(eqTarget) >  _spells[SpellSlot.Q].Range &&
-                    OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("ESlideRange")))
-                    && eqTarget.IsValidTarget(_spells[SpellSlot.Q].Range + MenuHelper.getSliderValue("ESlideRange")))
+            //E-Q / E-R Casting in Combo
+            var finalPosition = DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("ESlideRange"));
+            if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo) && OkToE(finalPosition))
             {
-                var finalPosition = DZAIO.Player.Position.Extend(
-                    Game.CursorPos, MenuHelper.getSliderValue("ESlideRange"));
                 _spells[SpellSlot.Q].UpdateSourcePosition(finalPosition);
-                if (_spells[SpellSlot.Q].GetPrediction(eqTarget).Hitchance >= MenuHelper.GetHitchance() && eqTarget.IsValidTarget(_spells[SpellSlot.Q].Range,true,finalPosition))
+                if (_spells[SpellSlot.Q].IsKillable(eqTarget) &&
+                    eqTarget.IsValidTarget(MenuHelper.getSliderValue("ESlideRange") + _spells[SpellSlot.Q].Range ) &&
+                    _spells[SpellSlot.Q].GetPrediction(eqTarget).Hitchance >= MenuHelper.GetHitchance())
                 {
-                    Game.PrintChat("Done");
-                    _spells[SpellSlot.E].Cast(Game.CursorPos);
-                    var time = 1000*(MenuHelper.getSliderValue("ESlideRange") / 900f);
-                    LeagueSharp.Common.Utility.DelayAction.Add(
-                        (int)time, () => _spells[SpellSlot.E].Cast(Game.CursorPos));
+                    _spells[SpellSlot.E].Cast(finalPosition);
+                    DebugHelper.PrintDebug("Casted EQ Combo");
                 }
-                _spells[SpellSlot.Q].UpdateSourcePosition(DZAIO.Player.Position);
-            }    
-            
-            //E-R Casting in Combo
+                _spells[SpellSlot.Q].UpdateSourcePosition(DZAIO.Player.ServerPosition);
 
-            if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo) &&
-                (_spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo)) &&
-                DZAIO.Player.Distance(erTarget) > _spells[SpellSlot.R].Range &&
-                OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("ESlideRange"))))
-            {
-                var finalPosition = DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("ESlideRange"));
                 _spells[SpellSlot.R].UpdateSourcePosition(finalPosition);
-                if (_spells[SpellSlot.R].GetPrediction(erTarget).Hitchance >= MenuHelper.GetHitchance() &&
-                    _spells[SpellSlot.R].IsKillable(erTarget)
-                     && erTarget.IsValidTarget(_spells[SpellSlot.R].Range + MenuHelper.getSliderValue("ESlideRange")) && erTarget.IsValidTarget(_spells[SpellSlot.R].Range,true,finalPosition))
+                if (_spells[SpellSlot.R].IsKillable(erTarget) &&
+                    erTarget.IsValidTarget(MenuHelper.getSliderValue("ESlideRange") + _spells[SpellSlot.R].Range) &&
+                    _spells[SpellSlot.R].GetPrediction(erTarget).Hitchance >= MenuHelper.GetHitchance())
                 {
-                    _spells[SpellSlot.E].Cast(Game.CursorPos);
-                    var time = 1000*(MenuHelper.getSliderValue("ESlideRange") / 900f);
-                    LeagueSharp.Common.Utility.DelayAction.Add((int)time, () => _spells[SpellSlot.R].Cast(Game.CursorPos));
+                    _spells[SpellSlot.E].Cast(finalPosition);
+                    DebugHelper.PrintDebug("Casted ER Combo");
                 }
-                _spells[SpellSlot.R].UpdateSourcePosition(DZAIO.Player.Position);    
-           
+                _spells[SpellSlot.R].UpdateSourcePosition(DZAIO.Player.ServerPosition);
             }
         }
 
