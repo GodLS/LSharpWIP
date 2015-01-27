@@ -24,20 +24,20 @@ namespace DZAIO.Champions
         {
             var cName = ObjectManager.Player.ChampionName;
 
-            var comboMenu = new Menu(cName + " - Combo", "Combo");
+            var comboMenu = new Menu(cName + " - Combo", "ZileanCombo");
             comboMenu.addModeMenu(Mode.Combo, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E, SpellSlot.R }, new[] { true, true, true, true });
             comboMenu.addManaManager(Mode.Combo, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E, SpellSlot.R }, new[] { 30, 35, 20, 5 });
             
 
             menu.AddSubMenu(comboMenu);
 
-            var harrassMenu = new Menu(cName + " - Harrass", "Harrass");
+            var harrassMenu = new Menu(cName + " - Harrass", "ZileanHarrass");
             harrassMenu.addModeMenu(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.W }, new[] { true, true });
             harrassMenu.addManaManager(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E }, new[] { 30, 35, 20 });
 
             menu.AddSubMenu(harrassMenu);
 
-            var farmMenu = new Menu(cName + " - Farm", "Farm");
+            var farmMenu = new Menu(cName + " - Farm", "ZileanFarm");
             farmMenu.addModeMenu(Mode.Farm, new[] { SpellSlot.Q }, new[] { true });
             farmMenu.addManaManager(Mode.Farm, new[] { SpellSlot.Q }, new[] { 40 });
 
@@ -45,12 +45,14 @@ namespace DZAIO.Champions
 
             var miscMenu = new Menu(cName + " - Misc", "Misc");
             {
-                miscMenu.AddItem(new MenuItem("AntiGPE", "E AntiGapcloser").SetValue(true));
-                miscMenu.AddItem(new MenuItem("AutoUlt", "Auto Ult").SetValue(true));
-                miscMenu.AddItem(new MenuItem("AutoUltMana", "Auto Ult Mana %").SetValue(new Slider(10)));
+                miscMenu.AddItem(new MenuItem("ZileanAntiGPE", "E AntiGapcloser").SetValue(true));
+                miscMenu.AddItem(new MenuItem("ZileanAutoUlt", "Auto Ult").SetValue(true));
+                miscMenu.AddItem(new MenuItem("ZileanAutoUltMana", "Auto Ult Mana %").SetValue(new Slider(10)));
             }
 
             menu.addNoUltiMenu(true);
+            SummonerSpells.Heal.Cast();
+            SummonerSpells.Flash.Cast(Game.CursorPos);
 
         }
 
@@ -85,8 +87,8 @@ namespace DZAIO.Champions
         {
             DebugHelper.AddEntry("Spell Q", _spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo).ToString());
             DebugHelper.AddEntry("Spell Q Menu != null", (DZAIO.Config.Item("ZileanUseQC") != null).ToString());
-            DebugHelper.AddEntry("Spell Q Menu enabled", (MenuHelper.IsEnabledAndReady(_spells[SpellSlot.Q],Mode.Combo)).ToString());
-            DebugHelper.AddEntry("Spell E Menu enabled", (MenuHelper.IsEnabledAndReady(_spells[SpellSlot.E], Mode.Combo)).ToString());
+            DebugHelper.AddEntry("Spell Q Menu enabled", (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo)).ToString());
+            DebugHelper.AddEntry("Spell E Menu enabled", (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo)).ToString());
 
             switch (_orbwalker.ActiveMode)
             {

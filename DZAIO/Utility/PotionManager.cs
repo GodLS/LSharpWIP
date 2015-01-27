@@ -67,7 +67,7 @@ namespace DZAIO.Utility
 
             if (DZAIO.Player.IsDead || DZAIO.Player.IsRecalling() || DZAIO.Player.InFountain() || DZAIO.Player.InShop())
                 return;
-            if (!HealthBuff() && DZAIO.Player.HealthPercentage() < MenuHelper.getSliderValue("minHP"))
+            if (!HealthBuff() && DZAIO.Player.HealthPercentage() < MenuHelper.getSliderValue(DZAIO.Player.ChampionName + "minHP"))
             {
                 var hpSlot = GetHpSlot();
 
@@ -77,7 +77,7 @@ namespace DZAIO.Utility
                     return;
                 }
             }
-            if (!ManaBuff() && DZAIO.Player.ManaPercentage() < MenuHelper.getSliderValue("minMana"))
+            if (!ManaBuff() && DZAIO.Player.ManaPercentage() < MenuHelper.getSliderValue(DZAIO.Player.ChampionName + "minMana"))
             {
                 var manaSlot = GetManaSlot();
                 if (manaSlot != SpellSlot.Unknown && manaSlot.IsReady())
@@ -90,15 +90,15 @@ namespace DZAIO.Utility
         private static void AddMenu(Menu menu)
         {
             var cName = DZAIO.Player.ChampionName;
-            var potMenu = new Menu(cName + " - Potion Manager", "PotM");
-            var potItems = new Menu("Potions", "Pots");
+            var potMenu = new Menu(cName + " - Potion Manager", DZAIO.Player.ChampionName+"PotM");
+            var potItems = new Menu("Potions", DZAIO.Player.ChampionName + "Pots");
             foreach (var potion in Potions)
             {
                 potItems.AddItem(new MenuItem(((int)potion.ItemId).ToString(),potion.Name).SetValue(true));
             }
             potMenu.AddSubMenu(potItems);
-            potMenu.AddItem(new MenuItem("minHP", "Min Health %",true).SetValue(new Slider(30)));
-            potMenu.AddItem(new MenuItem("minMana", "Min Mana %",true).SetValue(new Slider(35)));
+            potMenu.AddItem(new MenuItem(DZAIO.Player.ChampionName + "minHP", "Min Health %", true).SetValue(new Slider(30)));
+            potMenu.AddItem(new MenuItem(DZAIO.Player.ChampionName + "minMana", "Min Mana %", true).SetValue(new Slider(35)));
             menu.AddSubMenu(potMenu);
         }
 

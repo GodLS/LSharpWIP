@@ -42,8 +42,8 @@ namespace DZAIO.Utility.Drawing
                 return;
 
             // Apply needed field delegate for damage calculation
-            DamageIndicator._damageToUnit = damageToUnit;
-            Color = System.Drawing.Color.DarkOrange;
+            _damageToUnit = damageToUnit;
+            Color = System.Drawing.Color.Yellow;
 
             // Register event handlers
             LeagueSharp.Drawing.OnDraw += Drawing_OnDraw;

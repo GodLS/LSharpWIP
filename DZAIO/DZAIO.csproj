@@ -75,6 +75,7 @@
     <Compile Include="Utility\Drawing\ScopeHelper.cs" />
     <Compile Include="Utility\ItemManager.cs" />
     <Compile Include="Utility\PotionManager.cs" />
+    <Compile Include="Utility\SummonerSpells.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

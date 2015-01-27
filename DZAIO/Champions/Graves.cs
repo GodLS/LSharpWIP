@@ -23,10 +23,10 @@ namespace DZAIO.Champions
         public void OnLoad(Menu menu)
         {
             var cName = ObjectManager.Player.ChampionName;
-            var comboMenu = new Menu(cName + " - Combo", "Combo");
+            var comboMenu = new Menu(cName + " - Combo", "GravesCombo");
             comboMenu.addModeMenu(Mode.Combo, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E, SpellSlot.R }, new[] { true, true, true, true });
             comboMenu.addManaManager(Mode.Combo, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E, SpellSlot.R }, new[] { 30, 35, 20, 5 });
-            var comboOptions = new Menu("Skills Options", "COptions");
+            var comboOptions = new Menu("Skills Options", "GravesCOptions");
             {
 
                 comboOptions.AddItem(new MenuItem("OnlyWEn", "Only W if hit x enemies").SetValue(new Slider(2, 1, 5)));
@@ -35,20 +35,20 @@ namespace DZAIO.Champions
             }
             comboMenu.AddSubMenu(comboOptions);
             menu.AddSubMenu(comboMenu);
-            var harrassMenu = new Menu(cName + " - Harrass", "Harrass");
+            var harrassMenu = new Menu(cName + " - Harrass", "GravesHarrass");
             harrassMenu.addModeMenu(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.W }, new[] { true, true });
             harrassMenu.addManaManager(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.W }, new[] { 30, 35 });
             harrassMenu.AddItem(new MenuItem("OnlyWEnH", "Only W if hit x enemies").SetValue(new Slider(2, 1, 5)));
             menu.AddSubMenu(harrassMenu);
-            var farmMenu = new Menu(cName + " - Farm", "Farm");
+            var farmMenu = new Menu(cName + " - Farm", "GravesFarm");
             farmMenu.addModeMenu(Mode.Farm, new[] { SpellSlot.Q }, new[] { true });
             farmMenu.addManaManager(Mode.Farm, new[] { SpellSlot.Q }, new[] { 40 });
             menu.AddSubMenu(farmMenu);
-            var miscMenu = new Menu(cName + " - Misc", "Misc");
+            var miscMenu = new Menu(cName + " - Misc", "GravesMisc");
             {
-                miscMenu.AddItem(new MenuItem("AntiGPW", "W AntiGapcloser").SetValue(true));
-                miscMenu.AddItem(new MenuItem("AntiGPE", "E AntiGapcloser").SetValue(true));
-                miscMenu.AddItem(new MenuItem("ManualR", "Manual R").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
+                miscMenu.AddItem(new MenuItem("GravesAntiGPW", "W AntiGapcloser").SetValue(true));
+                miscMenu.AddItem(new MenuItem("GravesAntiGPE", "E AntiGapcloser").SetValue(true));
+                miscMenu.AddItem(new MenuItem("GravesManualR", "Manual R").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
             }
             miscMenu.addHitChanceSelector();
 
@@ -68,11 +68,11 @@ namespace DZAIO.Champions
         void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
             var endPoint = gapcloser.End;
-            if (MenuHelper.isMenuEnabled("AntiGPW") && _spells[SpellSlot.W].IsReady())
+            if (MenuHelper.isMenuEnabled("GravesAntiGPW") && _spells[SpellSlot.W].IsReady())
             {
                 _spells[SpellSlot.W].Cast(endPoint);
             }
-            if (MenuHelper.isMenuEnabled("AntiGPE") && _spells[SpellSlot.E].IsReady())
+            if (MenuHelper.isMenuEnabled("GravesAntiGPE") && _spells[SpellSlot.E].IsReady())
             {
                 var extended = ObjectManager.Player.Position.Extend(gapcloser.Start, -_spells[SpellSlot.E].Range);
                 if (OkToE(extended))
@@ -176,7 +176,6 @@ namespace DZAIO.Champions
             DebugHelper.AddEntry("Q Ready", _spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo).ToString());
             DebugHelper.AddEntry("Distance Check", (DZAIO.Player.Distance(eqTarget) > _spells[SpellSlot.Q].Range).ToString());
             DebugHelper.AddEntry("OkToE", OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("ESlideRange"))).ToString());
-            DebugHelper.AddEntry("Time", (MenuHelper.getSliderValue("ESlideRange") / 900f).ToString());
             DebugHelper.AddEntry("Prediction Check", (_spells[SpellSlot.Q].GetPrediction(eqTarget).Hitchance >= MenuHelper.GetHitchance()).ToString());
             DebugHelper.AddEntry("Valid", (eqTarget.IsValidTarget(_spells[SpellSlot.Q].Range + MenuHelper.getSliderValue("ESlideRange"))).ToString());
             //E-Q / E-R Casting in Combo
