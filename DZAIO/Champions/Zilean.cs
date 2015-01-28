@@ -25,21 +25,21 @@ namespace DZAIO.Champions
             var cName = ObjectManager.Player.ChampionName;
 
             var comboMenu = new Menu(cName + " - Combo", "ZileanCombo");
-            comboMenu.addModeMenu(Mode.Combo, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E, SpellSlot.R }, new[] { true, true, true, true });
-            comboMenu.addManaManager(Mode.Combo, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E, SpellSlot.R }, new[] { 30, 35, 20, 5 });
+            comboMenu.AddModeMenu(Mode.Combo, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E, SpellSlot.R }, new[] { true, true, true, true });
+            comboMenu.AddManaManager(Mode.Combo, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E, SpellSlot.R }, new[] { 30, 35, 20, 5 });
             
 
             menu.AddSubMenu(comboMenu);
 
             var harrassMenu = new Menu(cName + " - Harrass", "ZileanHarrass");
-            harrassMenu.addModeMenu(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.W }, new[] { true, true });
-            harrassMenu.addManaManager(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E }, new[] { 30, 35, 20 });
+            harrassMenu.AddModeMenu(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.W }, new[] { true, true });
+            harrassMenu.AddManaManager(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E }, new[] { 30, 35, 20 });
 
             menu.AddSubMenu(harrassMenu);
 
             var farmMenu = new Menu(cName + " - Farm", "ZileanFarm");
-            farmMenu.addModeMenu(Mode.Farm, new[] { SpellSlot.Q }, new[] { true });
-            farmMenu.addManaManager(Mode.Farm, new[] { SpellSlot.Q }, new[] { 40 });
+            farmMenu.AddModeMenu(Mode.Farm, new[] { SpellSlot.Q }, new[] { true });
+            farmMenu.AddManaManager(Mode.Farm, new[] { SpellSlot.Q }, new[] { 40 });
 
             menu.AddSubMenu(farmMenu);
 
@@ -50,7 +50,7 @@ namespace DZAIO.Champions
                 miscMenu.AddItem(new MenuItem("ZileanAutoUltMana", "Auto Ult Mana %").SetValue(new Slider(10)));
             }
 
-            menu.addNoUltiMenu(true);
+            menu.AddNoUltiMenu(true);
             SummonerSpells.Heal.Cast();
             SummonerSpells.Flash.Cast(Game.CursorPos);
 

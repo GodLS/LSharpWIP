@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using DZAIO.Utility.Helpers;
 using LeagueSharp;
 using LeagueSharp.Common;
 
@@ -170,7 +171,7 @@ namespace DZAIO.Utility
             buffCleanserMenu.AddItem(new MenuItem(cName + "MinBuffs", "Min Buffs").SetValue(new Slider(2, 1, 5)));
             MenuInstance.AddSubMenu(spellCleanserMenu);
             MenuInstance.AddSubMenu(buffCleanserMenu);
-            spellSubmenu.addUseOnMenu(true,"Cleanser");
+            spellSubmenu.AddUseOnMenu(true,"Cleanser -");
 
             spellSubmenu.AddItem(new MenuItem(cName + "QSS", "Use QSS").SetValue(true));
             spellSubmenu.AddItem(new MenuItem(cName + "Scimitar", "Use Mercurial Scimitar").SetValue(true));

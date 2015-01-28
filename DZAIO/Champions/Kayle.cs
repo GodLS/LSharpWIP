@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DZAIO.Utility;
+using DZAIO.Utility.Helpers;
 using LeagueSharp;
 using LeagueSharp.Common;
 
@@ -21,16 +22,16 @@ namespace DZAIO.Champions
         {
             var cName = ObjectManager.Player.ChampionName;
             var comboMenu = new Menu(cName + " - Combo", "Combo");
-            comboMenu.addModeMenu(Mode.Combo, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E, SpellSlot.R }, new[] { true, true, true, true });
-            comboMenu.addManaManager(Mode.Combo, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E, SpellSlot.R }, new[] { 30, 35, 20, 5 });
+            comboMenu.AddModeMenu(Mode.Combo, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E, SpellSlot.R }, new[] { true, true, true, true });
+            comboMenu.AddManaManager(Mode.Combo, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E, SpellSlot.R }, new[] { 30, 35, 20, 5 });
             menu.AddSubMenu(comboMenu);
             var harrassMenu = new Menu(cName + " - Harrass", "Harrass");
-            harrassMenu.addModeMenu(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E }, new[] { true, true, false });
-            harrassMenu.addManaManager(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E }, new[] { 30, 35, 20 });
+            harrassMenu.AddModeMenu(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E }, new[] { true, true, false });
+            harrassMenu.AddManaManager(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E }, new[] { 30, 35, 20 });
             menu.AddSubMenu(harrassMenu);
             var farmMenu = new Menu(cName + " - Farm", "Farm");
-            farmMenu.addModeMenu(Mode.Farm, new[] { SpellSlot.Q }, new[] { true });
-            farmMenu.addManaManager(Mode.Farm, new[] { SpellSlot.Q }, new[] { 40 });
+            farmMenu.AddModeMenu(Mode.Farm, new[] { SpellSlot.Q }, new[] { true });
+            farmMenu.AddManaManager(Mode.Farm, new[] { SpellSlot.Q }, new[] { 40 });
             menu.AddSubMenu(farmMenu);
             var miscMenu = new Menu(cName + " - Misc", "Misc");
             {

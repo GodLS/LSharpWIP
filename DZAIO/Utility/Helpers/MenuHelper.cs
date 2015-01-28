@@ -1,17 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
 
-namespace DZAIO.Utility
+namespace DZAIO.Utility.Helpers
 {
     static class MenuHelper
     {
-
-        //Utility Methods will go here
         public static bool IsEnabledAndReady(this Spell spell, Mode mode)
         {
             if (DZAIO.Player.IsDead)
@@ -19,8 +14,8 @@ namespace DZAIO.Utility
 
             try
             {
-                var mana = getSliderValue(DZAIO.Player.ChampionName + getStringFromSpellSlot(spell.Slot) + "Mana" + getStringFromMode(mode));
-                var isEn = isMenuEnabled(DZAIO.Player.ChampionName + "Use" + getStringFromSpellSlot(spell.Slot) + getStringFromMode(mode));
+                var mana = getSliderValue(DZAIO.Player.ChampionName + GetStringFromSpellSlot(spell.Slot) + "Mana" + GetStringFromMode(mode));
+                var isEn = isMenuEnabled(DZAIO.Player.ChampionName + "Use" + GetStringFromSpellSlot(spell.Slot) + GetStringFromMode(mode));
                 return spell.IsReady() && (ObjectManager.Player.ManaPercentage() >= mana) && isEn;
             }
             catch (Exception e)
@@ -29,51 +24,51 @@ namespace DZAIO.Utility
             }
             return false;
         }
-        public static void addManaManager(this Menu menu, Mode mode, SpellSlot[] spellList, int[] ManaCosts)
+        public static void AddManaManager(this Menu menu, Mode mode, SpellSlot[] spellList, int[] ManaCosts)
         {
-            var mm_Menu = new Menu("Mana Manager", "mm_" + getStringFromMode(mode));
-            for (int i = 0; i < spellList.Count(); i++)
+            var mmMenu = new Menu("Mana Manager", "mm_" + GetStringFromMode(mode));
+            for (var i = 0; i < spellList.Count(); i++)
             {
-                mm_Menu.AddItem(
+                mmMenu.AddItem(
                     new MenuItem(
-                        DZAIO.Player.ChampionName+getStringFromSpellSlot(spellList[i]) + "Mana" + getStringFromMode(mode),
-                        getStringFromSpellSlot(spellList[i]) + " Mana").SetValue(new Slider(ManaCosts[i])));
+                        DZAIO.Player.ChampionName+GetStringFromSpellSlot(spellList[i]) + "Mana" + GetStringFromMode(mode),
+                        GetStringFromSpellSlot(spellList[i]) + " Mana").SetValue(new Slider(ManaCosts[i])));
             }
-            menu.AddSubMenu(mm_Menu);
+            menu.AddSubMenu(mmMenu);
         }
-        public static void addModeMenu(this Menu menu, Mode mode, SpellSlot[] spellList, bool[] values)
+        public static void AddModeMenu(this Menu menu, Mode mode, SpellSlot[] spellList, bool[] values)
         {
-            for (int i = 0; i < spellList.Count(); i++)
+            for (var i = 0; i < spellList.Count(); i++)
             {
                 menu.AddItem(
                     new MenuItem(
-                        DZAIO.Player.ChampionName+"Use" + getStringFromSpellSlot(spellList[i]) + getStringFromMode(mode),
-                        "Use " + getStringFromSpellSlot(spellList[i]) + " " + getFullNameFromMode(mode)).SetValue(values[i]));
+                        DZAIO.Player.ChampionName+"Use" + GetStringFromSpellSlot(spellList[i]) + GetStringFromMode(mode),
+                        "Use " + GetStringFromSpellSlot(spellList[i]) + " " + GetFullNameFromMode(mode)).SetValue(values[i]));
             }
         }
 
-        public static void addHitChanceSelector(this Menu menu)
+        public static void AddHitChanceSelector(this Menu menu)
         {
             menu.AddItem(
                     new MenuItem("C_Hit", "Hitchance").SetValue(
                         new StringList(new[] { "Low", "Medium", "High", "Very High" }, 2)));
         }
 
-        public static void addNoUltiMenu(this Menu menu,bool allies)
+        public static void AddNoUltiMenu(this Menu menu,bool allies)
         {
             var _menu = menu.AddSubMenu(new Menu("Don't ult", "NUlti"));
-            foreach (var Player in ObjectManager.Get<Obj_AI_Hero>().Where(h => !h.IsMe && allies ? h.IsAlly : h.IsEnemy))
+            foreach (var player in ObjectManager.Get<Obj_AI_Hero>().Where(h => !h.IsMe && allies ? h.IsAlly : h.IsEnemy))
             {
-                _menu.AddItem(new MenuItem("noUlt"+Player.ChampionName, Player.ChampionName).SetValue(false));
+                _menu.AddItem(new MenuItem("noUlt"+player.ChampionName, player.ChampionName).SetValue(false));
             }
             menu.AddSubMenu(_menu);
         }
-        public static void addUseOnMenu(this Menu menu, bool allies,String AppendText = "")
+        public static void AddUseOnMenu(this Menu menu, bool allies,String appendText = "")
         {
-            var _menu = menu.AddSubMenu(new Menu(AppendText+" Use On", "UOn"));
-            foreach (var Player in ObjectManager.Get<Obj_AI_Hero>().Where(h => !h.IsMe && allies ? h.IsAlly : h.IsEnemy))
+            var _menu = menu.AddSubMenu(new Menu(appendText+" Use On", "UOn"));
+            foreach (var player in ObjectManager.Get<Obj_AI_Hero>().Where(h => !h.IsMe && allies ? h.IsAlly : h.IsEnemy))
             {
-                _menu.AddItem(new MenuItem("UseOn" + Player.ChampionName, Player.ChampionName).SetValue(false));
+                _menu.AddItem(new MenuItem("UseOn" + player.ChampionName, player.ChampionName).SetValue(true));
             }
             menu.AddSubMenu(_menu);
         }
@@ -110,7 +105,7 @@ namespace DZAIO.Utility
             }
         }
 
-        static String getStringFromSpellSlot(SpellSlot sp)
+        static String GetStringFromSpellSlot(SpellSlot sp)
         {
             //TODO Test if this works
             //return sp.ToString();
@@ -128,7 +123,7 @@ namespace DZAIO.Utility
                     return "unk";
             }
         }
-        static String getStringFromMode(Mode mode)
+        static String GetStringFromMode(Mode mode)
         {
             switch (mode)
             {
@@ -146,7 +141,7 @@ namespace DZAIO.Utility
                     return "unk";
             }
         }
-        static String getFullNameFromMode(Mode mode)
+        static String GetFullNameFromMode(Mode mode)
         {
             return mode.ToString();
         }
