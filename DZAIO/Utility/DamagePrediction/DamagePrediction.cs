@@ -20,7 +20,7 @@ namespace DZAIO.Utility.DamagePrediction
                 return;
             var senderH = sender as Obj_AI_Hero;
             var targetH = args.Target as Obj_AI_Hero;
-            var damage = GetDamage(senderH,targetH, senderH.GetSpellSlot(args.SData.Name));
+            var damage = Orbwalking.IsAutoAttack(args.SData.Name)?sender.GetAutoAttackDamage(targetH):GetDamage(senderH,targetH, senderH.GetSpellSlot(args.SData.Name));
 
             DebugHelper.AddEntry("Damage to "+targetH.ChampionName,damage.ToString());
 
