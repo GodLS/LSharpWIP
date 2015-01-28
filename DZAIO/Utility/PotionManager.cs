@@ -49,8 +49,8 @@ namespace DZAIO.Utility
         //TODO Potion manager _menu here
         public static void OnLoad(Menu menu)
         {
+            AddMenu(DZAIO.Config);
             Game.OnGameUpdate += Game_OnGameUpdate;
-            AddMenu(menu);
         }
 
         

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
@@ -46,7 +48,17 @@ namespace DZAIO.Utility.Helpers
                         "Use " + GetStringFromSpellSlot(spellList[i]) + " " + GetFullNameFromMode(mode)).SetValue(values[i]));
             }
         }
-
+        public static void AddDrawMenu(this Menu menu, Dictionary<SpellSlot,Spell> dictionary,Color myColor)
+        {
+            foreach (var entry in dictionary)
+            {
+                var Slot = entry.Key;
+                menu.AddItem(
+                    new MenuItem(
+                        DZAIO.Player.ChampionName + "Draw" + GetStringFromSpellSlot(Slot),
+                        "Draw " + GetStringFromSpellSlot(Slot)).SetValue(new Circle(true, myColor)));
+            }
+        }
         public static void AddHitChanceSelector(this Menu menu)
         {
             menu.AddItem(
@@ -80,7 +92,7 @@ namespace DZAIO.Utility.Helpers
 
         public static int getSliderValue(String item)
         {
-            return DZAIO.Config.Item(item).GetValue<Slider>().Value;
+            return DZAIO.Config.Item(item) != null ?DZAIO.Config.Item(item).GetValue<Slider>().Value:-1;
         }
 
         public static bool getKeybindValue(String item)
@@ -105,7 +117,7 @@ namespace DZAIO.Utility.Helpers
             }
         }
 
-        static String GetStringFromSpellSlot(SpellSlot sp)
+        public static String GetStringFromSpellSlot(SpellSlot sp)
         {
             //TODO Test if this works
             //return sp.ToString();

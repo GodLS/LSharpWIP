@@ -7,6 +7,7 @@ using DZAIO.Utility.Helpers;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
+using Color = System.Drawing.Color;
 
 namespace DZAIO.Champions
 {
@@ -51,8 +52,13 @@ namespace DZAIO.Champions
                 miscMenu.AddItem(new MenuItem("GravesManualR", "Manual R").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
             }
             miscMenu.AddHitChanceSelector();
-
             menu.AddSubMenu(miscMenu);
+
+            var DrawMenu = new Menu(cName + " - Drawings", "GravesDrawings");
+            DrawMenu.AddDrawMenu(_spells, Color.LightSalmon);
+
+            menu.AddSubMenu(DrawMenu);
+
         }
 
         public void RegisterEvents()
@@ -116,6 +122,8 @@ namespace DZAIO.Champions
 
         public float getComboDamage(Obj_AI_Hero unit)
         {
+            if (!unit.IsValidTarget())
+                return 0;
             return _spells.Where(spell => spell.Value.IsReady()).Sum(spell => (float) DZAIO.Player.GetSpellDamage(unit, spell.Key)) + (float)DZAIO.Player.GetAutoAttackDamage(unit)*2;
         }
 
@@ -171,6 +179,7 @@ namespace DZAIO.Champions
             }
 
             //Debug
+            /**
             DebugHelper.AddEntry("Target", eqTarget.ChampionName);
             DebugHelper.AddEntry("E Ready", _spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo).ToString());
             DebugHelper.AddEntry("Q Ready", _spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo).ToString());
@@ -178,6 +187,7 @@ namespace DZAIO.Champions
             DebugHelper.AddEntry("OkToE", OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("ESlideRange"))).ToString());
             DebugHelper.AddEntry("Prediction Check", (_spells[SpellSlot.Q].GetPrediction(eqTarget).Hitchance >= MenuHelper.GetHitchance()).ToString());
             DebugHelper.AddEntry("Valid", (eqTarget.IsValidTarget(_spells[SpellSlot.Q].Range + MenuHelper.getSliderValue("ESlideRange"))).ToString());
+             * */
             //E-Q / E-R Casting in Combo
             var finalPosition = DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("ESlideRange"));
             if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo) && OkToE(finalPosition))
@@ -231,7 +241,13 @@ namespace DZAIO.Champions
 
         void Drawing_OnDraw(EventArgs args)
         {
-
+            foreach (var Spell in _spells.Where(s => DZAIO.Config.Item(DZAIO.Player.ChampionName + "Draw" + MenuHelper.GetStringFromSpellSlot(s.Key)).GetValue<Circle>().Active))
+            {
+                var Value =
+                    DZAIO.Config.Item(DZAIO.Player.ChampionName + "Draw" + MenuHelper.GetStringFromSpellSlot(Spell.Key))
+                        .GetValue<Circle>();
+                Render.Circle.DrawCircle(ObjectManager.Player.Position,Spell.Value.Range,Value.Color);
+            }
         }
 
         bool OkToE(Vector3 position)
