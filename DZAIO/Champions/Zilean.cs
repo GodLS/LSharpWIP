@@ -181,7 +181,7 @@ namespace DZAIO.Champions
 
         }
 
-        void DamagePrediction_OnSpellWillKill(Obj_AI_Hero sender, Obj_AI_Hero target)
+        void DamagePrediction_OnSpellWillKill(Obj_AI_Hero sender, Obj_AI_Hero target,SpellData sData)
         {
             var targetName = target.ChampionName;
             if (sender.IsAlly)

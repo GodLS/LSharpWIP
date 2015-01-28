@@ -48,7 +48,6 @@ namespace DZAIO
                 CurrentChampion.OnLoad(Config);
                 CurrentChampion.SetUpSpells();
                 CurrentChampion.RegisterEvents();
-                Cleanser.InitList();
                 Game.PrintChat("Loaded <font color='#FF0000'>{0}</font> plugin! <font color='#FFFFFF'> Have fun! </font>", Player.ChampionName);
             }
             ChatHook.OnLoad();

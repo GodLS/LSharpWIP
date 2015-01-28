@@ -68,7 +68,15 @@ namespace DZAIO.Utility
             }
             menu.AddSubMenu(_menu);
         }
-
+        public static void addUseOnMenu(this Menu menu, bool allies,String AppendText = "")
+        {
+            var _menu = menu.AddSubMenu(new Menu(AppendText+" Use On", "UOn"));
+            foreach (var Player in ObjectManager.Get<Obj_AI_Hero>().Where(h => !h.IsMe && allies ? h.IsAlly : h.IsEnemy))
+            {
+                _menu.AddItem(new MenuItem("UseOn" + Player.ChampionName, Player.ChampionName).SetValue(false));
+            }
+            menu.AddSubMenu(_menu);
+        }
         public static bool isMenuEnabled(String item)
         {
             var startString = item.StartsWith("Use") ? DZAIO.Player.ChampionName : "";

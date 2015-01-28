@@ -6,9 +6,7 @@ namespace DZAIO.Utility.DamagePrediction
 {
     internal class DamagePrediction
     {
-        //TODO Damage Prediction Event
-
-        public delegate void OnKillableDelegate(Obj_AI_Hero sender,Obj_AI_Hero target);
+        public delegate void OnKillableDelegate(Obj_AI_Hero sender,Obj_AI_Hero target,SpellData sData);
         public static event OnKillableDelegate OnSpellWillKill;
 
         static DamagePrediction()
@@ -30,7 +28,7 @@ namespace DZAIO.Utility.DamagePrediction
             {
                 if (OnSpellWillKill != null)
                 {
-                    OnSpellWillKill(senderH, targetH);
+                    OnSpellWillKill(senderH, targetH,args.SData);
                 }
             }
         }
