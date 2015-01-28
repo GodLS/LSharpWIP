@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Sockets;
 using LeagueSharp;
 using LeagueSharp.Common;
-using ItemData = LeagueSharp.Common.Data.ItemData;
 
 namespace DZAIO.Utility
 {
@@ -260,21 +258,18 @@ namespace DZAIO.Utility
         }
         #endregion
 
-        #region SpellCleansing
+        #region Spell Cleansing
         static void SpellCleansing()
         {
             if (OneReady())
             {
-                var buffCount =
-                    QssSpells.Count(
-                        spell => DZAIO.Player.HasBuff(spell.SpellBuff, true) && SpellEnabledAlways(spell.SpellBuff));
                 var mySpell =
                     QssSpells.Where(
                         spell => DZAIO.Player.HasBuff(spell.SpellBuff, true) && SpellEnabledAlways(spell.SpellBuff))
                         .OrderBy(
                             spell => GetChampByName(spell.ChampName).GetDamageSpell(ObjectManager.Player, spell.Slot))
                         .First();
-                if (buffCount > 0 && mySpell != null)
+                if (mySpell != null)
                 {
                     UseCleanser(mySpell, ObjectManager.Player);
                 }
@@ -316,10 +311,15 @@ namespace DZAIO.Utility
         }
         static void CastCleanseItem(Obj_AI_Hero target)
         {
-            if (MenuHelper.isMenuEnabled(DZAIO.Player.ChampionName + "Michael") && Items.HasItem(0) &&
-                   Items.CanUseItem(0)) //TODO Put Michaels buff id
+            if (target == null)
             {
-                Items.UseItem(0, target ?? ObjectManager.Player);
+                return;
+            }
+
+            if (MenuHelper.isMenuEnabled(DZAIO.Player.ChampionName + "Michael") && Items.HasItem(0) &&
+                   Items.CanUseItem(0) && target.IsValidTarget(600f)) //TODO Put Michaels buff id
+            {
+                Items.UseItem(0, target);
                 return;
             }
 
@@ -378,9 +378,9 @@ namespace DZAIO.Utility
             return MenuHelper.isMenuEnabled(DZAIO.Player.ChampionName + sName + "A");
         }
 
-        private static Obj_AI_Hero GetChampByName(String EnemyName)
+        private static Obj_AI_Hero GetChampByName(String enemyName)
         {
-            return ObjectManager.Get<Obj_AI_Hero>().Find(h => h.IsEnemy && h.ChampionName == EnemyName);
+            return ObjectManager.Get<Obj_AI_Hero>().Find(h => h.IsEnemy && h.ChampionName == enemyName);
         }
         #endregion
     }
