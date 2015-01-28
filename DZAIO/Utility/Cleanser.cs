@@ -188,7 +188,7 @@ namespace DZAIO.Utility
             spellSubmenu.AddItem(new MenuItem(cName + "QSS", "Use QSS").SetValue(true));
             spellSubmenu.AddItem(new MenuItem(cName + "Scimitar", "Use Mercurial Scimitar").SetValue(true));
             spellSubmenu.AddItem(new MenuItem(cName + "Dervish", "Use Dervish Blade").SetValue(true));
-            spellSubmenu.AddItem(new MenuItem(cName + "Michael", "Use Michael's Crucible").SetValue(true));
+            spellSubmenu.AddItem(new MenuItem(cName + "Michael", "Use Mikael's Crucible").SetValue(true));
             spellSubmenu.AddItem(new MenuItem("CleanserHBuffer", "Health Buffer").SetValue(new Slider(20)));
             spellSubmenu.AddItem(new MenuItem("CleanserDelay", "Global Delay (Prevents Lag)").SetValue(new Slider(100,0,200)));
 
@@ -417,10 +417,10 @@ namespace DZAIO.Utility
                 return;
             }
 
-            if (MenuHelper.isMenuEnabled(DZAIO.Player.ChampionName + "Michael") && Items.HasItem(0) &&
-                   Items.CanUseItem(0) && target.IsValidTarget(600f)) //TODO Put Michaels buff id
+            if (MenuHelper.isMenuEnabled(DZAIO.Player.ChampionName + "Michael") && Items.HasItem(3222) &&
+                   Items.CanUseItem(3222) && target.IsValidTarget(600f)) //TODO Put Michaels buff id
             {
-                Items.UseItem(0, target);
+                Items.UseItem(3222, target);
                 return;
             }
 
@@ -459,8 +459,8 @@ namespace DZAIO.Utility
         }
         private static bool MichaelReady()
         {
-            return (MenuHelper.isMenuEnabled(DZAIO.Player.ChampionName + "Michael") && Items.HasItem(0) &&
-                    Items.CanUseItem(0)); //TODO Michael ID
+            return (MenuHelper.isMenuEnabled(DZAIO.Player.ChampionName + "Michael") && Items.HasItem(3222) &&
+                    Items.CanUseItem(3222)); //TODO Michael ID
         }
         private static bool BuffTypeEnabled(BuffType buffType)
         {
