@@ -53,7 +53,7 @@ namespace DZAIO
             }
             ChatHook.OnLoad();
             DebugHelper.OnLoad();
-            //PotionManager.OnLoad(Config);
+            PotionManager.OnLoad(Config);
 
             Config.AddToMainMenu();
         }
