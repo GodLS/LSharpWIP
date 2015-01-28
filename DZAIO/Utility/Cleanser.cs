@@ -246,6 +246,8 @@ namespace DZAIO.Utility
         #region BuffType Cleansing
         static void BuffTypeCleansing()
         {
+
+            //MASSIVE TODO: Check if the buff is "stuns, roots, taunts, fears, silences and slows" before using Mikaels
             //Player Cleansing
             if (OneReady())
             {
