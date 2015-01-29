@@ -24,7 +24,8 @@ namespace DZAIO
         { 
            {"Jinx",() => new Jinx()},
            {"Graves",() => new Graves()},
-           {"Zilean",() => new Zilean()}
+           {"Zilean",() => new Zilean()},
+           {"Lux",() => new Lux()}
         };
         public static Menu Config { get; set; }
         public static Orbwalking.Orbwalker Orbwalker { get; set; }

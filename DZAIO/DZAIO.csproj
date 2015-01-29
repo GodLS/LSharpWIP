@@ -60,6 +60,7 @@
     <Compile Include="Champions\Graves.cs" />
     <Compile Include="Champions\Jinx.cs" />
     <Compile Include="Champions\Kayle.cs" />
+    <Compile Include="Champions\Lux.cs" />
     <Compile Include="Champions\Zilean.cs" />
     <Compile Include="DZAIO.cs" />
     <Compile Include="Interfaces\IChampion.cs" />
