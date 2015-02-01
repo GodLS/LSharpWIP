@@ -37,7 +37,7 @@ namespace DZAIO.Utility
             {
                 var itemMenu = new Menu(item.Name, cName + item.Id);
                 itemMenu.AddItem(new MenuItem("dzaio.activator." + item.Id + ".always", "Always").SetValue(true));
-                itemMenu.AddItem(new MenuItem("dzaio.activator." + item.Id + ".onmyhp", "On my HP < then %").SetValue(new Slider(40)));
+                itemMenu.AddItem(new MenuItem("dzaio.activator." + item.Id + ".onmyhp", "On my HP < then %").SetValue(new Slider(30)));
                 itemMenu.AddItem(new MenuItem("dzaio.activator." + item.Id + ".ontghpgreater", "On Target HP > then %").SetValue(new Slider(40)));
                 itemMenu.AddItem(new MenuItem("dzaio.activator." + item.Id + ".ontghplesser", "On Target HP < then %").SetValue(new Slider(40)));
                 itemMenu.AddItem(new MenuItem("dzaio.activator." + item.Id + ".ontgkill", "On Target Killable").SetValue(true));
@@ -86,11 +86,11 @@ namespace DZAIO.Utility
                 {
                     UseItem(selectedTarget, item);
                 }
-                if (selectedTarget.HealthPercentage() < MenuHelper.getSliderValue("dzaio.activator." + item.Id + ".ontghplesser"))
+                if (selectedTarget.HealthPercentage() < MenuHelper.getSliderValue("dzaio.activator." + item.Id + ".ontghplesser") && !MenuHelper.isMenuEnabled("dzaio.activator." + item.Id + ".ontgkill"))
                 {
                     UseItem(selectedTarget, item);
                 }
-                if (selectedTarget.HealthPercentage() > MenuHelper.getSliderValue("dzaio.activator." + item.Id + ".ontghpgreater"))
+                if (selectedTarget.HealthPercentage() > MenuHelper.getSliderValue("dzaio.activator." + item.Id + ".ontghpgreater") && !MenuHelper.isMenuEnabled("dzaio.activator." + item.Id + ".ontgkill"))
                 {
                     UseItem(selectedTarget, item);
                 }
