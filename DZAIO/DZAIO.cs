@@ -42,7 +42,7 @@ namespace DZAIO
             TargetSelector.AddToMenu(Config.SubMenu("Target selector"));
             Orbwalker = new Orbwalking.Orbwalker(Config.SubMenu("Orbwalking"));
             Game.PrintChat("<font color='purple'>DZ/Asuna</font><font color='#FFFFFF'> AIO Loaded!</font> v{0}", Assembly.GetExecutingAssembly().GetName().Version);
-            Game.PrintChat("Special credits to: Hellsing - Damage Indicator & Autoupdater");
+            Game.PrintChat("Special credits to: Hellsing - Damage Indicator");
 
             if (ChampList.ContainsKey(Player.ChampionName))
             {
@@ -57,7 +57,6 @@ namespace DZAIO
             ChatHook.OnLoad();
             DebugHelper.OnLoad();
             PotionManager.OnLoad(Config);
-            UpdateHelper.UpdateCheck();
             Config.AddToMainMenu();
         }
     }
