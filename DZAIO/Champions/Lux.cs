@@ -12,10 +12,10 @@ namespace DZAIO.Champions
     {
         private readonly Dictionary<SpellSlot, Spell> _spells = new Dictionary<SpellSlot, Spell>
         {
-            { SpellSlot.Q, new Spell(SpellSlot.Q, 950f) },
-            { SpellSlot.W, new Spell(SpellSlot.W, 950f) },
-            { SpellSlot.E, new Spell(SpellSlot.E, 425f) },
-            { SpellSlot.R, new Spell(SpellSlot.R, 1200f) }
+            { SpellSlot.Q, new Spell(SpellSlot.Q, 1175f) },
+            { SpellSlot.W, new Spell(SpellSlot.W, 1050f) },
+            { SpellSlot.E, new Spell(SpellSlot.E, 1100f) },
+            { SpellSlot.R, new Spell(SpellSlot.R, 3340f) }
         };
 
         private static Obj_AI_Base LuxEGameObject
@@ -63,9 +63,10 @@ namespace DZAIO.Champions
         public void SetUpSpells()
         {
             //TODO Change these
-            _spells[SpellSlot.Q].SetSkillshot(0.26f, 10f * 2 * (float)Math.PI / 180, 1950f, false, SkillshotType.SkillshotCone);
-            _spells[SpellSlot.W].SetSkillshot(0.30f, 250f, 1650f, false, SkillshotType.SkillshotCircle);
-            _spells[SpellSlot.R].SetSkillshot(0.22f, 150f, 2100, true, SkillshotType.SkillshotLine);
+            _spells[SpellSlot.Q].SetSkillshot(0.5f, 70, 1200, false, SkillshotType.SkillshotLine);
+            _spells[SpellSlot.W].SetSkillshot(0.5f, 150, 1200, false, SkillshotType.SkillshotLine);
+            _spells[SpellSlot.E].SetSkillshot(0.5f, 150, 1200, false, SkillshotType.SkillshotLine);
+            _spells[SpellSlot.R].SetSkillshot(1.75f, 190, 3000, false, SkillshotType.SkillshotLine);
         }
 
         void Game_OnGameUpdate(EventArgs args)
@@ -88,9 +89,12 @@ namespace DZAIO.Champions
                     return;
             }
         }
+
         private void Combo()
         {
             var comboTarget = TargetSelector.GetTarget(_spells[SpellSlot.Q].Range,TargetSelector.DamageType.Magical);
+            var rTarget = TargetSelector.GetTarget(_spells[SpellSlot.R].Range, TargetSelector.DamageType.Magical);
+
             if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo) && comboTarget.IsValidTarget(_spells[SpellSlot.Q].Range))
             {
                 var qPrediction = _spells[SpellSlot.Q].GetPrediction(comboTarget);
@@ -120,11 +124,17 @@ namespace DZAIO.Champions
             {
                 eRTarget = comboTarget;
             }
-
             
             if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo) && !IsSecondE() && eRTarget.IsValidTarget(_spells[SpellSlot.E].Range))
             {
                 _spells[SpellSlot.E].CastIfHitchanceEquals(eRTarget, MenuHelper.GetHitchance());
+            }
+            var rPred = _spells[SpellSlot.R].GetPrediction(rTarget);
+
+            if (_spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo) && !_spells[SpellSlot.E].IsReady() && _spells[SpellSlot.R].GetDamage(rTarget) > rTarget.Health + 20 &&
+                rPred.Hitchance >= MenuHelper.GetHitchance())
+            {
+                _spells[SpellSlot.R].Cast(rPred.CastPosition);
             }
 
             AutoDetonate();
@@ -146,21 +156,21 @@ namespace DZAIO.Champions
                 return;
             if (LuxEGameObject.CountEnemiesInRange(450f) > 1 && _spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo) && IsSecondE())//TODO Find real range
             {
-                var Enemy = LuxEGameObject.GetEnemiesInRange(450f).OrderBy(h => h.HealthPercentage()).First();
-                var RPred = _spells[SpellSlot.R].GetPrediction(Enemy);
-                if (_spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo) && IsKillable(Enemy) &&
-                    RPred.Hitchance >= MenuHelper.GetHitchance())
+                var enemy = LuxEGameObject.GetEnemiesInRange(450f).OrderBy(h => h.HealthPercentage()).First();
+                var rPred = _spells[SpellSlot.R].GetPrediction(enemy);
+                if (_spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo) && IsKillable(enemy) &&
+                    rPred.Hitchance >= MenuHelper.GetHitchance())
                 {
-                    _spells[SpellSlot.R].Cast(RPred.CastPosition);
+                    _spells[SpellSlot.R].Cast(rPred.CastPosition);
                     LeagueSharp.Common.Utility.DelayAction.Add(500, () => _spells[SpellSlot.E].Cast());
                 }
                 else
                 {
-                    if (!HasPassive(Enemy) && DZAIO.Player.Distance(Enemy) < Orbwalking.GetRealAutoAttackRange(null))
+                    if (!HasPassive(enemy) && DZAIO.Player.Distance(enemy) < Orbwalking.GetRealAutoAttackRange(null))
                     {
                         _spells[SpellSlot.E].Cast();
                     }
-                    if (!(DZAIO.Player.Distance(Enemy) < Orbwalking.GetRealAutoAttackRange(null)))
+                    if (!(DZAIO.Player.Distance(enemy) < Orbwalking.GetRealAutoAttackRange(null)))
                     {
                         _spells[SpellSlot.E].Cast();
                     }
@@ -184,7 +194,6 @@ namespace DZAIO.Champions
 
         void Drawing_OnDraw(EventArgs args)
         {
-            throw new NotImplementedException();
         }
 
         private Orbwalking.Orbwalker _orbwalker

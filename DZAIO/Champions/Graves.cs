@@ -80,7 +80,7 @@ namespace DZAIO.Champions
             }
             if (MenuHelper.isMenuEnabled("GravesAntiGPE") && _spells[SpellSlot.E].IsReady())
             {
-                var extended = ObjectManager.Player.Position.Extend(gapcloser.Start, -_spells[SpellSlot.E].Range);
+                var extended = gapcloser.Start.Extend(ObjectManager.Player.Position, gapcloser.Start.Distance(ObjectManager.Player.ServerPosition)+_spells[SpellSlot.E].Range);
                 if (OkToE(extended))
                 {
                     _spells[SpellSlot.W].Cast(extended);
