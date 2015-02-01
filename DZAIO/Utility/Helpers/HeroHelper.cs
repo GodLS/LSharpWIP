@@ -13,36 +13,27 @@ namespace DZAIO.Utility
     {
         public static List<Obj_AI_Hero> GetEnemiesNearMouse(float range)
         {
-            return
-                ObjectManager.Get<Obj_AI_Hero>()
-                    .Where(hero => !hero.IsMe && hero.IsValidTarget(range, true, Game.CursorPos)).ToList();
+            return HeroManager.Enemies.Where(hero => hero.IsValidTarget(range, true, Game.CursorPos) && hero.HealthPercentage() <= 15).ToList();
         }
         public static List<Obj_AI_Hero> GetLhEnemiesNearMouse(float range)
         {
-            return
-                ObjectManager.Get<Obj_AI_Hero>()
-                    .Where(hero => !hero.IsMe && hero.Distance(Game.CursorPos, true) <= range * range && hero.IsValidTarget(range, true, Game.CursorPos) && hero.HealthPercentage() <= 15).ToList();
+            return HeroManager.Enemies.Where(hero => hero.IsValidTarget(range, true, Game.CursorPos) && hero.HealthPercentage() <= 15).ToList();
         }
 
         public static List<Obj_AI_Hero> GetAlliesNearMouse(float range)
         {
-            return
-                ObjectManager.Get<Obj_AI_Hero>()
-                    .Where(hero => !hero.IsMe && hero.IsAlly && hero.IsValidTarget(range, false, Game.CursorPos)).ToList();
+            return HeroManager.Allies.Where(hero => hero.IsValidTarget(range, false, Game.CursorPos)).ToList();
         }
 
         public static List<Obj_AI_Hero> GetLhAlliesNearMouse(float range)
         {
-            return
-                ObjectManager.Get<Obj_AI_Hero>()
-                    .Where(hero => !hero.IsMe && hero.IsAlly && hero.IsValidTarget(range, false, Game.CursorPos) && hero.HealthPercentage() <= 15).ToList();
+            return HeroManager.Allies.Where(hero => !hero.IsMe && hero.IsAlly && hero.IsValidTarget(range, false, Game.CursorPos) && hero.HealthPercentage() <= 15).ToList();
+                    
         }
 
-        public static List<Obj_AI_Hero> GetLhEnemiesNearPosition(Vector3 Position, float range)
+        public static List<Obj_AI_Hero> GetLhEnemiesNearPosition(Vector3 position, float range)
         {
-            return
-                ObjectManager.Get<Obj_AI_Hero>()
-                    .Where(hero => !hero.IsMe && hero.IsAlly && hero.IsValidTarget(range, true, Position) && hero.HealthPercentage() <= 15).ToList();
+            return HeroManager.Enemies.Where(hero => hero.IsValidTarget(range, true, position) && hero.HealthPercentage() <= 15).ToList();
         }
 
     }
