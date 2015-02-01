@@ -72,10 +72,10 @@ namespace DZAIO.Utility.Helpers
 
         public static void AddNoUltiMenu(this Menu menu,bool allies)
         {
-            var _menu = menu.AddSubMenu(new Menu("Don't ult", "NUlti"));
+            var _menu = menu.AddSubMenu(new Menu("Don't ult", "dzaio.champion."+DZAIO.Player.ChampionName.ToLowerInvariant()+".noult"));
             foreach (var player in ObjectManager.Get<Obj_AI_Hero>().Where(h => !h.IsMe && allies ? h.IsAlly : h.IsEnemy))
             {
-                _menu.AddItem(new MenuItem("noUlt"+player.ChampionName, player.ChampionName).SetValue(false));
+                _menu.AddItem(new MenuItem("dzaio.champion."+DZAIO.Player.ChampionName.ToLowerInvariant()+".noult."+player.ChampionName, player.ChampionName).SetValue(false));
             }
             menu.AddSubMenu(_menu);
         }

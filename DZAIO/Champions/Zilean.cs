@@ -19,7 +19,6 @@ namespace DZAIO.Champions
             { SpellSlot.E, new Spell(SpellSlot.E, 700f) },
             { SpellSlot.R, new Spell(SpellSlot.R, 900f) }
         };
-
         public void OnLoad(Menu menu)
         {
             var cName = ObjectManager.Player.ChampionName;
@@ -45,9 +44,9 @@ namespace DZAIO.Champions
 
             var miscMenu = new Menu(cName + " - Misc", "Misc");
             {
-                miscMenu.AddItem(new MenuItem("ZileanAntiGPE", "E AntiGapcloser").SetValue(true));
-                miscMenu.AddItem(new MenuItem("ZileanAutoUlt", "Auto Ult").SetValue(true));
-                miscMenu.AddItem(new MenuItem("ZileanAutoUltMana", "Auto Ult Mana %").SetValue(new Slider(10)));
+                miscMenu.AddItem(new MenuItem("dzaio.champion.zilean.antigpe", "E AntiGapcloser").SetValue(true));
+                miscMenu.AddItem(new MenuItem("dzaio.champion.zilean.autoult", "Auto Ult").SetValue(true));
+                miscMenu.AddItem(new MenuItem("dzaio.champion.zilean.autoult.mana", "Auto Ult Mana %").SetValue(new Slider(10)));
             }
 
             menu.AddNoUltiMenu(true);
@@ -186,15 +185,15 @@ namespace DZAIO.Champions
             var targetName = target.ChampionName;
             if (sender.IsAlly)
                 return;
-            if (MenuHelper.isMenuEnabled("noUlt" + targetName))
+            if (MenuHelper.isMenuEnabled("dzaio.champion." + DZAIO.Player.ChampionName.ToLowerInvariant() + ".noult."+targetName))
                 return;
             if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo && _spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo) && _spells[SpellSlot.R].CanCast(target))
             {
                 _spells[SpellSlot.R].Cast(target);
             }
             if (_spells[SpellSlot.R].IsReady() && _spells[SpellSlot.R].CanCast(target) &&
-                MenuHelper.isMenuEnabled("AutoUlt") &&
-                DZAIO.Player.ManaPercentage() >= MenuHelper.getSliderValue("AutoUltMana"))
+                MenuHelper.isMenuEnabled("dzaio.champion.zilean.autoult") &&
+                DZAIO.Player.ManaPercentage() >= MenuHelper.getSliderValue("dzaio.champion.zilean.autoult.mana"))
             {
                 _spells[SpellSlot.R].Cast(target);
             }
