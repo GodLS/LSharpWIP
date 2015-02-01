@@ -16,8 +16,8 @@ namespace DZAIO.Utility.Helpers
 
             try
             {
-                var mana = getSliderValue(DZAIO.Player.ChampionName + GetStringFromSpellSlot(spell.Slot) + "Mana" + GetStringFromMode(mode));
-                var isEn = isMenuEnabled(DZAIO.Player.ChampionName + "Use" + GetStringFromSpellSlot(spell.Slot) + GetStringFromMode(mode));
+                var mana = getSliderValue("dzaio.champion." + DZAIO.Player.ChampionName.ToLowerInvariant() + ".manamanager." + GetStringFromSpellSlot(spell.Slot).ToLowerInvariant() + "mana" + GetStringFromMode(mode).ToLowerInvariant());
+                var isEn = isMenuEnabled("dzaio.champion." + DZAIO.Player.ChampionName.ToLowerInvariant() + ".use" + GetStringFromSpellSlot(spell.Slot).ToLowerInvariant() + GetStringFromMode(mode));
                 return spell.IsReady() && (ObjectManager.Player.ManaPercentage() >= mana) && isEn;
             }
             catch (Exception e)
@@ -26,28 +26,31 @@ namespace DZAIO.Utility.Helpers
             }
             return false;
         }
+
         public static void AddManaManager(this Menu menu, Mode mode, SpellSlot[] spellList, int[] ManaCosts)
         {
-            var mmMenu = new Menu("Mana Manager", "mm_" + GetStringFromMode(mode));
+            var mmMenu = new Menu("Mana Manager", "dzaio.champion."+DZAIO.Player.ChampionName.ToLowerInvariant()+".mm." + GetStringFromMode(mode));
             for (var i = 0; i < spellList.Count(); i++)
             {
                 mmMenu.AddItem(
                     new MenuItem(
-                        DZAIO.Player.ChampionName+GetStringFromSpellSlot(spellList[i]) + "Mana" + GetStringFromMode(mode),
+                        "dzaio.champion."+DZAIO.Player.ChampionName.ToLowerInvariant()+".manamanager."+GetStringFromSpellSlot(spellList[i]).ToLowerInvariant() + "mana" + GetStringFromMode(mode).ToLowerInvariant(),
                         GetStringFromSpellSlot(spellList[i]) + " Mana").SetValue(new Slider(ManaCosts[i])));
             }
             menu.AddSubMenu(mmMenu);
         }
+
         public static void AddModeMenu(this Menu menu, Mode mode, SpellSlot[] spellList, bool[] values)
         {
             for (var i = 0; i < spellList.Count(); i++)
             {
                 menu.AddItem(
                     new MenuItem(
-                        DZAIO.Player.ChampionName+"Use" + GetStringFromSpellSlot(spellList[i]) + GetStringFromMode(mode),
+                        "dzaio.champion."+DZAIO.Player.ChampionName.ToLowerInvariant()+".use" + GetStringFromSpellSlot(spellList[i]).ToLowerInvariant() + GetStringFromMode(mode),
                         "Use " + GetStringFromSpellSlot(spellList[i]) + " " + GetFullNameFromMode(mode)).SetValue(values[i]));
             }
         }
+
         public static void AddDrawMenu(this Menu menu, Dictionary<SpellSlot,Spell> dictionary,Color myColor)
         {
             foreach (var entry in dictionary)
@@ -59,10 +62,11 @@ namespace DZAIO.Utility.Helpers
                         "Draw " + GetStringFromSpellSlot(Slot)).SetValue(new Circle(true, myColor)));
             }
         }
+
         public static void AddHitChanceSelector(this Menu menu)
         {
             menu.AddItem(
-                    new MenuItem("C_Hit", "Hitchance").SetValue(
+                    new MenuItem("dzaio.champion.customhitchance", "Hitchance").SetValue(
                         new StringList(new[] { "Low", "Medium", "High", "Very High" }, 2)));
         }
 
@@ -75,15 +79,7 @@ namespace DZAIO.Utility.Helpers
             }
             menu.AddSubMenu(_menu);
         }
-        public static void AddUseOnMenu(this Menu menu, bool allies,String appendText = "")
-        {
-            var _menu = menu.AddSubMenu(new Menu(appendText+" Use On", "UOn"));
-            foreach (var player in ObjectManager.Get<Obj_AI_Hero>().Where(h => !h.IsMe && allies ? h.IsAlly : h.IsEnemy))
-            {
-                _menu.AddItem(new MenuItem("UseOn" + player.ChampionName, player.ChampionName).SetValue(true));
-            }
-            menu.AddSubMenu(_menu);
-        }
+
         public static bool isMenuEnabled(String item)
         {
             var startString = item.StartsWith("Use") ? DZAIO.Player.ChampionName : "";
@@ -102,7 +98,7 @@ namespace DZAIO.Utility.Helpers
 
         public static HitChance GetHitchance()
         {
-            switch (DZAIO.Config.Item("C_Hit").GetValue<StringList>().SelectedIndex)
+            switch (DZAIO.Config.Item("dzaio.champion.customhitchance").GetValue<StringList>().SelectedIndex)
             {
                 case 0:
                     return HitChance.Low;
