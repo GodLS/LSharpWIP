@@ -71,6 +71,7 @@
     <Compile Include="Utility\DamagePrediction\DamagePrediction.cs" />
     <Compile Include="Utility\Helpers\ChatHook.cs" />
     <Compile Include="Utility\Helpers\DebugHelper.cs" />
+    <Compile Include="Utility\Helpers\DrawHelper.cs" />
     <Compile Include="Utility\Helpers\MenuHelper.cs" />
     <Compile Include="Utility\Helpers\HeroHelper.cs" />
     <Compile Include="Utility\Drawing\ScopeHelper.cs" />

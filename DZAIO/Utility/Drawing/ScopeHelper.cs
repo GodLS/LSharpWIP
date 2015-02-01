@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DZAIO.Utility.Helpers
+namespace DZAIO.Utility.Drawing
 {
     class ScopeHelper
     {

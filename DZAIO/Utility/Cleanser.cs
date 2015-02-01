@@ -180,7 +180,7 @@ namespace DZAIO.Utility
 
            // spellSubmenu.AddUseOnMenu(true,DZAIO.Player.ChampionName+" Cleanser -");
             var allyMenu = new Menu("Cleanser - Use On", "UseOn");
-            foreach (var ally in ObjectManager.Get<Obj_AI_Hero>().Where(h => h.IsAlly && !h.IsMe))
+            foreach (var ally in HeroManager.Allies)
             {
                 allyMenu.AddItem(new MenuItem("UseOn" + ally.ChampionName, ally.ChampionName).SetValue(true));
             }
@@ -274,7 +274,7 @@ namespace DZAIO.Utility
                     highestAlly = ally;
                 }
             }
-            if (!highestAlly.IsMe)
+            if (!highestAlly.IsMe )
             {
                 CastCleanseItem(highestAlly);
             }

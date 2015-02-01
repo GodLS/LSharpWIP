@@ -22,7 +22,7 @@ namespace DZAIO.Utility.DamagePrediction
             var targetH = args.Target as Obj_AI_Hero;
             var damage = Orbwalking.IsAutoAttack(args.SData.Name)?sender.GetAutoAttackDamage(targetH):GetDamage(senderH,targetH, senderH.GetSpellSlot(args.SData.Name));
 
-            DebugHelper.AddEntry("Damage to "+targetH.ChampionName,damage.ToString());
+            DebugHelper.AddEntry("Damage to "+targetH.ChampionName+" from spell "+args.SData.Name+" -> "+senderH.ChampionName+" ("+senderH.GetSpellSlot(args.SData.Name)+")",damage.ToString());
 
             if (damage > targetH.Health + 20)
             {

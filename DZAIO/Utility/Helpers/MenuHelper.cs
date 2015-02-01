@@ -13,12 +13,11 @@ namespace DZAIO.Utility.Helpers
         {
             if (DZAIO.Player.IsDead)
                 return false;
-
             try
             {
-                var mana = getSliderValue("dzaio.champion." + DZAIO.Player.ChampionName.ToLowerInvariant() + ".manamanager." + GetStringFromSpellSlot(spell.Slot).ToLowerInvariant() + "mana" + GetStringFromMode(mode).ToLowerInvariant());
-                var isEn = isMenuEnabled("dzaio.champion." + DZAIO.Player.ChampionName.ToLowerInvariant() + ".use" + GetStringFromSpellSlot(spell.Slot).ToLowerInvariant() + GetStringFromMode(mode));
-                return spell.IsReady() && (ObjectManager.Player.ManaPercentage() >= mana) && isEn;
+                var manaPercentage = getSliderValue("dzaio.champion." + DZAIO.Player.ChampionName.ToLowerInvariant() + ".manamanager." + GetStringFromSpellSlot(spell.Slot).ToLowerInvariant() + "mana" + GetStringFromMode(mode).ToLowerInvariant());
+                var enabledCondition = isMenuEnabled("dzaio.champion." + DZAIO.Player.ChampionName.ToLowerInvariant() + ".use" + GetStringFromSpellSlot(spell.Slot).ToLowerInvariant() + GetStringFromMode(mode));
+                return spell.IsReady() && (ObjectManager.Player.ManaPercentage() >= manaPercentage) && enabledCondition;
             }
             catch (Exception e)
             {
@@ -27,7 +26,7 @@ namespace DZAIO.Utility.Helpers
             return false;
         }
 
-        public static void AddManaManager(this Menu menu, Mode mode, SpellSlot[] spellList, int[] ManaCosts)
+        public static void AddManaManager(this Menu menu, Mode mode, SpellSlot[] spellList, int[] manaCosts)
         {
             var mmMenu = new Menu("Mana Manager", "dzaio.champion."+DZAIO.Player.ChampionName.ToLowerInvariant()+".mm." + GetStringFromMode(mode));
             for (var i = 0; i < spellList.Count(); i++)
@@ -35,7 +34,7 @@ namespace DZAIO.Utility.Helpers
                 mmMenu.AddItem(
                     new MenuItem(
                         "dzaio.champion."+DZAIO.Player.ChampionName.ToLowerInvariant()+".manamanager."+GetStringFromSpellSlot(spellList[i]).ToLowerInvariant() + "mana" + GetStringFromMode(mode).ToLowerInvariant(),
-                        GetStringFromSpellSlot(spellList[i]) + " Mana").SetValue(new Slider(ManaCosts[i])));
+                        GetStringFromSpellSlot(spellList[i]) + " Mana").SetValue(new Slider(manaCosts[i])));
             }
             menu.AddSubMenu(mmMenu);
         }
@@ -55,11 +54,8 @@ namespace DZAIO.Utility.Helpers
         {
             foreach (var entry in dictionary)
             {
-                var Slot = entry.Key;
-                menu.AddItem(
-                    new MenuItem(
-                        DZAIO.Player.ChampionName + "Draw" + GetStringFromSpellSlot(Slot),
-                        "Draw " + GetStringFromSpellSlot(Slot)).SetValue(new Circle(true, myColor)));
+                var slot = entry.Key;
+                menu.AddItem(new MenuItem(DZAIO.Player.ChampionName + "Draw" + GetStringFromSpellSlot(slot),"Draw " + GetStringFromSpellSlot(slot)).SetValue(new Circle(true, myColor)));
             }
         }
 
@@ -72,7 +68,7 @@ namespace DZAIO.Utility.Helpers
 
         public static void AddNoUltiMenu(this Menu menu,bool allies)
         {
-            var _menu = menu.AddSubMenu(new Menu("Don't ult", "dzaio.champion."+DZAIO.Player.ChampionName.ToLowerInvariant()+".noult"));
+            var _menu = new Menu("Don't ult", "dzaio.champion."+DZAIO.Player.ChampionName.ToLowerInvariant()+".noult");
             foreach (var player in ObjectManager.Get<Obj_AI_Hero>().Where(h => !h.IsMe && allies ? h.IsAlly : h.IsEnemy))
             {
                 _menu.AddItem(new MenuItem("dzaio.champion."+DZAIO.Player.ChampionName.ToLowerInvariant()+".noult."+player.ChampionName, player.ChampionName).SetValue(false));

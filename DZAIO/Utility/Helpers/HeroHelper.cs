@@ -36,6 +36,12 @@ namespace DZAIO.Utility
             return HeroManager.Enemies.Where(hero => hero.IsValidTarget(range, true, position) && hero.HealthPercentage() <= 15).ToList();
         }
 
+        public static float GetComboDamage(Dictionary<SpellSlot,Spell> spells,Obj_AI_Hero unit)
+        {
+            if (!unit.IsValidTarget())
+                return 0;
+            return spells.Where(spell => spell.Value.IsReady()).Sum(spell => (float) DZAIO.Player.GetSpellDamage(unit, spell.Key)) + (float)DZAIO.Player.GetAutoAttackDamage(unit)*2 + ItemManager.GetItemsDamage(unit);
+        }
     }
 
 }

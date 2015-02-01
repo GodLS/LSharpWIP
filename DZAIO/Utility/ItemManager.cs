@@ -41,6 +41,7 @@ namespace DZAIO.Utility
                 itemMenu.AddItem(new MenuItem("dzaio.activator." + item.Id + ".ontghpgreater", "On Target HP > then %").SetValue(new Slider(40)));
                 itemMenu.AddItem(new MenuItem("dzaio.activator." + item.Id + ".ontghplesser", "On Target HP < then %").SetValue(new Slider(40)));
                 itemMenu.AddItem(new MenuItem("dzaio.activator." + item.Id + ".ontgkill", "On Target Killable").SetValue(true));
+                itemMenu.AddItem(new MenuItem("dzaio.activator." + item.Id + ".displaydmg", "Display Damage").SetValue(true));
                 offensiveMenu.AddSubMenu(itemMenu);
             }
             activatorMenu.AddSubMenu(offensiveMenu);
@@ -151,6 +152,11 @@ namespace DZAIO.Utility
             menu.AddItem(new MenuItem("dzaio.activator.customhitchance", "Hitchance").SetValue(new StringList(new[] { "Low", "Medium", "High", "Very High" }, 2)));
         }
 
+        internal static float GetItemsDamage(Obj_AI_Hero target)
+        {
+            var _items = _itemList.Where(item => Items.HasItem(item.Id) && Items.CanUseItem(item.Id) && MenuHelper.isMenuEnabled("dzaio.activator." + item.Id + ".displaydmg"));
+            return _items.Sum(item => (float) ObjectManager.Player.GetSpellDamage(target, GetItemSpellSlot(item)));
+        }
     }
 
     internal class DzItem

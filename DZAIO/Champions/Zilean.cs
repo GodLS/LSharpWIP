@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using DZAIO.Utility;
 using DZAIO.Utility.DamagePrediction;
@@ -49,10 +50,12 @@ namespace DZAIO.Champions
                 miscMenu.AddItem(new MenuItem("dzaio.champion.zilean.autoult.mana", "Auto Ult Mana %").SetValue(new Slider(10)));
             }
 
-            menu.AddNoUltiMenu(true);
-            SummonerSpells.Heal.Cast();
-            SummonerSpells.Flash.Cast(Game.CursorPos);
+            var drawMenu = new Menu(cName + " - Drawings", "dzaio.champion.zilean.drawings");
+            drawMenu.AddDrawMenu(_spells,Color.LightCoral);
 
+            menu.AddNoUltiMenu(true);
+
+            menu.AddSubMenu(drawMenu);
         }
 
         public void RegisterEvents()
@@ -67,7 +70,7 @@ namespace DZAIO.Champions
         void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
             var sender = gapcloser.Sender;
-            if (sender.IsValidTarget(_spells[SpellSlot.E].Range) && MenuHelper.isMenuEnabled("AntiGPE"))
+            if (sender.IsValidTarget(_spells[SpellSlot.E].Range) && MenuHelper.isMenuEnabled("dzaio.champion.zilean.antigpe"))
             {
                 _spells[SpellSlot.E].Cast(sender);
             }
@@ -85,7 +88,7 @@ namespace DZAIO.Champions
         void Game_OnGameUpdate(EventArgs args)
         {
             DebugHelper.AddEntry("Spell Q", _spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo).ToString());
-            DebugHelper.AddEntry("Spell Q Menu != null", (DZAIO.Config.Item("ZileanUseQC") != null).ToString());
+            DebugHelper.AddEntry("Spell Q Menu != null", (DZAIO.Config.Item("dzaio.champion.zilean.useqc") != null).ToString());
             DebugHelper.AddEntry("Spell Q Menu enabled", (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo)).ToString());
             DebugHelper.AddEntry("Spell E Menu enabled", (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo)).ToString());
 
@@ -162,9 +165,7 @@ namespace DZAIO.Champions
 
         private void Harrass()
         {
-            var target =
-                ObjectManager.Get<Obj_AI_Hero>().First(h => h.Distance(DZAIO.Player) < _spells[SpellSlot.Q].Range && h.HasBuff("timebombenemybuff", true)) ??
-                TargetSelector.GetTarget(_spells[SpellSlot.Q].Range, TargetSelector.DamageType.Magical);
+            var target =HeroManager.Enemies.Find(h => h.Distance(DZAIO.Player, true) < _spells[SpellSlot.Q].Range * _spells[SpellSlot.Q].Range && h.HasBuff("timebombenemybuff", true)) ?? TargetSelector.GetTarget(_spells[SpellSlot.Q].Range, TargetSelector.DamageType.Magical);
             if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Harrass))
             {
                 _spells[SpellSlot.Q].Cast(target);
@@ -201,7 +202,7 @@ namespace DZAIO.Champions
 
         void Drawing_OnDraw(EventArgs args)
         {
-            
+            DrawHelper.DrawSpellsRanges(_spells);
         }
 
         private Orbwalking.Orbwalker _orbwalker

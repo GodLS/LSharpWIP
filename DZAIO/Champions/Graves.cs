@@ -54,10 +54,10 @@ namespace DZAIO.Champions
             miscMenu.AddHitChanceSelector();
             menu.AddSubMenu(miscMenu);
 
-            var DrawMenu = new Menu(cName + " - Drawings", "GravesDrawings");
-            DrawMenu.AddDrawMenu(_spells, Color.LightSalmon);
+            var drawMenu = new Menu(cName + " - Drawings", "GravesDrawings");
+            drawMenu.AddDrawMenu(_spells, Color.LightSalmon);
 
-            menu.AddSubMenu(DrawMenu);
+            menu.AddSubMenu(drawMenu);
 
         }
 
@@ -67,7 +67,7 @@ namespace DZAIO.Champions
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
             Drawing.OnDraw += Drawing_OnDraw;
-            DamageIndicator.Initialize(getComboDamage);
+            DamageIndicator.Initialize(GetComboDamage);
 
         }
 
@@ -120,11 +120,9 @@ namespace DZAIO.Champions
         }
 
 
-        public float getComboDamage(Obj_AI_Hero unit)
+        public float GetComboDamage(Obj_AI_Hero unit)
         {
-            if (!unit.IsValidTarget())
-                return 0;
-            return _spells.Where(spell => spell.Value.IsReady()).Sum(spell => (float) DZAIO.Player.GetSpellDamage(unit, spell.Key)) + (float)DZAIO.Player.GetAutoAttackDamage(unit)*2;
+            return HeroHelper.GetComboDamage(_spells, unit);
         }
 
         void Game_OnGameUpdate(EventArgs args)
@@ -241,13 +239,7 @@ namespace DZAIO.Champions
 
         void Drawing_OnDraw(EventArgs args)
         {
-            foreach (var Spell in _spells.Where(s => DZAIO.Config.Item(DZAIO.Player.ChampionName + "Draw" + MenuHelper.GetStringFromSpellSlot(s.Key)).GetValue<Circle>().Active))
-            {
-                var Value =
-                    DZAIO.Config.Item(DZAIO.Player.ChampionName + "Draw" + MenuHelper.GetStringFromSpellSlot(Spell.Key))
-                        .GetValue<Circle>();
-                Render.Circle.DrawCircle(ObjectManager.Player.Position,Spell.Value.Range,Value.Color);
-            }
+            DrawHelper.DrawSpellsRanges(_spells);
         }
 
         bool OkToE(Vector3 position)
