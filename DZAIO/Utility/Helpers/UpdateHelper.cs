@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
 
@@ -22,7 +18,7 @@ namespace DZAIO.Utility.Helpers
                 {
                     try
                     {
-                        var currentClientData =client.DownloadString("https://github.com/DZ191/LSharpWIP/blob/master/DZAIO/Properties/AssemblyInfo.cs");
+                        var currentClientData = client.DownloadString("https://github.com/DZ191/LSharpWIP/blob/master/DZAIO/Properties/AssemblyInfo.cs");
                         Match match =new Regex(@"\[assembly\: AssemblyVersion\(""(\d{1,4})\.(\d{1,4})\.(\d{1,4})\.(\d{1,4})""\)\]").Match(currentClientData);
                         if (match.Success)
                         {
