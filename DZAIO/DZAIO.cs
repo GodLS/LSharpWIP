@@ -42,6 +42,7 @@ namespace DZAIO
             TargetSelector.AddToMenu(Config.SubMenu("Target selector"));
             Orbwalker = new Orbwalking.Orbwalker(Config.SubMenu("Orbwalking"));
             Game.PrintChat("<font color='purple'>DZ/Asuna</font><font color='#FFFFFF'> AIO Loaded!</font> v{0}", Assembly.GetExecutingAssembly().GetName().Version);
+            Game.PrintChat("Special thanks to: Hellsing - Damage Indicator & Autoupdater");
 
             if (ChampList.ContainsKey(Player.ChampionName))
             {
