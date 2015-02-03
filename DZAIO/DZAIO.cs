@@ -37,11 +37,12 @@ namespace DZAIO
 
         public static void OnLoad()
         {
+            Console.Clear();
             Player = ObjectManager.Player;
             Config = new Menu("DZ/Asuna AIO", "AsunaAIO", true);
             TargetSelector.AddToMenu(Config.SubMenu("Target selector"));
             Orbwalker = new Orbwalking.Orbwalker(Config.SubMenu("Orbwalking"));
-            Game.PrintChat("<font color='purple'>DZ/Asuna</font><font color='#FFFFFF'> AIO Loaded!</font> v{0}", Assembly.GetExecutingAssembly().GetName().Version);
+            Game.PrintChat("<font color='#800080'>DZ/Asuna</font><font color='#FFFFFF'> AIO Loaded!</font> v{0}", Assembly.GetExecutingAssembly().GetName().Version);
             Game.PrintChat("Special credits to: Hellsing - Damage Indicator");
 
             if (ChampList.ContainsKey(Player.ChampionName))
@@ -51,7 +52,7 @@ namespace DZAIO
                 CurrentChampion.SetUpSpells();
                 CurrentChampion.RegisterEvents();
                 ItemManager.OnLoad(Config);
-                Game.PrintChat("Loaded <font color='purple'>{0}</font> plugin! <font color='#FFFFFF'> Have fun! </font>", Player.ChampionName);
+                Game.PrintChat("Loaded <font color='#800080'>{0}</font> plugin! <font color='#FFFFFF'> Have fun! </font>", Player.ChampionName);
             }
             Cleanser.OnLoad();
             ChatHook.OnLoad();

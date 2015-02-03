@@ -18,11 +18,11 @@ namespace DZAIO.Utility
 
         public static double HealthBuffer
         {
-            get { return MenuHelper.getSliderValue("CleanserHBuffer"); }
+            get { return MenuHelper.getSliderValue("dzaio.cleanser.hpbuffer"); }
         }
         public static float Delay
         {
-            get { return MenuHelper.getSliderValue("CleanserDelay"); }
+            get { return MenuHelper.getSliderValue("dzaio.cleanser.delay"); }
         }
 
         private static readonly List<QssSpell> QssSpells = new List<QssSpell>
@@ -158,39 +158,40 @@ namespace DZAIO.Utility
             var spellSubmenu = new Menu(cName + " - Cleanser", cName + "Cleanser");
 
             //Spell Cleanser Menu
-            var spellCleanserMenu = new Menu("Cleanser - Spell Cleanser", cName+"SCleanser");
+            var spellCleanserMenu = new Menu("Cleanser - Spell Cleanser", "dzaio.cleanser.spell");
             foreach (var spell in QssSpells.Where(h => GetChampByName(h.ChampName) != null))
             {
                 var sMenu = new Menu(spell.SpellName, cName + spell.SpellBuff);
                 sMenu.AddItem(
-                    new MenuItem(cName + spell.SpellBuff + "A", "Always").SetValue(!spell.OnlyKill));
+                    new MenuItem("dzaio.cleanser.spell."+ spell.SpellBuff + "A", "Always").SetValue(!spell.OnlyKill));
                 sMenu.AddItem(
-                    new MenuItem(cName + spell.SpellBuff + "K", "Only if killed by it").SetValue(spell.OnlyKill));
+                    new MenuItem("dzaio.cleanser.spell." + spell.SpellBuff + "K", "Only if killed by it").SetValue(spell.OnlyKill));
                 sMenu.AddItem(
-                    new MenuItem(cName + spell.SpellBuff + "D", "Delay before cleanse").SetValue(new Slider((int)spell.Delay,0,10000)));
+                    new MenuItem("dzaio.cleanser.spell." + spell.SpellBuff + "D", "Delay before cleanse").SetValue(new Slider((int)spell.Delay, 0, 10000)));
                 spellCleanserMenu.AddSubMenu(sMenu);
             }
             //Bufftype cleanser menu
-            var buffCleanserMenu = new Menu("Cleanser - Bufftype Cleanser", cName + "BCleanser");
+            var buffCleanserMenu = new Menu("Cleanser - Bufftype Cleanser", cName + "dzaio.cleanser.bufftype");
+
             foreach (var buffType in Buffs)
             {
                 buffCleanserMenu.AddItem(new MenuItem(cName + buffType, buffType.ToString()).SetValue(true));
             }
-            buffCleanserMenu.AddItem(new MenuItem(cName + "MinBuffs", "Min Buffs").SetValue(new Slider(2, 1, 5)));
 
-           // spellSubmenu.AddUseOnMenu(true,DZAIO.Player.ChampionName+" Cleanser -");
+            buffCleanserMenu.AddItem(new MenuItem("dzaio.cleanser.bufftype.minbuffs", "Min Buffs").SetValue(new Slider(2, 1, 5)));
+
             var allyMenu = new Menu("Cleanser - Use On", "UseOn");
             foreach (var ally in HeroManager.Allies)
             {
-                allyMenu.AddItem(new MenuItem("UseOn" + ally.ChampionName, ally.ChampionName).SetValue(true));
+                allyMenu.AddItem(new MenuItem("dzaio.cleanser.allies.useon." + ally.ChampionName, ally.ChampionName).SetValue(true));
             }
 
-            spellSubmenu.AddItem(new MenuItem(cName + "QSS", "Use QSS").SetValue(true));
-            spellSubmenu.AddItem(new MenuItem(cName + "Scimitar", "Use Mercurial Scimitar").SetValue(true));
-            spellSubmenu.AddItem(new MenuItem(cName + "Dervish", "Use Dervish Blade").SetValue(true));
-            spellSubmenu.AddItem(new MenuItem(cName + "Michael", "Use Mikael's Crucible").SetValue(true));
-            spellSubmenu.AddItem(new MenuItem("CleanserHBuffer", "Health Buffer").SetValue(new Slider(20)));
-            spellSubmenu.AddItem(new MenuItem("CleanserDelay", "Global Delay (Prevents Lag)").SetValue(new Slider(100,0,200)));
+            spellSubmenu.AddItem(new MenuItem("dzaio.cleanser.items.qss", "Use QSS").SetValue(true));
+            spellSubmenu.AddItem(new MenuItem("dzaio.cleanser.items.scimitar", "Use Mercurial Scimitar").SetValue(true));
+            spellSubmenu.AddItem(new MenuItem("dzaio.cleanser.items.dervish", "Use Dervish Blade").SetValue(true));
+            spellSubmenu.AddItem(new MenuItem("dzaio.cleanser.items.michael", "Use Mikael's Crucible").SetValue(true));
+            spellSubmenu.AddItem(new MenuItem("dzaio.cleanser.hpbuffer", "Health Buffer").SetValue(new Slider(20)));
+            spellSubmenu.AddItem(new MenuItem("dzaio.cleanser.delay", "Global Delay (Prevents Lag)").SetValue(new Slider(100,0,200)));
 
             spellSubmenu.AddSubMenu(spellCleanserMenu);
             spellSubmenu.AddSubMenu(buffCleanserMenu);
@@ -244,6 +245,9 @@ namespace DZAIO.Utility
         }
 
         #region BuffType Cleansing
+        /// <summary>
+        /// Cleanses by BuffType on player
+        /// </summary>
         static void BuffTypeCleansing()
         {
 
@@ -252,7 +256,7 @@ namespace DZAIO.Utility
             if (OneReady())
             {
                 var buffCount = Buffs.Count(buff => DZAIO.Player.HasBuffOfType(buff) && BuffTypeEnabled(buff));
-                if (buffCount >= MenuHelper.getSliderValue(ObjectManager.Player.ChampionName + "MinBuffs"))
+                if (buffCount >= MenuHelper.getSliderValue("dzaio.cleanser.bufftype.minbuffs"))
                 {
                     CastCleanseItem(ObjectManager.Player);
                 }
@@ -268,7 +272,7 @@ namespace DZAIO.Utility
             foreach (var ally in allies)
             {
                 var allyBCount = Buffs.Count(buff => ally.HasBuffOfType(buff) && BuffTypeEnabled(buff));
-                if (allyBCount > highestCount && allyBCount >= MenuHelper.getSliderValue(ObjectManager.Player.ChampionName + "MinBuffs") && MenuHelper.isMenuEnabled("UseOn" + ally.ChampionName))
+                if (allyBCount > highestCount && allyBCount >= MenuHelper.getSliderValue("dzaio.cleanser.bufftype.minbuffs") && MenuHelper.isMenuEnabled("dzaio.cleanser.allies.useon." + ally.ChampionName))
                 {
                     highestCount = allyBCount;
                     highestAlly = ally;
@@ -282,6 +286,9 @@ namespace DZAIO.Utility
         #endregion
 
         #region Spell Cleansing
+        /// <summary>
+        /// Cleanses using the SpellList buffs as input
+        /// </summary>
         static void SpellCleansing()
         {
             if (OneReady())
@@ -328,7 +335,7 @@ namespace DZAIO.Utility
                 if (theSpell != null)
                 {
                     var damageDone = GetChampByName(theSpell.ChampName).GetSpellDamage(ally, theSpell.Slot);
-                    if (damageDone >= highestDamage && MenuHelper.isMenuEnabled("UseOn" + ally.ChampionName))
+                    if (damageDone >= highestDamage && MenuHelper.isMenuEnabled("dzaio.cleanser.allies.useon." + ally.ChampionName))
                     {
                         highestSpell = theSpell;
                         highestDamage = (float)damageDone;
@@ -344,6 +351,9 @@ namespace DZAIO.Utility
         #endregion
 
         #region Spell Will Kill Cleansing
+        /// <summary>
+        /// Will Cleanse only on Kill
+        /// </summary>
         static void KillCleansing()
         {
             if (OneReady())
@@ -351,14 +361,14 @@ namespace DZAIO.Utility
                 QssSpell mySpell = null;
                 if (
                     QssSpells.Where(
-                        spell => DZAIO.Player.HasBuff(spell.SpellBuff, true) && SpellEnabledAlways(spell.SpellBuff) && GetChampByName(spell.ChampName).GetSpellDamage(ObjectManager.Player, spell.Slot) > DZAIO.Player.Health + HealthBuffer)
+                        spell => DZAIO.Player.HasBuff(spell.SpellBuff, true) && SpellEnabledOnKill(spell.SpellBuff) && GetChampByName(spell.ChampName).GetSpellDamage(ObjectManager.Player, spell.Slot) > DZAIO.Player.Health + HealthBuffer)
                         .OrderBy(
                             spell => GetChampByName(spell.ChampName).GetSpellDamage(ObjectManager.Player, spell.Slot))
                         .Any())
                 {
                     mySpell =
                         QssSpells.Where(
-                            spell => DZAIO.Player.HasBuff(spell.SpellBuff, true) && SpellEnabledAlways(spell.SpellBuff))
+                            spell => DZAIO.Player.HasBuff(spell.SpellBuff, true) && SpellEnabledOnKill(spell.SpellBuff))
                             .OrderBy(
                                 spell => GetChampByName(spell.ChampName).GetSpellDamage(ObjectManager.Player, spell.Slot))
                             .First();
@@ -380,17 +390,17 @@ namespace DZAIO.Utility
             foreach (var ally in allies)
             {
                 QssSpell theSpell = null;
-                if (QssSpells.Where(spell => ally.HasBuff(spell.SpellBuff, true) && SpellEnabledAlways(spell.SpellBuff) && GetChampByName(spell.ChampName).GetSpellDamage(ally, spell.Slot) > ally.Health + HealthBuffer).OrderBy(spell => GetChampByName(spell.ChampName).GetSpellDamage(ally, spell.Slot)).Any())
+                if (QssSpells.Where(spell => ally.HasBuff(spell.SpellBuff, true) && SpellEnabledOnKill(spell.SpellBuff) && GetChampByName(spell.ChampName).GetSpellDamage(ally, spell.Slot) > ally.Health + HealthBuffer).OrderBy(spell => GetChampByName(spell.ChampName).GetSpellDamage(ally, spell.Slot)).Any())
                 {
                     theSpell = QssSpells.Where(
-                        spell => ally.HasBuff(spell.SpellBuff, true) && SpellEnabledAlways(spell.SpellBuff))
+                        spell => ally.HasBuff(spell.SpellBuff, true) && SpellEnabledOnKill(spell.SpellBuff))
                         .OrderBy(spell => GetChampByName(spell.ChampName).GetSpellDamage(ally, spell.Slot))
                         .First();
                 }
                 if (theSpell != null)
                 {
                     var damageDone = GetChampByName(theSpell.ChampName).GetSpellDamage(ally, theSpell.Slot);
-                    if (damageDone >= highestDamage && MenuHelper.isMenuEnabled("UseOn" + ally.ChampionName))
+                    if (damageDone >= highestDamage && MenuHelper.isMenuEnabled("dzaio.cleanser.allies.useon." + ally.ChampionName))
                     {
                         highestSpell = theSpell;
                         highestDamage = (float)damageDone;
@@ -419,28 +429,28 @@ namespace DZAIO.Utility
                 return;
             }
 
-            if (MenuHelper.isMenuEnabled(DZAIO.Player.ChampionName + "Michael") && Items.HasItem(3222) &&
+            if (MenuHelper.isMenuEnabled("dzaio.cleanser.items.michael") && Items.HasItem(3222) &&
                    Items.CanUseItem(3222) && target.IsValidTarget(600f)) //TODO Put Michaels buff id
             {
                 Items.UseItem(3222, target);
                 return;
             }
 
-            if (MenuHelper.isMenuEnabled(DZAIO.Player.ChampionName + "QSS") && Items.HasItem(3140) &&
+            if (MenuHelper.isMenuEnabled("dzaio.cleanser.items.qss") && Items.HasItem(3140) &&
                 Items.CanUseItem(3140) && target.IsMe)
             {
                 Items.UseItem(3140, ObjectManager.Player);
                 return;
             }
 
-            if (MenuHelper.isMenuEnabled(DZAIO.Player.ChampionName + "Scimitar") && Items.HasItem(3139) &&
+            if (MenuHelper.isMenuEnabled("dzaio.cleanser.items.scimitar") && Items.HasItem(3139) &&
                 Items.CanUseItem(3139) && target.IsMe)
             {
                 Items.UseItem(3139, ObjectManager.Player);
                 return;
             }
 
-            if (MenuHelper.isMenuEnabled(DZAIO.Player.ChampionName + "Dervish") && Items.HasItem(3137) &&
+            if (MenuHelper.isMenuEnabled("dzaio.cleanser.items.dervish") && Items.HasItem(3137) &&
                 Items.CanUseItem(3137) && target.IsMe)
             {
                 Items.UseItem(3137, ObjectManager.Player);
@@ -452,16 +462,16 @@ namespace DZAIO.Utility
 
         private static bool OneReady()
         {
-            return (MenuHelper.isMenuEnabled(DZAIO.Player.ChampionName + "QSS") && Items.HasItem(3140) &&
+            return (MenuHelper.isMenuEnabled("dzaio.cleanser.items.qss") && Items.HasItem(3140) &&
                     Items.CanUseItem(3140)) ||
-                   (MenuHelper.isMenuEnabled(DZAIO.Player.ChampionName + "Scimitar") && Items.HasItem(3139) &&
+                   (MenuHelper.isMenuEnabled("dzaio.cleanser.items.scimitar") && Items.HasItem(3139) &&
                     Items.CanUseItem(3139)) ||
-                   (MenuHelper.isMenuEnabled(DZAIO.Player.ChampionName + "Dervish") && Items.HasItem(3137) &&
+                   (MenuHelper.isMenuEnabled("dzaio.cleanser.items.dervish") && Items.HasItem(3137) &&
                     Items.CanUseItem(3137));
         }
         private static bool MichaelReady()
         {
-            return (MenuHelper.isMenuEnabled(DZAIO.Player.ChampionName + "Michael") && Items.HasItem(3222) &&
+            return (MenuHelper.isMenuEnabled("dzaio.cleanser.items.michael") && Items.HasItem(3222) &&
                     Items.CanUseItem(3222)); //TODO Michael ID
         }
         private static bool BuffTypeEnabled(BuffType buffType)
@@ -470,15 +480,15 @@ namespace DZAIO.Utility
         }
         private static int SpellDelay(String sName)
         {
-            return MenuHelper.getSliderValue(DZAIO.Player.ChampionName + sName + "D");
+            return MenuHelper.getSliderValue("dzaio.cleanser.spell." + sName + "D");
         }
         private static bool SpellEnabledOnKill(String sName)
         {
-            return MenuHelper.isMenuEnabled(DZAIO.Player.ChampionName + sName + "K");
+            return MenuHelper.isMenuEnabled("dzaio.cleanser.spell." + sName + "K");
         }
         private static bool SpellEnabledAlways(String sName)
         {
-            return MenuHelper.isMenuEnabled(DZAIO.Player.ChampionName + sName + "A");
+            return MenuHelper.isMenuEnabled("dzaio.cleanser.spell." + sName + "A");
         }
 
         private static Obj_AI_Hero GetChampByName(String enemyName)
