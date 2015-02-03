@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using DZAIO.Utility;
 using DZAIO.Utility.Drawing;
@@ -47,6 +48,10 @@ namespace DZAIO.Champions
             }
             miscMenu.AddHitChanceSelector();
             menu.AddSubMenu(miscMenu);
+            var drawMenu = new Menu(cName + " - Draw", "dzaio.lux.draw");
+            drawMenu.AddDrawMenu(_spells,Color.LightCoral);
+            menu.AddSubMenu(drawMenu);
+
         }
 
         public void RegisterEvents()
@@ -179,10 +184,10 @@ namespace DZAIO.Champions
                 var enemy = LuxEGameObject.Position.GetEnemiesInRange(450f).OrderBy(h => h.HealthPercentage()).First();
                 var rPred = _spells[SpellSlot.R].GetPrediction(enemy);
                 if (_spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo) && IsKillable(enemy) &&
-                    rPred.Hitchance >= MenuHelper.GetHitchance())
+                    rPred.Hitchance >= MenuHelper.GetHitchance() && HasBinding(enemy) && MenuHelper.isMenuEnabled("dzaio.lux.combo.skilloptions.eafterr"))
                 {
                     _spells[SpellSlot.R].Cast(rPred.CastPosition);
-                    LeagueSharp.Common.Utility.DelayAction.Add(1250, () => _spells[SpellSlot.E].Cast());
+                    LeagueSharp.Common.Utility.DelayAction.Add(600, () => _spells[SpellSlot.E].Cast());
                 }
                 else
                 {
@@ -202,9 +207,15 @@ namespace DZAIO.Champions
         {
             return LuxEGameObject != null || DZAIO.Player.Spellbook.GetSpell(SpellSlot.E).Name == "luxlightstriketoggle";
         }
+
         public static bool HasPassive(Obj_AI_Hero hero)
         {
             return hero.HasBuff("luxilluminatingfraulein", true);
+        }
+
+        public static bool HasBinding(Obj_AI_Hero hero)
+        {
+            return hero.HasBuff("LuxLightBindingMis", true);
         }
 
         public bool IsKillable(Obj_AI_Hero target)
@@ -221,6 +232,7 @@ namespace DZAIO.Champions
 
         void Drawing_OnDraw(EventArgs args)
         {
+            DrawHelper.DrawSpellsRanges(_spells);
         }
 
         private Orbwalking.Orbwalker _orbwalker
