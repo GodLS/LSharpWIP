@@ -30,8 +30,8 @@ namespace DZAIO.Champions
             comboMenu.AddManaManager(Mode.Combo, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E, SpellSlot.R }, new[] { 30, 35, 20, 5 });
 
             var skillOptionMenu = new Menu("Skill Options", "dzaio.lux.combo.skilloptions");
-            skillOptionMenu.AddItem(new MenuItem("dzaio.lux.combo.skilloptions.eafterr", "Detonate E After R").SetValue(true));
-            comboMenu.AddSubMenu(skillOptionMenu);
+           skillOptionMenu.AddItem(new MenuItem("dzaio.lux.combo.skilloptions.eafterr", "Detonate E After R").SetValue(true));
+           comboMenu.AddSubMenu(skillOptionMenu);
 
             menu.AddSubMenu(comboMenu);
             var harrassMenu = new Menu(cName + " - Harrass", "dzaio.lux.harrass");
@@ -95,7 +95,6 @@ namespace DZAIO.Champions
 
         void Game_OnGameUpdate(EventArgs args)
         {
-
             switch (_orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
@@ -138,11 +137,11 @@ namespace DZAIO.Champions
             Obj_AI_Hero eRTarget;
             if (
                 DZAIO.Player.GetEnemiesInRange(_spells[SpellSlot.E].Range)
-                    .Any(h => h.IsValidTarget() && h.HasBuffOfType(BuffType.Snare)))
+                    .Any(h => h.IsValidTarget() && HasBinding(h)))
             {
                 eRTarget =
                     DZAIO.Player.GetEnemiesInRange(_spells[SpellSlot.E].Range)
-                        .Find(h => h.IsValidTarget() && h.HasBuffOfType(BuffType.Snare));
+                        .Find(h => h.IsValidTarget() && HasBinding(h));
             }
             else
             {
