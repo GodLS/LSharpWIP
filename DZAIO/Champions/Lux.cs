@@ -35,8 +35,8 @@ namespace DZAIO.Champions
 
             menu.AddSubMenu(comboMenu);
             var harrassMenu = new Menu(cName + " - Harrass", "dzaio.lux.harrass");
-            harrassMenu.AddModeMenu(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E }, new[] { true, true, false });
-            harrassMenu.AddManaManager(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E }, new[] { 30, 35, 20 });
+            harrassMenu.AddModeMenu(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.E }, new[] { true, false });
+            harrassMenu.AddManaManager(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.E }, new[] { 30, 20 });
             menu.AddSubMenu(harrassMenu);
             var farmMenu = new Menu(cName + " - Farm", "dzaio.lux.farm");
             farmMenu.AddModeMenu(Mode.Farm, new[] { SpellSlot.E }, new[] { false });
@@ -153,7 +153,7 @@ namespace DZAIO.Champions
             }
             var rPred = _spells[SpellSlot.R].GetPrediction(rTarget);
 
-            AutoDetonate();
+            AutoErDetonate();
             if (_spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo) &&  rTarget.IsValidTarget(_spells[SpellSlot.R].Range) && !_spells[SpellSlot.E].IsReady() && _spells[SpellSlot.R].GetDamage(rTarget) > rTarget.Health + 20 &&
             rPred.Hitchance >= MenuHelper.GetHitchance())
             {
@@ -163,15 +163,55 @@ namespace DZAIO.Champions
 
         private void Harrass()
         {
+            var harrassTarget = TargetSelector.GetTarget(_spells[SpellSlot.Q].Range, TargetSelector.DamageType.Magical);
+            if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Harrass) && harrassTarget.IsValidTarget(_spells[SpellSlot.Q].Range))
+            {
+                var qPrediction = _spells[SpellSlot.Q].GetPrediction(harrassTarget);
+                if (qPrediction.Hitchance >= MenuHelper.GetHitchance())
+                {
+                    _spells[SpellSlot.Q].Cast(qPrediction.CastPosition);
+                }
+                if (qPrediction.Hitchance == HitChance.Collision)
+                {
+                    var collisionObjs = qPrediction.CollisionObjects;
+                    if (collisionObjs.Count == 1)
+                    {
+                        _spells[SpellSlot.Q].Cast(qPrediction.CastPosition);
+                    }
+                }
+            }
+            Obj_AI_Hero eRTarget;
+            if (
+                DZAIO.Player.GetEnemiesInRange(_spells[SpellSlot.E].Range)
+                    .Any(h => h.IsValidTarget() && HasBinding(h)))
+            {
+                eRTarget =
+                    DZAIO.Player.GetEnemiesInRange(_spells[SpellSlot.E].Range)
+                        .Find(h => h.IsValidTarget() && HasBinding(h));
+            }
+            else
+            {
+                eRTarget = harrassTarget;
+            }
 
+            if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Harrass) && !IsSecondE() && eRTarget.IsValidTarget(_spells[SpellSlot.E].Range))
+            {
+                _spells[SpellSlot.E].CastIfHitchanceEquals(eRTarget, MenuHelper.GetHitchance());
+            }
         }
 
         private void Farm()
         {
-
+            var bestFarm =
+                _spells[SpellSlot.E].GetCircularFarmLocation(
+                    MinionManager.GetMinions(DZAIO.Player.ServerPosition, _spells[SpellSlot.E].Range));
+            if (bestFarm.MinionsHit >= 1 && _spells[SpellSlot.E].IsEnabledAndReady(Mode.Farm))
+            {
+                _spells[SpellSlot.E].Cast(bestFarm.Position);
+            }
         }
 
-        public void AutoDetonate()
+        public void AutoErDetonate()
         {
             if (LuxEGameObject == null)
             {
@@ -198,6 +238,25 @@ namespace DZAIO.Champions
                         _spells[SpellSlot.E].Cast();
                     }
                 }
+            }
+        }
+        public void AutoDetonateE()
+        {
+            if (LuxEGameObject == null)
+            {
+                return;
+            }
+            if (LuxEGameObject.Position.CountEnemiesInRange(450f) >= 1 && _spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo) && IsSecondE())//TODO Find real range
+            {
+                var enemy = LuxEGameObject.Position.GetEnemiesInRange(450f).OrderBy(h => h.HealthPercentage()).First();
+                    if (!HasPassive(enemy) && DZAIO.Player.Distance(enemy) < Orbwalking.GetRealAutoAttackRange(null))
+                    {
+                        _spells[SpellSlot.E].Cast();
+                    }
+                    if (!(DZAIO.Player.Distance(enemy) < Orbwalking.GetRealAutoAttackRange(null)))
+                    {
+                        _spells[SpellSlot.E].Cast();
+                    }
             }
         }
         
