@@ -86,7 +86,6 @@ namespace DZAIO.Champions
 
         public void SetUpSpells()
         {
-            //TODO Change these
             _spells[SpellSlot.Q].SetSkillshot(0.5f, 70, 1200, true, SkillshotType.SkillshotLine);
             _spells[SpellSlot.W].SetSkillshot(0.5f, 150, 1200, false, SkillshotType.SkillshotLine);
             _spells[SpellSlot.E].SetSkillshot(0.5f, 150, 1200, false, SkillshotType.SkillshotLine);
@@ -221,12 +220,12 @@ namespace DZAIO.Champions
         {
             if (!target.IsValidTarget())
                 return false;
-            var passiveDamage = HasPassive(target)?GetPassiveProcDamage():0;
+            var passiveDamage = HasPassive(target)?PassiveDamage():0;
             return _spells[SpellSlot.E].GetDamage(target) + _spells[SpellSlot.R].GetDamage(target) + passiveDamage > target.Health + 20;
         }
-        public static double GetPassiveProcDamage()
+        public static float PassiveDamage()
         {
-            return 10 + 8 * DZAIO.Player.Level + (DZAIO.Player.FlatMagicDamageMod + DZAIO.Player.BaseAbilityDamage) * 0.2d;
+            return 10 + 8 * DZAIO.Player.Level + (DZAIO.Player.FlatMagicDamageMod + DZAIO.Player.BaseAbilityDamage) * 0.2f;
         }
 
         void Drawing_OnDraw(EventArgs args)
