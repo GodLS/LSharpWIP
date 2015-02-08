@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using DZAIO.Utility.Helpers;
 using LeagueSharp;
@@ -57,6 +56,12 @@ namespace DZAIO.Champions
             }
             miscMenu.AddSubMenu(humanizerMenu);
             menu.AddSubMenu(miscMenu);
+            var ksMenu = new Menu(cName + " - Killsteal", "dzaio.cassiopeia.killsteal");
+            {
+                ksMenu.AddItem(new MenuItem("dzaio.cassiopeia.killsteal.useq", "Use Q KS").SetValue(true));
+                ksMenu.AddItem(new MenuItem("dzaio.cassiopeia.killsteal.usee", "Use E KS").SetValue(true));
+                ksMenu.AddItem(new MenuItem("dzaio.cassiopeia.killsteal.eksmode", "E Ks Mode").SetValue(new StringList(new []{"If Poisoned","Always"})));
+            }
             var drawMenu = new Menu(cName + " - Drawings", "dzaio.cassiopeia.drawing");
             drawMenu.AddDrawMenu(_spells,Color.Aquamarine);
 
@@ -99,6 +104,7 @@ namespace DZAIO.Champions
         void Game_OnGameUpdate(EventArgs args)
         {
             //DebugHelper.AddEntry("QLastTick", _spells[SpellSlot.Q].LastCastAttemptT.ToString());
+
             switch (_orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
@@ -116,6 +122,7 @@ namespace DZAIO.Champions
                 default:
                     return;
             }
+            Ks();
         }
         private void Combo()
         {
@@ -170,6 +177,41 @@ namespace DZAIO.Champions
         void Farm()
         {
 
+        }
+
+        void Ks()
+        {
+            var eKsTarget = TargetSelector.GetTarget(_spells[SpellSlot.E].Range,TargetSelector.DamageType.Magical);
+            var qKsTarget = TargetSelector.GetTarget(_spells[SpellSlot.Q].Range,TargetSelector.DamageType.Magical);
+            if (MenuHelper.isMenuEnabled("dzaio.cassiopeia.killsteal.useq") && _spells[SpellSlot.Q].IsReady() && qKsTarget.IsValidTarget())
+            {
+                if(qKsTarget.Health+20<_spells[SpellSlot.Q].GetDamage(qKsTarget))
+                {
+                    _spells[SpellSlot.Q].CastIfHitchanceEquals(qKsTarget, MenuHelper.GetHitchance());
+                }
+            }
+            if (MenuHelper.isMenuEnabled("dzaio.cassiopeia.killsteal.usee") && _spells[SpellSlot.E].IsReady() &&
+                eKsTarget.IsValidTarget())
+            {
+                switch (DZAIO.Config.Item("dzaio.cassiopeia.killsteal.eksmode").GetValue<StringList>().SelectedIndex)
+                {
+                        //Poisoned
+                    case 0:
+                        if (IsTargetPoisoned(eKsTarget) &&
+                            eKsTarget.Health + 20 < _spells[SpellSlot.E].GetDamage(eKsTarget))
+                        {
+                            _spells[SpellSlot.E].Cast(eKsTarget);
+                        }
+                    break;
+                    //Always
+                    case 1:
+                        if (eKsTarget.Health + 20 < _spells[SpellSlot.E].GetDamage(eKsTarget))
+                        {
+                            _spells[SpellSlot.E].Cast(eKsTarget);
+                        }
+                   break;
+                }
+            }
         }
 
         bool CanKill(Obj_AI_Hero target)
