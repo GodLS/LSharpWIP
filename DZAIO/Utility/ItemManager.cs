@@ -4,16 +4,18 @@ using System.Linq;
 using DZAIO.Utility.Helpers;
 using LeagueSharp;
 using LeagueSharp.Common;
-using LeagueSharp.Common.Data;
-using SharpDX;
 
 namespace DZAIO.Utility
 {
     class ItemManager
     {
-        private static float LastCheckTick;
-        //TODO: Small activator here
-        private static readonly List<DzItem> _itemList = new List<DzItem>
+        private static float _lastCheckTick;
+        //TODO: List of Activator Features here:
+
+        //TODO: Shield Module
+        //TODO: Summoners Spells Implementation
+
+        private static readonly List<DzItem> ItemList = new List<DzItem>
         {
             new DzItem
             {
@@ -32,7 +34,7 @@ namespace DZAIO.Utility
             
             //Offensive Menu
             var offensiveMenu = new Menu("Activator - Offensive", "dzaio.activator.offensive");
-            var offensiveItems = _itemList.FindAll(item => item.Class == ItemClass.Offensive);
+            var offensiveItems = ItemList.FindAll(item => item.Class == ItemClass.Offensive);
             foreach (var item in offensiveItems)
             {
                 var itemMenu = new Menu(item.Name, cName + item.Id);
@@ -63,17 +65,17 @@ namespace DZAIO.Utility
             {
                 return;
             }
-            if (Environment.TickCount - LastCheckTick < MenuHelper.getSliderValue("dzaio.activator.activatordelay"))
+            if (Environment.TickCount - _lastCheckTick < MenuHelper.getSliderValue("dzaio.activator.activatordelay"))
             {
                 return;
             }
-
+            _lastCheckTick = Environment.TickCount;
             UseOffensive();
         }
 
         static void UseOffensive()
         {
-            var offensiveItems = _itemList.FindAll(item => item.Class == ItemClass.Offensive);
+            var offensiveItems = ItemList.FindAll(item => item.Class == ItemClass.Offensive);
             foreach (var item in offensiveItems)
             {
                 var selectedTarget = Hud.SelectedUnit as Obj_AI_Base ?? TargetSelector.GetTarget(item.Range, TargetSelector.DamageType.True);
@@ -91,7 +93,7 @@ namespace DZAIO.Utility
                 {
                     UseItem(selectedTarget, item);
                 }
-                if (selectedTarget.HealthPercentage() > MenuHelper.getSliderValue("dzaio.activator." + item.Id + ".ontghpgreater") && !MenuHelper.isMenuEnabled("dzaio.activator." + item.Id + ".ontgkill"))
+                if (selectedTarget.HealthPercentage() > MenuHelper.getSliderValue("dzaio.activator." + item.Id + ".ontghpgreater"))
                 {
                     UseItem(selectedTarget, item);
                 }
@@ -126,11 +128,12 @@ namespace DZAIO.Utility
 
         static SpellSlot GetItemSpellSlot(DzItem item)
         {
-            foreach (var Item in ObjectManager.Player.InventoryItems.Where(Item => (int)Item.Id == item.Id)) {
-                return Item.SpellSlot!=SpellSlot.Unknown?Item.SpellSlot:SpellSlot.Unknown;
+            foreach (var it in ObjectManager.Player.InventoryItems.Where(it => (int)it.Id == item.Id)) {
+                return it.SpellSlot!=SpellSlot.Unknown?it.SpellSlot:SpellSlot.Unknown;
             }
             return SpellSlot.Unknown;
         }
+
         public static HitChance GetHitchance()
         {
             switch (DZAIO.Config.Item("dzaio.activator.customhitchance").GetValue<StringList>().SelectedIndex)
@@ -147,6 +150,7 @@ namespace DZAIO.Utility
                     return HitChance.Medium;
             }
         }
+
         public static void AddHitChanceSelector(Menu menu)
         {
             menu.AddItem(new MenuItem("dzaio.activator.customhitchance", "Hitchance").SetValue(new StringList(new[] { "Low", "Medium", "High", "Very High" }, 2)));
@@ -154,7 +158,7 @@ namespace DZAIO.Utility
 
         internal static float GetItemsDamage(Obj_AI_Hero target)
         {
-            var items = _itemList.Where(item => Items.HasItem(item.Id) && Items.CanUseItem(item.Id) && MenuHelper.isMenuEnabled("dzaio.activator." + item.Id + ".displaydmg"));
+            var items = ItemList.Where(item => Items.HasItem(item.Id) && Items.CanUseItem(item.Id) && MenuHelper.isMenuEnabled("dzaio.activator." + item.Id + ".displaydmg"));
             return items.Sum(item => (float) ObjectManager.Player.GetSpellDamage(target, GetItemSpellSlot(item)));
         }
     }

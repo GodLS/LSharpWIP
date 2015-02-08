@@ -263,7 +263,7 @@ namespace DZAIO.Champions
         public bool IsSecondE()
         {
             return LuxEGameObject != null || DZAIO.Player.Spellbook.GetSpell(SpellSlot.E).Name == "luxlightstriketoggle";
-        }
+        }   
 
         public static bool HasPassive(Obj_AI_Hero hero)
         {

@@ -57,6 +57,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Champions\Cassiopeia.cs" />
     <Compile Include="Champions\Graves.cs" />
     <Compile Include="Champions\Jinx.cs" />
     <Compile Include="Champions\Kayle.cs" />

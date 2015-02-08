@@ -25,7 +25,8 @@ namespace DZAIO
            {"Jinx",() => new Jinx()},
            {"Graves",() => new Graves()},
            {"Zilean",() => new Zilean()},
-           {"Lux",() => new Lux()}
+           {"Lux",() => new Lux()},
+           {"Cassiopeia",() => new Cassiopeia()}
         };
         public static Menu Config { get; set; }
         public static Orbwalking.Orbwalker Orbwalker { get; set; }
@@ -39,10 +40,10 @@ namespace DZAIO
         {
             Console.Clear();
             Player = ObjectManager.Player;
-            Config = new Menu("DZ/Asuna AIO", "AsunaAIO", true);
+            Config = new Menu("DZAIO", "AsunaAIO", true);
             TargetSelector.AddToMenu(Config.SubMenu("Target selector"));
             Orbwalker = new Orbwalking.Orbwalker(Config.SubMenu("Orbwalking"));
-            Game.PrintChat("<b><font color='#FF0000'>DZ/Asuna</font></b><font color='#FFFFFF'> AIO Loaded!</font> v{0}", Assembly.GetExecutingAssembly().GetName().Version);
+            Game.PrintChat("<b><font color='#FF0000'>[DZAIO]</font></b><font color='#FFFFFF'>DZAIO Loaded!</font> v{0}", Assembly.GetExecutingAssembly().GetName().Version);
             if (ChampList.ContainsKey(Player.ChampionName))
             {
                 CurrentChampion = ChampList[Player.ChampionName].Invoke();
