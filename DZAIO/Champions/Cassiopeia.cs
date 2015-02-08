@@ -39,8 +39,15 @@ namespace DZAIO.Champions
 
             menu.AddSubMenu(comboMenu);
             var harrassMenu = new Menu(cName + " - Harrass", "dzaio.cassiopeia.harass");
-            harrassMenu.AddModeMenu(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E }, new[] { true, true, false });
-            harrassMenu.AddManaManager(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E }, new[] { 30, 35, 20 });
+            harrassMenu.AddModeMenu(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.E }, new[] { true, true });
+            harrassMenu.AddManaManager(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.E }, new[] { 30, 20 });
+
+            var autoHarrassMenu = new Menu("AutoHarass", "dzaio.cassiopeia.harass.autoharass");
+            {
+                autoHarrassMenu.AddItem(new MenuItem("dzaio.cassiopeia.harass.autoharass.useq", "Use Auto Q"));
+                autoHarrassMenu.AddItem(new MenuItem("dzaio.cassiopeia.harass.autoharass.q.mana", "Q Mana").SetValue(new Slider(25)));
+            }
+            harrassMenu.AddSubMenu(autoHarrassMenu);
             menu.AddSubMenu(harrassMenu);
             var farmMenu = new Menu(cName + " - Farm", "dzaio.cassiopeia.farm");
             farmMenu.AddModeMenu(Mode.Farm, new[] { SpellSlot.Q,SpellSlot.W,SpellSlot.E }, new[] { false,false,false });
@@ -60,7 +67,7 @@ namespace DZAIO.Champions
             {
                 ksMenu.AddItem(new MenuItem("dzaio.cassiopeia.killsteal.useq", "Use Q KS").SetValue(true));
                 ksMenu.AddItem(new MenuItem("dzaio.cassiopeia.killsteal.usee", "Use E KS").SetValue(true));
-                ksMenu.AddItem(new MenuItem("dzaio.cassiopeia.killsteal.eksmode", "E Ks Mode").SetValue(new StringList(new []{"If Poisoned","Always"})));
+                ksMenu.AddItem(new MenuItem("dzaio.cassiopeia.killsteal.eksmode", "E KS Mode").SetValue(new StringList(new []{"If Poisoned","Always"})));
             }
             var drawMenu = new Menu(cName + " - Drawings", "dzaio.cassiopeia.drawing");
             drawMenu.AddDrawMenu(_spells,Color.Aquamarine);
@@ -94,7 +101,6 @@ namespace DZAIO.Champions
 
         public void SetUpSpells()
         {
-            //TODO Change these
             _spells[SpellSlot.Q].SetSkillshot(0.6f, 40f, float.MaxValue, false, SkillshotType.SkillshotCircle);
             _spells[SpellSlot.W].SetSkillshot(0.5f, 90f, 2500, false, SkillshotType.SkillshotCircle);
             _spells[SpellSlot.E].SetTargetted(0.2f, float.MaxValue);
@@ -103,8 +109,6 @@ namespace DZAIO.Champions
 
         void Game_OnGameUpdate(EventArgs args)
         {
-            //DebugHelper.AddEntry("QLastTick", _spells[SpellSlot.Q].LastCastAttemptT.ToString());
-
             switch (_orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
@@ -123,6 +127,7 @@ namespace DZAIO.Champions
                     return;
             }
             Ks();
+            AutoHarass();
         }
         private void Combo()
         {
@@ -171,12 +176,67 @@ namespace DZAIO.Champions
 
         void Harrass()
         {
+            var harassTarget = TargetSelector.GetTarget(_spells[SpellSlot.Q].Range, TargetSelector.DamageType.Magical);
+            var eDelay = MenuHelper.getSliderValue("dzaio.cassiopeia.misc.humanizer.edelay");
+            if (PoisonedTargetInRange(_spells[SpellSlot.E].Range).Any())
+            {
+                harassTarget = PoisonedTargetInRange(_spells[SpellSlot.E].Range).OrderBy(h => h.HealthPercentage()).First();
+            }
+            if (harassTarget.IsValidTarget())
+            {
 
+                if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo))
+                {
+                    _spells[SpellSlot.Q].CastIfHitchanceEquals(harassTarget, MenuHelper.GetHitchance());
+                }
+                if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo) && IsTargetPoisoned(harassTarget) &&
+                    (Environment.TickCount - _lastCastedETick >= eDelay))
+                {
+                    _spells[SpellSlot.E].Cast(harassTarget);
+                }
+            }
         }
 
         void Farm()
         {
+            var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, _spells[SpellSlot.E].Range);
+            if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Farm))
+            {
+                if (_spells[SpellSlot.Q].GetCircularFarmLocation(minions).MinionsHit > 0)
+                {
+                    _spells[SpellSlot.Q].Cast(_spells[SpellSlot.Q].GetCircularFarmLocation(minions).Position);
+                }
+            }
+            if (_spells[SpellSlot.W].IsEnabledAndReady(Mode.Farm))
+            {
+                if (_spells[SpellSlot.W].GetCircularFarmLocation(minions).MinionsHit > 0)
+                {
+                    _spells[SpellSlot.W].Cast(_spells[SpellSlot.W].GetCircularFarmLocation(minions).Position);
+                }
+            }
+            if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Farm))
+            {
+                var poisonedMinions = minions.FindAll(minion => minion.HasBuffOfType(BuffType.Poison)).OrderBy(minion => minion.HealthPercentage());
+                if (poisonedMinions.Any())
+                {
+                    _spells[SpellSlot.E].Cast(poisonedMinions.First());
+                }
+            }
+        }
 
+        void AutoHarass()
+        {
+            if (_spells[SpellSlot.Q].IsReady() &&
+                ObjectManager.Player.ManaPercentage() >=
+                MenuHelper.getSliderValue("dzaio.cassiopeia.harass.autoharass.q.mana") &&
+                MenuHelper.isMenuEnabled("dzaio.cassiopeia.harass.autoharass.useq"))
+            {
+                var qTarget = TargetSelector.GetTarget(_spells[SpellSlot.Q].Range, TargetSelector.DamageType.Magical);
+                if (qTarget.IsValidTarget(_spells[SpellSlot.Q].Range))
+                {
+                    _spells[SpellSlot.Q].CastIfHitchanceEquals(qTarget, MenuHelper.GetHitchance());
+                }
+            }
         }
 
         void Ks()
@@ -195,7 +255,7 @@ namespace DZAIO.Champions
             {
                 switch (DZAIO.Config.Item("dzaio.cassiopeia.killsteal.eksmode").GetValue<StringList>().SelectedIndex)
                 {
-                        //Poisoned
+                   //Poisoned
                     case 0:
                         if (IsTargetPoisoned(eKsTarget) &&
                             eKsTarget.Health + 20 < _spells[SpellSlot.E].GetDamage(eKsTarget))
@@ -217,7 +277,7 @@ namespace DZAIO.Champions
         bool CanKill(Obj_AI_Hero target)
         {
             var numberOfQ = 2000f / (_spells[SpellSlot.Q].Instance.Cooldown + 0.25f);
-            var numberOfE = (2000f-numberOfQ*0.25f) / (_spells[SpellSlot.E].Instance.Cooldown + 0.5f);
+            var numberOfE = (2000f-numberOfQ*0.30f) / (0.85f);
             return target.Health + 20 <= _spells[SpellSlot.Q].GetDamage(target) * ((numberOfQ != 0) ? numberOfQ : 2) + _spells[SpellSlot.E].GetDamage(target) * ((numberOfE != 0) ? numberOfQ : 3);
         }
 
@@ -242,7 +302,7 @@ namespace DZAIO.Champions
             DrawHelper.DrawSpellsRanges(_spells);
         }
 
-        private Orbwalking.Orbwalker _orbwalker
+        private static Orbwalking.Orbwalker _orbwalker
         {
             get { return DZAIO.Orbwalker; }
         }
