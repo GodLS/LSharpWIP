@@ -55,10 +55,7 @@ namespace DZAIO.Utility.Helpers
             foreach (var entry in dictionary)
             {
                 var slot = entry.Key;
-                if (entry.Value.Range < 4000f)
-                {
-                    menu.AddItem(new MenuItem("dzaio."+ObjectManager.Player.ChampionName.ToLowerInvariant() + ".drawing.draw" + GetStringFromSpellSlot(slot), "Draw " + GetStringFromSpellSlot(slot)).SetValue(new Circle(true, myColor)));
-                }
+                menu.AddItem(new MenuItem(DZAIO.Player.ChampionName + "Draw" + GetStringFromSpellSlot(slot),"Draw " + GetStringFromSpellSlot(slot)).SetValue(new Circle(true, myColor)));
             }
         }
 
