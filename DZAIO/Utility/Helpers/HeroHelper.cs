@@ -39,6 +39,15 @@ namespace DZAIO.Utility.Helpers
                 return 0;
             return spells.Where(spell => spell.Value.IsReady()).Sum(spell => (float) DZAIO.Player.GetSpellDamage(unit, spell.Key)) + (float)DZAIO.Player.GetAutoAttackDamage(unit)*2 + ItemManager.GetItemsDamage(unit);
         }
+
+        public static bool IsUnderAllyTurret(Obj_AI_Hero target)
+        {
+            return ObjectManager.Get<Obj_AI_Turret>().Where(t => !t.IsDead && t.IsAlly).Any(turret => target.Distance(turret.Position) <= 975f);
+        }
+        public static bool IsUnderEnemyTurret(Obj_AI_Hero target)
+        {
+            return ObjectManager.Get<Obj_AI_Turret>().Where(t => !t.IsDead && t.IsEnemy).Any(turret => target.Distance(turret.Position) <= 975f);
+        }
     }
 
 }

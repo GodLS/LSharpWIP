@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using DZAIO.Utility.Drawing;
 using DZAIO.Utility.Helpers;
 using LeagueSharp;
 using LeagueSharp.Common;
@@ -50,11 +51,16 @@ namespace DZAIO.Champions
             harrassMenu.AddSubMenu(autoHarrassMenu);
             menu.AddSubMenu(harrassMenu);
             var farmMenu = new Menu(cName + " - Farm", "dzaio.cassiopeia.farm");
-            farmMenu.AddModeMenu(Mode.Farm, new[] { SpellSlot.Q,SpellSlot.W,SpellSlot.E }, new[] { false,false,false });
-            farmMenu.AddManaManager(Mode.Farm, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E}, new[] { 35,35,35 });
+            farmMenu.AddModeMenu(Mode.Laneclear, new[] { SpellSlot.Q,SpellSlot.W,SpellSlot.E }, new[] { false,false,false });
+            farmMenu.AddManaManager(Mode.Laneclear, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E}, new[] { 35,35,35 });
+            farmMenu.AddItem(new MenuItem("dzaio.cassiopeia.farm.minminions", "Min. Minions for Q/W").SetValue(new Slider(3, 1, 5)));
             menu.AddSubMenu(farmMenu);
             var miscMenu = new Menu(cName + " - Misc", "dzaio.cassiopeia.misc");
             {
+                miscMenu.AddItem(new MenuItem("dzaio.cassiopeia.misc.antigp", "Anti Gapcloser R").SetValue(true));
+                miscMenu.AddItem(new MenuItem("dzaio.cassiopeia.misc.interrupter", "R Interrupter").SetValue(true));
+                miscMenu.AddItem(new MenuItem("dzaio.cassiopeia.misc.autorturret", "Auto R enemy under tower").SetValue(false));
+                miscMenu.AddItem(new MenuItem("dzaio.cassiopeia.misc.autorlow", "Auto R lifesaver").SetValue(true));
             }
             miscMenu.AddHitChanceSelector();
             var humanizerMenu = new Menu("Humanizer", "dzaio.cassiopeia.misc.humanizer");
@@ -81,6 +87,40 @@ namespace DZAIO.Champions
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Hero_OnProcessSpellCast;
+            AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
+            Interrupter2.OnInterruptableTarget += Interrupter2_OnInterruptableTarget;
+            DamageIndicator.Initialize(GetComboDamage);
+        }
+
+        void Interrupter2_OnInterruptableTarget(Obj_AI_Hero sender, Interrupter2.InterruptableTargetEventArgs args)
+        {
+            if (MenuHelper.isMenuEnabled("dzaio.cassiopeia.misc.antigp") && _spells[SpellSlot.R].IsReady())
+            {
+                if (args.DangerLevel >= Interrupter2.DangerLevel.High && sender.IsFacing(ObjectManager.Player))
+                {
+                    _spells[SpellSlot.R].CastIfHitchanceEquals(sender, MenuHelper.GetHitchance());
+                }
+            }
+        }
+
+        void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
+        {
+            if (MenuHelper.isMenuEnabled("dzaio.cassiopeia.misc.antigp") && _spells[SpellSlot.R].IsReady())
+            {
+                if (gapcloser.End.Distance(ObjectManager.Player.ServerPosition) <= 200f && gapcloser.Sender.IsFacing(ObjectManager.Player))
+                {
+                    _spells[SpellSlot.R].CastIfHitchanceEquals(gapcloser.Sender,MenuHelper.GetHitchance());
+                }
+            }
+        }
+
+        private float GetComboDamage(Obj_AI_Hero hero)
+        {
+            var qDamage = _spells[SpellSlot.Q].IsReady() ? _spells[SpellSlot.Q].GetDamage(hero) : 0;
+            var wDamage = _spells[SpellSlot.W].IsReady() ? _spells[SpellSlot.W].GetDamage(hero) : 0;
+            var eDamage = _spells[SpellSlot.E].IsReady() ? _spells[SpellSlot.E].GetDamage(hero) : 0;
+            var rDamage = _spells[SpellSlot.R].IsReady() ? _spells[SpellSlot.R].GetDamage(hero) : 0;
+            return qDamage + wDamage + eDamage * 2 + rDamage + (float)ObjectManager.Player.GetAutoAttackDamage(hero) * 2;
         }
 
         void Obj_AI_Hero_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
@@ -128,6 +168,8 @@ namespace DZAIO.Champions
             }
             Ks();
             AutoHarass();
+            AutoRTower();
+            AutoRLow();
         }
         private void Combo()
         {
@@ -202,14 +244,14 @@ namespace DZAIO.Champions
             var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, _spells[SpellSlot.E].Range);
             if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Farm))
             {
-                if (_spells[SpellSlot.Q].GetCircularFarmLocation(minions).MinionsHit > 0)
+                if (_spells[SpellSlot.Q].GetCircularFarmLocation(minions).MinionsHit >= MenuHelper.getSliderValue("dzaio.cassiopeia.farm.minminions"))
                 {
                     _spells[SpellSlot.Q].Cast(_spells[SpellSlot.Q].GetCircularFarmLocation(minions).Position);
                 }
             }
             if (_spells[SpellSlot.W].IsEnabledAndReady(Mode.Farm))
             {
-                if (_spells[SpellSlot.W].GetCircularFarmLocation(minions).MinionsHit > 0)
+                if (_spells[SpellSlot.W].GetCircularFarmLocation(minions).MinionsHit >= MenuHelper.getSliderValue("dzaio.cassiopeia.farm.minminions"))
                 {
                     _spells[SpellSlot.W].Cast(_spells[SpellSlot.W].GetCircularFarmLocation(minions).Position);
                 }
@@ -271,6 +313,38 @@ namespace DZAIO.Champions
                         }
                    break;
                 }
+            }
+        }
+
+        void AutoRTower()
+        {
+            if (MenuHelper.isMenuEnabled("dzaio.cassiopeia.misc.autorturret") && _spells[SpellSlot.R].IsReady())
+            {
+                foreach (var enemy in HeroManager.Enemies.Where(HeroHelper.IsUnderAllyTurret))
+                {
+                    if (enemy.IsFacing(ObjectManager.Player) && enemy.IsValidTarget(_spells[SpellSlot.R].Range))
+                    {
+                        _spells[SpellSlot.R].CastIfHitchanceEquals(enemy, MenuHelper.GetHitchance());
+                    }
+                }
+            }    
+        }
+
+        void AutoRLow()
+        {
+            if (MenuHelper.isMenuEnabled("dzaio.cassiopeia.misc.autorlow"))
+            {
+                var inRange = ObjectManager.Player.CountEnemiesInRange(450f);
+                if (inRange > 0 && ObjectManager.Player.HealthPercentage() <= 20 && _spells[SpellSlot.R].IsReady())
+                {
+                    var closestTarget = ObjectManager.Player.GetEnemiesInRange(450f).OrderBy(h => h.Distance(ObjectManager.Player.ServerPosition)).First();
+                    var rPrediction = _spells[SpellSlot.R].GetPrediction(closestTarget);
+                    var enemiesFacing = HeroManager.Enemies.FindAll(enemy => _spells[SpellSlot.R].WillHit(enemy, rPrediction.CastPosition) && enemy.IsFacing(ObjectManager.Player));
+                    if (enemiesFacing.Count > 0)
+                    {
+                        _spells[SpellSlot.R].Cast(rPrediction.CastPosition);
+                    }
+                }   
             }
         }
 
