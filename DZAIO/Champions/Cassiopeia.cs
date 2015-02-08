@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using DZAIO.Utility.Helpers;
 using LeagueSharp;
@@ -10,6 +11,8 @@ namespace DZAIO.Champions
 {
     class Cassiopeia : IChampion
     {
+        private static float _lastCastedETick;
+        private static float _lastCastedQTick;
         private readonly Dictionary<SpellSlot, Spell> _spells = new Dictionary<SpellSlot, Spell>
         {
             { SpellSlot.Q, new Spell(SpellSlot.Q, 850f) },
@@ -65,6 +68,23 @@ namespace DZAIO.Champions
         {
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
+            Obj_AI_Base.OnProcessSpellCast += Obj_AI_Hero_OnProcessSpellCast;
+        }
+
+        void Obj_AI_Hero_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
+        {
+            if (sender.IsMe)
+            {
+                switch (args.SData.Name)
+                {
+                    case "CassiopeiaTwinFang":
+                        _lastCastedETick = Environment.TickCount;
+                        break;
+                    case "CassiopeiaNoxiousBlast":
+                        _lastCastedQTick = Environment.TickCount;
+                        break;
+                }
+            }        
         }
 
         public void SetUpSpells()
@@ -78,6 +98,7 @@ namespace DZAIO.Champions
 
         void Game_OnGameUpdate(EventArgs args)
         {
+            //DebugHelper.AddEntry("QLastTick", _spells[SpellSlot.Q].LastCastAttemptT.ToString());
             switch (_orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
@@ -114,7 +135,7 @@ namespace DZAIO.Champions
                 }
                 if (_spells[SpellSlot.W].IsEnabledAndReady(Mode.Combo))
                 {
-                    if (MenuHelper.getSliderValue("dzaio.cassiopeia.combo.skilloptions.minwenemies") == 1 && MenuHelper.isMenuEnabled("dzaio.cassiopeia.combo.skilloptions.onlywnotpoison") && !IsTargetPoisoned(comboTarget))
+                    if (MenuHelper.getSliderValue("dzaio.cassiopeia.combo.skilloptions.minwenemies") == 1 && (MenuHelper.isMenuEnabled("dzaio.cassiopeia.combo.skilloptions.onlywnotpoison") && !IsTargetPoisoned(comboTarget)))
                     {
                         _spells[SpellSlot.W].CastIfHitchanceEquals(comboTarget, MenuHelper.GetHitchance());
                     }
@@ -123,7 +144,7 @@ namespace DZAIO.Champions
                          _spells[SpellSlot.W].CastIfWillHit(comboTarget,MenuHelper.getSliderValue("dzaio.cassiopeia.combo.skilloptions.minwenemies"));
                     }
                 }
-                if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo) && IsTargetPoisoned(comboTarget) && (Environment.TickCount - _spells[SpellSlot.E].LastCastAttemptT >= eDelay))
+                if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo) && IsTargetPoisoned(comboTarget) && (Environment.TickCount - _lastCastedETick >= eDelay))
                 {
                     _spells[SpellSlot.E].Cast(comboTarget);
                 }
@@ -155,7 +176,7 @@ namespace DZAIO.Champions
         {
             var numberOfQ = 2000f / (_spells[SpellSlot.Q].Instance.Cooldown + 0.25f);
             var numberOfE = (2000f-numberOfQ*0.25f) / (_spells[SpellSlot.E].Instance.Cooldown + 0.5f);
-            return target.Health + 20 <= _spells[SpellSlot.Q].GetDamage(target) * (numberOfQ != 0f ? numberOfQ : 2) + _spells[SpellSlot.E].GetDamage(target) * (numberOfE != 0f ? numberOfQ : 3);
+            return target.Health + 20 <= _spells[SpellSlot.Q].GetDamage(target) * ((numberOfQ != 0) ? numberOfQ : 2) + _spells[SpellSlot.E].GetDamage(target) * ((numberOfE != 0) ? numberOfQ : 3);
         }
 
         bool IsTargetPoisoned(Obj_AI_Base target)
@@ -176,6 +197,7 @@ namespace DZAIO.Champions
 
         void Drawing_OnDraw(EventArgs args)
         {
+            DrawHelper.DrawSpellsRanges(_spells);
         }
 
         private Orbwalking.Orbwalker _orbwalker

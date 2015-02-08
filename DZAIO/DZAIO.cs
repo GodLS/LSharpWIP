@@ -43,7 +43,7 @@ namespace DZAIO
             Config = new Menu("DZAIO", "AsunaAIO", true);
             TargetSelector.AddToMenu(Config.SubMenu("Target selector"));
             Orbwalker = new Orbwalking.Orbwalker(Config.SubMenu("Orbwalking"));
-            Game.PrintChat("<b><font color='#FF0000'>[DZAIO]</font></b><font color='#FFFFFF'>DZAIO Loaded!</font> v{0}", Assembly.GetExecutingAssembly().GetName().Version);
+            Game.PrintChat("<b><font color='#FF0000'>[DZAIO]</font></b><font color='#FFFFFF'> DZAIO Loaded!</font> v{0}", Assembly.GetExecutingAssembly().GetName().Version);
             if (ChampList.ContainsKey(Player.ChampionName))
             {
                 CurrentChampion = ChampList[Player.ChampionName].Invoke();
