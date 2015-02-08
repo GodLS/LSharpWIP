@@ -30,7 +30,8 @@ namespace DZAIO.Champions
             {
                 skillOptionMenu.AddItem(new MenuItem("dzaio.cassiopeia.combo.skilloptions.minwenemies", "Min W Enemies").SetValue(new Slider(2, 1, 5)));
                 skillOptionMenu.AddItem(new MenuItem("dzaio.cassiopeia.combo.skilloptions.onlywnotpoison", "Only W if not poisoned").SetValue(true));
-                skillOptionMenu.AddItem(new MenuItem("dzaio.cassiopeia.combo.skilloptions.minrenemies", "Min R Enemies").SetValue(new Slider(2, 1, 5)));
+                skillOptionMenu.AddItem(new MenuItem("dzaio.cassiopeia.combo.skilloptions.minrenemiesf", "Min R Enemies Facing").SetValue(new Slider(2, 1, 5)));
+                skillOptionMenu.AddItem(new MenuItem("dzaio.cassiopeia.combo.skilloptions.minrenemiesnf", "Min R Enemies Not facing").SetValue(new Slider(3, 1, 5)));
             }
             comboMenu.AddSubMenu(skillOptionMenu);
 
@@ -132,7 +133,7 @@ namespace DZAIO.Champions
                     var enemiesFacing = HeroManager.Enemies.FindAll(enemy => _spells[SpellSlot.R].WillHit(enemy, rPrediction.CastPosition) && enemy.IsFacing(ObjectManager.Player));
                     var normalEnemies = HeroManager.Enemies.FindAll(enemy => _spells[SpellSlot.R].WillHit(enemy, rPrediction.CastPosition));
                     var enemiesKillable = enemiesFacing.FindAll(CanKill).Count;
-                    if ((enemiesFacing.Count >= 1 && enemiesKillable>=1) || normalEnemies.Count >= 3)
+                    if ((enemiesFacing.Count >= MenuHelper.getSliderValue("dzaio.cassiopeia.combo.skilloptions.minrenemiesf") && enemiesKillable >= 1) || normalEnemies.Count >= MenuHelper.getSliderValue("dzaio.cassiopeia.combo.skilloptions.minrenemiesnf"))
                     {
                         _spells[SpellSlot.R].Cast(rPrediction.CastPosition);
                     }
