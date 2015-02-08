@@ -190,6 +190,7 @@ namespace DZAIO.Utility
             spellSubmenu.AddItem(new MenuItem("dzaio.cleanser.items.scimitar", "Use Mercurial Scimitar").SetValue(true));
             spellSubmenu.AddItem(new MenuItem("dzaio.cleanser.items.dervish", "Use Dervish Blade").SetValue(true));
             spellSubmenu.AddItem(new MenuItem("dzaio.cleanser.items.michael", "Use Mikael's Crucible").SetValue(true));
+            spellSubmenu.AddItem(new MenuItem("dzaio.cleanser.items.cleanse", "Use Cleanse").SetValue(true));
             spellSubmenu.AddItem(new MenuItem("dzaio.cleanser.hpbuffer", "Health Buffer").SetValue(new Slider(20)));
             spellSubmenu.AddItem(new MenuItem("dzaio.cleanser.delay", "Global Delay (Prevents Lag)").SetValue(new Slider(100,0,200)));
 
@@ -199,40 +200,8 @@ namespace DZAIO.Utility
             MenuInstance.AddSubMenu(spellSubmenu);
             //Subscribe the Events
             Game.OnGameUpdate += Game_OnGameUpdate;
-           // DamagePrediction.DamagePrediction.OnSpellWillKill += DamagePrediction_OnSpellWillKill;
         }
-        /**
-        static void DamagePrediction_OnSpellWillKill(Obj_AI_Hero sender, Obj_AI_Hero target,SpellData sData)
-        {
-            var theSpell = QssSpells.Find(spell => spell.RealName == sData.Name);
 
-            if (target.IsAlly && !target.IsMe)
-            {
-                if (theSpell == null)
-                    return;
-                if ((SpellEnabledOnKill(theSpell.SpellBuff) || SpellEnabledAlways(theSpell.SpellBuff)) && MenuHelper.isMenuEnabled("UseOn" + target.ChampionName))
-                {
-                    var _spell = QssSpells.Find(spell => spell.RealName == sData.Name);
-                    if (target.IsValidTarget(600f, false) && _spell != null)
-                    {
-                        UseCleanser(_spell,target);
-                    }
-                }
-            }
-            if (target.IsMe)
-            {
-                if (SpellEnabledOnKill(theSpell.SpellBuff) || SpellEnabledAlways(theSpell.SpellBuff))
-                {
-                    var _spell = QssSpells.Find(spell => spell.RealName == sData.Name);
-                    if (_spell != null)
-                    {
-                        UseCleanser(_spell,target);
-                    }
-                }
-            }
-            
-        }
-        */
         static void Game_OnGameUpdate(EventArgs args)
         {
             if (Environment.TickCount - _lastCheckTick < Delay)
@@ -436,6 +405,12 @@ namespace DZAIO.Utility
                 return;
             }
 
+            if (MenuHelper.isMenuEnabled("dzaio.cleanser.items.cleanse") && SummonerSpells.Cleanse.IsReady()) //TODO Put Michaels buff id
+            {
+                SummonerSpells.Cleanse.Cast();
+                return;
+            }
+
             if (MenuHelper.isMenuEnabled("dzaio.cleanser.items.qss") && Items.HasItem(3140) &&
                 Items.CanUseItem(3140) && target.IsMe)
             {
@@ -467,12 +442,14 @@ namespace DZAIO.Utility
                    (MenuHelper.isMenuEnabled("dzaio.cleanser.items.scimitar") && Items.HasItem(3139) &&
                     Items.CanUseItem(3139)) ||
                    (MenuHelper.isMenuEnabled("dzaio.cleanser.items.dervish") && Items.HasItem(3137) &&
-                    Items.CanUseItem(3137));
+                    Items.CanUseItem(3137)) ||
+                   (MenuHelper.isMenuEnabled("dzaio.cleanser.items.cleanse") && 
+                   SummonerSpells.Cleanse.IsReady());
         }
         private static bool MichaelReady()
         {
             return (MenuHelper.isMenuEnabled("dzaio.cleanser.items.michael") && Items.HasItem(3222) &&
-                    Items.CanUseItem(3222)); //TODO Michael ID
+                    Items.CanUseItem(3222));
         }
         private static bool BuffTypeEnabled(BuffType buffType)
         {

@@ -78,7 +78,10 @@ namespace DZAIO.Utility
             Names = new[] { "SummonerExhaust" },
             Range = 650f
         };
-
+        public static SummonerSpell Cleanse = new SummonerSpell
+        {
+            Names = new[] { "SummonerBoost" },
+        };
         #endregion
 
         public static bool IsReady(this SummonerSpell spell)

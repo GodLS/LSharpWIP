@@ -23,6 +23,20 @@ namespace DZAIO.Utility
                 Name = "Bilgewater Cutlass",
                 Range = 600f,
                 Class = ItemClass.Offensive
+            },
+            new DzItem
+            {
+                Id= 3153,
+                Name = "Blade of the Ruined King",
+                Range = 600f,
+                Class = ItemClass.Offensive
+            },
+            new DzItem
+            {
+                Id= 3142,
+                Name = "Youmuu",
+                Range = float.MaxValue,
+                Class = ItemClass.Offensive
             }
         };
 
