@@ -65,6 +65,7 @@ namespace DZAIO.Champions
                 miscMenu.AddItem(new MenuItem("dzaio.cassiopeia.misc.interrupter", "R Interrupter").SetValue(true));
                 miscMenu.AddItem(new MenuItem("dzaio.cassiopeia.misc.autorturret", "Auto R enemy under tower").SetValue(false));
                 miscMenu.AddItem(new MenuItem("dzaio.cassiopeia.misc.autorlow", "Auto R lifesaver").SetValue(true));
+                miscMenu.AddItem(new MenuItem("dzaio.cassiopeia.misc.blockr", "Block R if no hit").SetValue(true));
             }
             miscMenu.AddHitChanceSelector();
             var humanizerMenu = new Menu("Humanizer", "dzaio.cassiopeia.misc.humanizer");
@@ -98,7 +99,29 @@ namespace DZAIO.Champions
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
             Interrupter2.OnInterruptableTarget += Interrupter2_OnInterruptableTarget;
             Orbwalking.BeforeAttack += OrbwalkingBeforeAttack;
+            Spellbook.OnCastSpell += Spellbook_OnCastSpell;
             DamageIndicator.Initialize(GetComboDamage);
+        }
+
+        void Spellbook_OnCastSpell(Spellbook sender, SpellbookCastSpellEventArgs args)
+        {
+            if (!MenuHelper.isMenuEnabled("dzaio.cassiopeia.misc.blockr"))
+            {
+                return;
+            }
+            if (sender.Owner.IsMe)
+            {
+                if (args.Slot == SpellSlot.R)
+                {
+                    var finalPosition = args.EndPosition;
+                    var hit = HeroManager.Enemies.FindAll(m => _spells[SpellSlot.R].WillHit(m, finalPosition));
+                    if (hit.Count == 0)
+                    {
+                        args.Process = false;
+                    }
+                }   
+            }
+            
         }
 
         void OrbwalkingBeforeAttack(Orbwalking.BeforeAttackEventArgs args)
