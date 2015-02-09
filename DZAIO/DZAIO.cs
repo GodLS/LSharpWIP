@@ -56,9 +56,9 @@ namespace DZAIO
                 CurrentChampion.SetUpSpells();
                 CurrentChampion.RegisterEvents();
                 ItemManager.OnLoad(Config);
-                Game.PrintChat("Loaded <b><font color='#FF0000'>{0}</font></b> plugin! <font color='#FFFFFF'> Have fun! </font>", Player.ChampionName);
+                Game.PrintChat("<b><font color='#FF0000'>[DZAIO] </font></b><font color='#FFFFFF'>Loaded</font> <b><font color='#FF0000'>{0}</font></b> plugin! <font color='#FFFFFF'> Have fun! </font>", Player.ChampionName);
             }
-            Game.PrintChat("Special credits to:  <b><font color='#FF0000'>Hellsing</font></b> - Damage Indicator");
+            Game.PrintChat("<b><font color='#FF0000'>[DZAIO] </font></b><font color='#FFFFFF'>Special credits to:</font>  <b><font color='#FF0000'>Hellsing</font></b> - Damage Indicator");
 
             Cleanser.OnLoad();
             ChatHook.OnLoad();

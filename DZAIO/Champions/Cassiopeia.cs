@@ -57,6 +57,7 @@ namespace DZAIO.Champions
             menu.AddSubMenu(farmMenu);
             var miscMenu = new Menu(cName + " - Misc", "dzaio.cassiopeia.misc");
             {
+                miscMenu.AddItem(new MenuItem("dzaio.cassiopeia.misc.aacombo", "Use AA Combo").SetValue(true));
                 miscMenu.AddItem(new MenuItem("dzaio.cassiopeia.misc.antigp", "Anti Gapcloser R").SetValue(true));
                 miscMenu.AddItem(new MenuItem("dzaio.cassiopeia.misc.interrupter", "R Interrupter").SetValue(true));
                 miscMenu.AddItem(new MenuItem("dzaio.cassiopeia.misc.autorturret", "Auto R enemy under tower").SetValue(false));
@@ -89,7 +90,19 @@ namespace DZAIO.Champions
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Hero_OnProcessSpellCast;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
             Interrupter2.OnInterruptableTarget += Interrupter2_OnInterruptableTarget;
+            Orbwalking.BeforeAttack += OrbwalkingBeforeAttack;
             DamageIndicator.Initialize(GetComboDamage);
+        }
+
+        void OrbwalkingBeforeAttack(Orbwalking.BeforeAttackEventArgs args)
+        {
+            if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
+            {
+                if (!MenuHelper.isMenuEnabled("dzaio.cassiopeia.misc.aacombo") && _spells[SpellSlot.E].IsReady())
+                {
+                    args.Process = false;
+                }
+            }
         }
 
         void Interrupter2_OnInterruptableTarget(Obj_AI_Hero sender, Interrupter2.InterruptableTargetEventArgs args)
