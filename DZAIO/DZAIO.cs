@@ -40,6 +40,7 @@ namespace DZAIO
         {
             Game.PrintChat("OnLoad Called");
             Console.Clear();
+            Game.PrintChat("Console Cleared");
             Player = ObjectManager.Player;
             Game.PrintChat("Console Cleared and player assigned");
             Config = new Menu("DZAIO", "dzaio", true);
