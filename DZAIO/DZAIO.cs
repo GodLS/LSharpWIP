@@ -45,7 +45,7 @@ namespace DZAIO
         {
             Console.Clear();
             Player = ObjectManager.Player;
-            Config = new Menu("DZAIO", "AsunaAIO", true);
+            Config = new Menu("DZAIO", "dzaio", true);
             TargetSelector.AddToMenu(Config.SubMenu("Target selector"));
             Orbwalker = new Orbwalking.Orbwalker(Config.SubMenu("Orbwalking"));
             Game.PrintChat("<b><font color='#FF0000'>[DZAIO]</font></b><font color='#FFFFFF'> DZAIO Loaded!</font> v{0}", Assembly.GetExecutingAssembly().GetName().Version);
