@@ -12,7 +12,7 @@ namespace DZAIO
     {
         static void Main(string[] args)
         {
-            new DZAIO();
+            CustomEvents.Game.OnGameLoad += DZAIO.OnLoad;
         }
     }
 }
