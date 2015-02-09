@@ -36,7 +36,12 @@ namespace DZAIO
         public static bool IsDebug = true;
         public static int Revision = 7;
 
-        public static void OnLoad()
+        public DZAIO()
+        {
+            CustomEvents.Game.OnGameLoad += OnLoad;
+        }
+
+        public static void OnLoad(EventArgs args)
         {
             Console.Clear();
             Player = ObjectManager.Player;
