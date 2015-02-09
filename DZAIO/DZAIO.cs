@@ -38,12 +38,18 @@ namespace DZAIO
 
         public static void OnLoad(EventArgs args)
         {
+            Game.PrintChat("OnLoad Called");
             Console.Clear();
             Player = ObjectManager.Player;
+            Game.PrintChat("Console Cleared and player assigned");
             Config = new Menu("DZAIO", "dzaio", true);
+            Game.PrintChat("Menu Created");
             TargetSelector.AddToMenu(Config.SubMenu("Target selector"));
+            Game.PrintChat("TS Assigned");
             Orbwalker = new Orbwalking.Orbwalker(Config.SubMenu("Orbwalking"));
+            Game.PrintChat("OW and TS assigned");
             Game.PrintChat("<b><font color='#FF0000'>[DZAIO]</font></b><font color='#FFFFFF'> DZAIO Loaded!</font> v{0}", Assembly.GetExecutingAssembly().GetName().Version);
+            
             if (ChampList.ContainsKey(Player.ChampionName))
             {
                 CurrentChampion = ChampList[Player.ChampionName].Invoke();
