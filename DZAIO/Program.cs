@@ -13,7 +13,6 @@ namespace DZAIO
         static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += DZAIO.OnLoad;
-            Game.PrintChat("Main finished");
         }
     }
 }
