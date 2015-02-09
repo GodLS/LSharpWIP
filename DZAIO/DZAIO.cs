@@ -39,7 +39,7 @@ namespace DZAIO
         public static void OnLoad(EventArgs args)
         {
             Game.PrintChat("OnLoad Called");
-            Console.Clear();
+           // Console.Clear();
             Game.PrintChat("Console Cleared");
             Player = ObjectManager.Player;
             Game.PrintChat("Console Cleared and player assigned");
