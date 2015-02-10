@@ -451,6 +451,7 @@ namespace DZAIO.Champions
 
         void Drawing_OnDraw(EventArgs args)
         {
+            
             DrawHelper.DrawSpellsRanges(_spells);
         }
 

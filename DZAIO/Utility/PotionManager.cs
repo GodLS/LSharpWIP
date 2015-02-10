@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using DZAIO.Utility.Helpers;
 using LeagueSharp;
@@ -68,6 +69,7 @@ namespace DZAIO.Utility
 
             if (DZAIO.Player.IsDead || DZAIO.Player.IsRecalling() || DZAIO.Player.InFountain() || DZAIO.Player.InShop())
                 return;
+            
             if (!HealthBuff() && DZAIO.Player.HealthPercentage() < MenuHelper.getSliderValue(DZAIO.Player.ChampionName + "minHP"))
             {
                 var hpSlot = GetHpSlot();
@@ -98,8 +100,8 @@ namespace DZAIO.Utility
                 potItems.AddItem(new MenuItem(((int)potion.ItemId).ToString(),potion.Name).SetValue(true));
             }
             potMenu.AddSubMenu(potItems);
-            potMenu.AddItem(new MenuItem(DZAIO.Player.ChampionName + "minHP", "Min Health %", true).SetValue(new Slider(30)));
-            potMenu.AddItem(new MenuItem(DZAIO.Player.ChampionName + "minMana", "Min Mana %", true).SetValue(new Slider(35)));
+            potMenu.AddItem(new MenuItem(DZAIO.Player.ChampionName + "minHP", "Min Health %").SetValue(new Slider(30)));
+            potMenu.AddItem(new MenuItem(DZAIO.Player.ChampionName + "minMana", "Min Mana %").SetValue(new Slider(35)));
             menu.AddSubMenu(potMenu);
         }
 
