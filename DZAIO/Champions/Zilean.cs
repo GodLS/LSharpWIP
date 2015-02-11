@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using DZAIO.Utility;
 using DZAIO.Utility.DamagePrediction;
 using DZAIO.Utility.Drawing;
 using DZAIO.Utility.Helpers;
@@ -24,26 +23,26 @@ namespace DZAIO.Champions
         {
             var cName = ObjectManager.Player.ChampionName;
 
-            var comboMenu = new Menu(cName + " - Combo", "ZileanCombo");
+            var comboMenu = new Menu(cName + " - Combo", "dzaio.zilean.combo");
             comboMenu.AddModeMenu(Mode.Combo, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E, SpellSlot.R }, new[] { true, true, true, true });
             comboMenu.AddManaManager(Mode.Combo, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E, SpellSlot.R }, new[] { 30, 35, 20, 5 });
             
 
             menu.AddSubMenu(comboMenu);
 
-            var harrassMenu = new Menu(cName + " - Harrass", "ZileanHarrass");
+            var harrassMenu = new Menu(cName + " - Harrass", "dzaio.zilean.harass");
             harrassMenu.AddModeMenu(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.W }, new[] { true, true });
             harrassMenu.AddManaManager(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E }, new[] { 30, 35, 20 });
 
             menu.AddSubMenu(harrassMenu);
 
-            var farmMenu = new Menu(cName + " - Farm", "ZileanFarm");
+            var farmMenu = new Menu(cName + " - Farm", "dzaio.zilean.farm");
             farmMenu.AddModeMenu(Mode.Farm, new[] { SpellSlot.Q }, new[] { true });
             farmMenu.AddManaManager(Mode.Farm, new[] { SpellSlot.Q }, new[] { 40 });
 
             menu.AddSubMenu(farmMenu);
 
-            var miscMenu = new Menu(cName + " - Misc", "Misc");
+            var miscMenu = new Menu(cName + " - Misc", "dzaio.zilean.misc");
             {
                 miscMenu.AddItem(new MenuItem("dzaio.champion.zilean.antigpe", "E AntiGapcloser").SetValue(true));
                 miscMenu.AddItem(new MenuItem("dzaio.champion.zilean.autoult", "Auto Ult").SetValue(true));
@@ -118,7 +117,6 @@ namespace DZAIO.Champions
             
             if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo))
             {
-               
                 _spells[SpellSlot.Q].Cast(target);
             }
             
@@ -129,31 +127,17 @@ namespace DZAIO.Champions
             if (!_spells[SpellSlot.Q].IsReady() && _spells[SpellSlot.W].IsEnabledAndReady(Mode.Combo))
             {
                 _spells[SpellSlot.W].Cast();
-                if (DZAIO.Player.GetAlliesInRange(_spells[SpellSlot.E].Range).Count > 1)
+                if (DZAIO.Player.GetAlliesInRange(_spells[SpellSlot.E].Range).Any())
                 {
                     //The highest AD ally chasing too
-                    var closestToTargetAd =
+                    var closestToTarget =
                         DZAIO.Player.GetAlliesInRange(_spells[SpellSlot.E].Range)
-                            .OrderByDescending(h => h.PhysicalDamageDealtPlayer)
-                            .First();
-                    //The highest AP ally chasing too
-                    var closestToTargetAp =
-                        DZAIO.Player.GetAlliesInRange(_spells[SpellSlot.E].Range)
-                            .OrderByDescending(h => h.MagicDamageDealtPlayer)
+                            .OrderByDescending(h => (h.PhysicalDamageDealtPlayer+h.MagicDamageDealtPlayer))
                             .First();
                     //If the phisical has done more dmg speed him, otherwise speed the other guy
-                    if (closestToTargetAd.PhysicalDamageDealtPlayer >= closestToTargetAp.MagicDamageDealtPlayer)
-                    {
-                        LeagueSharp.Common.Utility.DelayAction.Add(
-                            100, () => _spells[SpellSlot.E].Cast(closestToTargetAd));
-                    }
-                    else
-                    {
                         _spells[SpellSlot.W].Cast();
                         LeagueSharp.Common.Utility.DelayAction.Add(
-                            100, () => _spells[SpellSlot.E].Cast(closestToTargetAp));
-                    }
-
+                            100, () => _spells[SpellSlot.E].Cast(closestToTarget));
                 }
                 else
                 {
@@ -186,18 +170,26 @@ namespace DZAIO.Champions
             var targetName = target.ChampionName;
             if (sender.IsAlly)
                 return;
-            if (MenuHelper.isMenuEnabled("dzaio.champion." + DZAIO.Player.ChampionName.ToLowerInvariant() + ".noult."+targetName))
+            if (
+                MenuHelper.isMenuEnabled(
+                    "dzaio.champion." + DZAIO.Player.ChampionName.ToLowerInvariant() + ".noult." + targetName))
+            {
                 return;
+
+            }
+
             if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo && _spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo) && _spells[SpellSlot.R].CanCast(target))
             {
                 _spells[SpellSlot.R].Cast(target);
             }
+
             if (_spells[SpellSlot.R].IsReady() && _spells[SpellSlot.R].CanCast(target) &&
                 MenuHelper.isMenuEnabled("dzaio.champion.zilean.autoult") &&
                 DZAIO.Player.ManaPercentage() >= MenuHelper.getSliderValue("dzaio.champion.zilean.autoult.mana"))
             {
                 _spells[SpellSlot.R].Cast(target);
             }
+
         }
 
         void Drawing_OnDraw(EventArgs args)

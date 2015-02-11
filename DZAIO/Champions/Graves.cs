@@ -177,15 +177,6 @@ namespace DZAIO.Champions
             }
 
             //Debug
-            /**
-            DebugHelper.AddEntry("Target", eqTarget.ChampionName);
-            DebugHelper.AddEntry("E Ready", _spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo).ToString());
-            DebugHelper.AddEntry("Q Ready", _spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo).ToString());
-            DebugHelper.AddEntry("Distance Check", (DZAIO.Player.Distance(eqTarget) > _spells[SpellSlot.Q].Range).ToString());
-            DebugHelper.AddEntry("OkToE", OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("ESlideRange"))).ToString());
-            DebugHelper.AddEntry("Prediction Check", (_spells[SpellSlot.Q].GetPrediction(eqTarget).Hitchance >= MenuHelper.GetHitchance()).ToString());
-            DebugHelper.AddEntry("Valid", (eqTarget.IsValidTarget(_spells[SpellSlot.Q].Range + MenuHelper.getSliderValue("ESlideRange"))).ToString());
-             * */
             //E-Q / E-R Casting in Combo
             var finalPosition = DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("ESlideRange"));
             if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo) && OkToE(finalPosition))
@@ -203,7 +194,7 @@ namespace DZAIO.Champions
                 _spells[SpellSlot.R].UpdateSourcePosition(finalPosition);
                 if (_spells[SpellSlot.R].IsKillable(erTarget) && _spells[SpellSlot.R].IsReady() &&
                     erTarget.IsValidTarget(MenuHelper.getSliderValue("ESlideRange") + _spells[SpellSlot.R].Range) &&
-                    _spells[SpellSlot.R].GetPrediction(erTarget).Hitchance >= MenuHelper.GetHitchance())
+                    Prediction.GetPrediction(erTarget,(0.25f + finalPosition.Distance(erTarget.Position)/2000f + 0.25f + (ObjectManager.Player.Distance(finalPosition)/1250f))).Hitchance >= MenuHelper.GetHitchance())
                 {
                     _spells[SpellSlot.E].Cast(finalPosition);
                     DebugHelper.PrintDebug("Casted ER Combo");
