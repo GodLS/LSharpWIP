@@ -24,37 +24,36 @@ namespace DZAIO.Champions
         public void OnLoad(Menu menu)
         {
             var cName = ObjectManager.Player.ChampionName;
-            var comboMenu = new Menu(cName + " - Combo", "GravesCombo");
+            var comboMenu = new Menu(cName + " - Combo", "dzaio.graves.combo");
             comboMenu.AddModeMenu(Mode.Combo, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E, SpellSlot.R }, new[] { true, true, true, true });
             comboMenu.AddManaManager(Mode.Combo, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E, SpellSlot.R }, new[] { 30, 35, 20, 5 });
-            var comboOptions = new Menu("Skills Options", "GravesCOptions");
+            var comboOptions = new Menu("Skills Options", "dzaio.graves.combo.skilloptions");
             {
-
-                comboOptions.AddItem(new MenuItem("OnlyWEn", "Only W if hit x enemies").SetValue(new Slider(2, 1, 5)));
-                comboOptions.AddItem(new MenuItem("ESlideRange", "E Distance").SetValue(new Slider(350, 1, 425)));
-                comboOptions.AddItem(new MenuItem("DoECancel", "Use E to cancel Q & R animation").SetValue(true));
+                comboOptions.AddItem(new MenuItem("dzaio.graves.combo.minwenemiesc", "Only W if hit x enemies").SetValue(new Slider(2, 1, 5)));
+                comboOptions.AddItem(new MenuItem("dzaio.graves.combo.emaxrange", "E Distance").SetValue(new Slider(350, 1, 425)));
+                comboOptions.AddItem(new MenuItem("dzaio.graves.combo.ecancel", "Use E to cancel Q & R animation").SetValue(true));
             }
             comboMenu.AddSubMenu(comboOptions);
             menu.AddSubMenu(comboMenu);
-            var harrassMenu = new Menu(cName + " - Harrass", "GravesHarrass");
+            var harrassMenu = new Menu(cName + " - Harrass", "dzaio.graves.harass");
             harrassMenu.AddModeMenu(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.W }, new[] { true, true });
             harrassMenu.AddManaManager(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.W }, new[] { 30, 35 });
-            harrassMenu.AddItem(new MenuItem("OnlyWEnH", "Only W if hit x enemies").SetValue(new Slider(2, 1, 5)));
+            harrassMenu.AddItem(new MenuItem("dzaio.graves.harass.minwenemiesh", "Only W if hit x enemies").SetValue(new Slider(2, 1, 5)));
             menu.AddSubMenu(harrassMenu);
-            var farmMenu = new Menu(cName + " - Farm", "GravesFarm");
+            var farmMenu = new Menu(cName + " - Farm", "dzaio.graves.farm");
             farmMenu.AddModeMenu(Mode.Farm, new[] { SpellSlot.Q }, new[] { true });
             farmMenu.AddManaManager(Mode.Farm, new[] { SpellSlot.Q }, new[] { 40 });
             menu.AddSubMenu(farmMenu);
             var miscMenu = new Menu(cName + " - Misc", "GravesMisc");
             {
-                miscMenu.AddItem(new MenuItem("GravesAntiGPW", "W AntiGapcloser").SetValue(true));
-                miscMenu.AddItem(new MenuItem("GravesAntiGPE", "E AntiGapcloser").SetValue(true));
-                miscMenu.AddItem(new MenuItem("GravesManualR", "Manual R").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
+                miscMenu.AddItem(new MenuItem("dzaio.graves.misc.antigpw", "W AntiGapcloser").SetValue(true));
+                miscMenu.AddItem(new MenuItem("dzaio.graves.misc.antigpe", "E AntiGapcloser").SetValue(true));
+                miscMenu.AddItem(new MenuItem("dzaio.graves.misc.manualr", "Manual R").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
             }
             miscMenu.AddHitChanceSelector();
             menu.AddSubMenu(miscMenu);
 
-            var drawMenu = new Menu(cName + " - Drawings", "GravesDrawings");
+            var drawMenu = new Menu(cName + " - Drawings", "dzaio.graves.drawings");
             drawMenu.AddDrawMenu(_spells, Color.LightSalmon);
 
             menu.AddSubMenu(drawMenu);
@@ -74,11 +73,11 @@ namespace DZAIO.Champions
         void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
             var endPoint = gapcloser.End;
-            if (MenuHelper.isMenuEnabled("GravesAntiGPW") && _spells[SpellSlot.W].IsReady())
+            if (MenuHelper.isMenuEnabled("dzaio.graves.misc.antigpw") && _spells[SpellSlot.W].IsReady())
             {
                 _spells[SpellSlot.W].Cast(endPoint);
             }
-            if (MenuHelper.isMenuEnabled("GravesAntiGPE") && _spells[SpellSlot.E].IsReady())
+            if (MenuHelper.isMenuEnabled("dzaio.graves.misc.antigpe") && _spells[SpellSlot.E].IsReady())
             {
                 var extended = gapcloser.Start.Extend(ObjectManager.Player.Position, gapcloser.Start.Distance(ObjectManager.Player.ServerPosition)+_spells[SpellSlot.E].Range);
                 if (OkToE(extended))
@@ -90,23 +89,23 @@ namespace DZAIO.Champions
 
         void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            if (!sender.IsMe || _orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo || !MenuHelper.isMenuEnabled("DoECancel"))
+            if (!sender.IsMe || _orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo || !MenuHelper.isMenuEnabled("dzaio.graves.combo.ecancel"))
             {
                 return;
             }
             switch (args.SData.Name)
             {
                 case "GravesClusterShot":
-                    if (OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("ESlideRange"))) && _spells[SpellSlot.E].IsReady() && MenuHelper.isMenuEnabled("DoECancel"))
+                    if (OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("dzaio.graves.combo.emaxrange"))) && _spells[SpellSlot.E].IsReady() && MenuHelper.isMenuEnabled("dzaio.graves.combo.ecancel"))
                     {
 
-                        LeagueSharp.Common.Utility.DelayAction.Add(100, () => _spells[SpellSlot.E].Cast(DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("ESlideRange"))));
+                        LeagueSharp.Common.Utility.DelayAction.Add(100, () => _spells[SpellSlot.E].Cast(DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("dzaio.graves.combo.emaxrange"))));
                     }
                     break;
                 case "GravesChargeShot":
-                    if (OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("ESlideRange"))) && _spells[SpellSlot.E].IsReady() && MenuHelper.isMenuEnabled("DoECancel"))
+                    if (OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("dzaio.graves.combo.emaxrange"))) && _spells[SpellSlot.E].IsReady() && MenuHelper.isMenuEnabled("dzaio.graves.combo.ecancel"))
                     {
-                        LeagueSharp.Common.Utility.DelayAction.Add(100, () => _spells[SpellSlot.E].Cast(DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("ESlideRange"))));
+                        LeagueSharp.Common.Utility.DelayAction.Add(100, () => _spells[SpellSlot.E].Cast(DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("dzaio.graves.combo.emaxrange"))));
                     }
                     break;
             }
@@ -151,9 +150,9 @@ namespace DZAIO.Champions
             var target = TargetSelector.GetTarget(_spells[SpellSlot.Q].Range, TargetSelector.DamageType.Physical);
             var rTarget = TargetSelector.GetTarget(_spells[SpellSlot.R].Range, TargetSelector.DamageType.Physical);
             var eqTarget = TargetSelector.GetTarget(
-                _spells[SpellSlot.Q].Range + MenuHelper.getSliderValue("ESlideRange"), TargetSelector.DamageType.Physical);
+                _spells[SpellSlot.Q].Range + MenuHelper.getSliderValue("dzaio.graves.combo.emaxrange"), TargetSelector.DamageType.Physical);
             var erTarget = TargetSelector.GetTarget(
-                _spells[SpellSlot.Q].Range + MenuHelper.getSliderValue("ESlideRange"), TargetSelector.DamageType.Physical);
+                _spells[SpellSlot.Q].Range + MenuHelper.getSliderValue("dzaio.graves.combo.emaxrange"), TargetSelector.DamageType.Physical);
             //Q Casting in Combo
 
             if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo) && target.IsValidTarget(_spells[SpellSlot.Q].Range))
@@ -165,7 +164,7 @@ namespace DZAIO.Champions
 
             if (_spells[SpellSlot.W].IsEnabledAndReady(Mode.Combo))
             {
-                _spells[SpellSlot.W].CastIfWillHit(target, MenuHelper.getSliderValue("OnlyWEn"));
+                _spells[SpellSlot.W].CastIfWillHit(target, MenuHelper.getSliderValue("dzaio.graves.combo.minwenemiesc"));
             }
 
             //Normal R Casting in Combo
@@ -178,18 +177,18 @@ namespace DZAIO.Champions
 
             //Debug
             //E-Q / E-R Casting in Combo
-            var finalPosition = DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("ESlideRange"));
+            var finalPosition = DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("dzaio.graves.combo.emaxrange"));
             if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo) && OkToE(finalPosition))
             {
                 if (_spells[SpellSlot.Q].IsKillable(eqTarget) && _spells[SpellSlot.Q].IsReady() &&
-                    eqTarget.IsValidTarget(MenuHelper.getSliderValue("ESlideRange") + _spells[SpellSlot.Q].Range ) &&
+                    eqTarget.IsValidTarget(MenuHelper.getSliderValue("dzaio.graves.combo.emaxrange") + _spells[SpellSlot.Q].Range ) &&
                    Prediction.GetPrediction(eqTarget, (0.25f + finalPosition.Distance(eqTarget.Position) / _spells[SpellSlot.Q].Speed + 0.25f + (ObjectManager.Player.Distance(finalPosition) / 1250f))).Hitchance >= MenuHelper.GetHitchance())
                 {
                     _spells[SpellSlot.E].Cast(finalPosition);
                 }
 
                 if (_spells[SpellSlot.R].IsKillable(erTarget) && _spells[SpellSlot.R].IsReady() &&
-                    erTarget.IsValidTarget(MenuHelper.getSliderValue("ESlideRange") + _spells[SpellSlot.R].Range) &&
+                    erTarget.IsValidTarget(MenuHelper.getSliderValue("dzaio.graves.combo.emaxrange") + _spells[SpellSlot.R].Range) &&
                     Prediction.GetPrediction(erTarget,(0.25f + finalPosition.Distance(erTarget.Position)/2000f + 0.25f + (ObjectManager.Player.Distance(finalPosition)/1250f))).Hitchance >= MenuHelper.GetHitchance())
                 {
                     _spells[SpellSlot.E].Cast(finalPosition);
@@ -208,7 +207,7 @@ namespace DZAIO.Champions
 
             if (_spells[SpellSlot.W].IsEnabledAndReady(Mode.Harrass))
             {
-                _spells[SpellSlot.W].CastIfWillHit(target, MenuHelper.getSliderValue("OnlyWEnH"));
+                _spells[SpellSlot.W].CastIfWillHit(target, MenuHelper.getSliderValue("dzaio.graves.harass.minwenemiesh"));
             }
         }
 
