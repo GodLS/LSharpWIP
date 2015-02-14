@@ -16,7 +16,6 @@ namespace DZAIO.Champions
         private static float _lastCastedETick;
         private static float _lastCastedQTick;
         private static float _lastLCTick;
-        private static Obj_AI_Hero willDieTarget;
 
         private readonly Dictionary<SpellSlot, Spell> _spells = new Dictionary<SpellSlot, Spell>
         {
@@ -103,19 +102,9 @@ namespace DZAIO.Champions
             Interrupter2.OnInterruptableTarget += Interrupter2_OnInterruptableTarget;
             Orbwalking.BeforeAttack += OrbwalkingBeforeAttack;
             Spellbook.OnCastSpell += Spellbook_OnCastSpell;
-            DamagePrediction.OnSpellWillKill += DamagePrediction_OnSpellWillKill;
             DamageIndicator.Initialize(GetComboDamage);
         }
 
-        void DamagePrediction_OnSpellWillKill(Obj_AI_Hero sender, Obj_AI_Hero target, SpellData sData)
-        {
-            if (sender.IsMe && sData.Name == "CassiopeiaTwinFang")
-            {
-                willDieTarget = target;
-                //Hackiest Workaround ever KappaHD
-                LeagueSharp.Common.Utility.DelayAction.Add(500,() => willDieTarget = null);
-            }
-        }
 
         void Spellbook_OnCastSpell(Spellbook sender, SpellbookCastSpellEventArgs args)
         {
@@ -242,7 +231,7 @@ namespace DZAIO.Champions
 
             if (PoisonedTargetInRange(_spells[SpellSlot.E].Range).Any())
             {
-                comboTarget = PoisonedTargetInRange(_spells[SpellSlot.E].Range).FindAll(h => h != willDieTarget).OrderBy(h => h.HealthPercentage()).First();
+                comboTarget = PoisonedTargetInRange(_spells[SpellSlot.E].Range).OrderBy(h => h.HealthPercentage()).First();
             }
             if (comboTarget.IsValidTarget())
             {
