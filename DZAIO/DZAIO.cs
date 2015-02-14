@@ -4,6 +4,7 @@ using System.Reflection;
 using DZAIO;
 using DZAIO.Champions;
 using DZAIO.Utility;
+using DZAIO.Utility.Drawing;
 using DZAIO.Utility.Helpers;
 using LeagueSharp;
 using LeagueSharp.Common;
@@ -53,11 +54,12 @@ namespace DZAIO
                 ItemManager.OnLoad(Config);
                 Game.PrintChat("<b><font color='#FF0000'>[DZAIO] </font></b><font color='#FFFFFF'>Loaded</font> <b><font color='#FF0000'>{0}</font></b> plugin! <font color='#FFFFFF'> Have fun! </font>", Player.ChampionName);
             }
-            Game.PrintChat("<b><font color='#FF0000'>[DZAIO] </font></b><font color='#FFFFFF'>Special credits to:</font>  <b><font color='#FF0000'>Hellsing</font></b> - Damage Indicator");
+            Game.PrintChat("<b><font color='#FF0000'>[DZAIO] </font></b><font color='#FFFFFF'>Special credits to:</font>  <b><font color='#FF0000'>Hellsing</font></b>, <b><font color='#FF0000'>ChewyMoon</font></b> ");
 
             Cleanser.OnLoad();
             ChatHook.OnLoad();
             DebugHelper.OnLoad();
+            NotificationDrawing.OnLoad();
             PotionManager.OnLoad(Config);
             Config.AddToMainMenu();
         }

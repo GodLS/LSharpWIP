@@ -198,6 +198,7 @@ namespace DZAIO.Champions
             {
                 _spells[SpellSlot.E].CastIfHitchanceEquals(eRTarget, MenuHelper.GetHitchance());
             }
+            AutoDetonateE(Mode.Harrass);
         }
 
         private void Farm()
@@ -229,24 +230,18 @@ namespace DZAIO.Champions
                 }
                 else
                 {
-                    if (!HasPassive(enemy) && DZAIO.Player.Distance(enemy) < Orbwalking.GetRealAutoAttackRange(null))
-                    {
-                        _spells[SpellSlot.E].Cast();
-                    }
-                    if (!(DZAIO.Player.Distance(enemy) < Orbwalking.GetRealAutoAttackRange(null)))
-                    {
-                        _spells[SpellSlot.E].Cast();
-                    }
+                    AutoDetonateE(Mode.Combo);
                 }
             }
         }
-        public void AutoDetonateE()
+        public void AutoDetonateE(Mode mode)
         {
+            //Credits to Le Chewymoon, ily bae <3
             if (LuxEGameObject == null)
             {
                 return;
             }
-            if (LuxEGameObject.Position.CountEnemiesInRange(450f) >= 1 && _spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo) && IsSecondE())//TODO Find real range
+            if (LuxEGameObject.Position.CountEnemiesInRange(450f) >= 1 && _spells[SpellSlot.E].IsEnabledAndReady(mode) && IsSecondE())//TODO Find real range
             {
                 var enemy = LuxEGameObject.Position.GetEnemiesInRange(450f).OrderBy(h => h.HealthPercentage()).First();
                     if (!HasPassive(enemy) && DZAIO.Player.Distance(enemy) < Orbwalking.GetRealAutoAttackRange(null))

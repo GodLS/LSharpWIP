@@ -4,6 +4,7 @@ using System.Linq;
 using DZAIO.Utility.Helpers;
 using LeagueSharp;
 using LeagueSharp.Common;
+using Notifications;
 
 namespace DZAIO.Utility
 {
@@ -198,6 +199,7 @@ namespace DZAIO.Utility
             spellSubmenu.AddSubMenu(buffCleanserMenu);
             spellSubmenu.AddSubMenu(allyMenu);
             MenuInstance.AddSubMenu(spellSubmenu);
+
             //Subscribe the Events
             Game.OnGameUpdate += Game_OnGameUpdate;
         }

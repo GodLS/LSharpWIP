@@ -98,7 +98,6 @@ namespace DZAIO.Champions
                 case "GravesClusterShot":
                     if (OkToE(DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("dzaio.graves.combo.emaxrange"))) && _spells[SpellSlot.E].IsReady() && MenuHelper.isMenuEnabled("dzaio.graves.combo.ecancel"))
                     {
-
                         LeagueSharp.Common.Utility.DelayAction.Add(100, () => _spells[SpellSlot.E].Cast(DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("dzaio.graves.combo.emaxrange"))));
                     }
                     break;
@@ -153,6 +152,7 @@ namespace DZAIO.Champions
                 _spells[SpellSlot.Q].Range + MenuHelper.getSliderValue("dzaio.graves.combo.emaxrange"), TargetSelector.DamageType.Physical);
             var erTarget = TargetSelector.GetTarget(
                 _spells[SpellSlot.Q].Range + MenuHelper.getSliderValue("dzaio.graves.combo.emaxrange"), TargetSelector.DamageType.Physical);
+
             //Q Casting in Combo
 
             if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo) && target.IsValidTarget(_spells[SpellSlot.Q].Range))
@@ -168,30 +168,39 @@ namespace DZAIO.Champions
             }
 
             //Normal R Casting in Combo
-
-            if (_spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo) && _spells[SpellSlot.R].IsKillable(rTarget) &&
-                !(DZAIO.Player.Distance(rTarget) < DZAIO.Player.AttackRange))
+            if (rTarget.IsValidTarget(_spells[SpellSlot.R].Range))
             {
-                _spells[SpellSlot.R].CastIfHitchanceEquals(rTarget, MenuHelper.GetHitchance());
+                if (_spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo) && _spells[SpellSlot.R].IsKillable(rTarget) &&
+                !(DZAIO.Player.Distance(rTarget) < DZAIO.Player.AttackRange))
+                {
+                    _spells[SpellSlot.R].CastIfHitchanceEquals(rTarget, MenuHelper.GetHitchance());
+                }
             }
-
-            //Debug
+            
             //E-Q / E-R Casting in Combo
             var finalPosition = DZAIO.Player.Position.Extend(Game.CursorPos, MenuHelper.getSliderValue("dzaio.graves.combo.emaxrange"));
             if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo) && OkToE(finalPosition))
             {
-                if (_spells[SpellSlot.Q].IsKillable(eqTarget) && _spells[SpellSlot.Q].IsReady() &&
-                    eqTarget.IsValidTarget(MenuHelper.getSliderValue("dzaio.graves.combo.emaxrange") + _spells[SpellSlot.Q].Range ) &&
+                if (eqTarget.IsValidTarget(MenuHelper.getSliderValue("dzaio.graves.combo.emaxrange") + _spells[SpellSlot.Q].Range))
+                {
+                    if (_spells[SpellSlot.Q].IsKillable(eqTarget) && _spells[SpellSlot.Q].IsReady() &&
+                    (finalPosition.Distance(eqTarget.Position) < DZAIO.Player.AttackRange) &&
                    Prediction.GetPrediction(eqTarget, (0.25f + finalPosition.Distance(eqTarget.Position) / _spells[SpellSlot.Q].Speed + 0.25f + (ObjectManager.Player.Distance(finalPosition) / 1250f))).Hitchance >= MenuHelper.GetHitchance())
-                {
-                    _spells[SpellSlot.E].Cast(finalPosition);
+                    {
+                        _spells[SpellSlot.E].Cast(finalPosition);
+                    }
                 }
-
-                if (_spells[SpellSlot.R].IsKillable(erTarget) && _spells[SpellSlot.R].IsReady() &&
-                    erTarget.IsValidTarget(MenuHelper.getSliderValue("dzaio.graves.combo.emaxrange") + _spells[SpellSlot.R].Range) &&
-                    Prediction.GetPrediction(erTarget,(0.25f + finalPosition.Distance(erTarget.Position)/2000f + 0.25f + (ObjectManager.Player.Distance(finalPosition)/1250f))).Hitchance >= MenuHelper.GetHitchance())
+                if (erTarget.IsValidTarget(MenuHelper.getSliderValue("dzaio.graves.combo.emaxrange") + _spells[SpellSlot.R].Range))
                 {
-                    _spells[SpellSlot.E].Cast(finalPosition);
+                    if (_spells[SpellSlot.R].IsKillable(erTarget) && _spells[SpellSlot.R].IsReady() &&
+                    finalPosition.Distance(erTarget.Position) < DZAIO.Player.AttackRange &&
+                    Prediction.GetPrediction(
+                        erTarget,
+                        (0.25f + finalPosition.Distance(erTarget.Position) / 2000f + 0.25f +
+                         (ObjectManager.Player.Distance(finalPosition) / 1250f))).Hitchance >= MenuHelper.GetHitchance())
+                    {
+                        _spells[SpellSlot.E].Cast(finalPosition);
+                    }
                 }
             }
         }

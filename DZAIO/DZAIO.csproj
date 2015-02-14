@@ -65,11 +65,15 @@
     <Compile Include="Champions\Zilean.cs" />
     <Compile Include="DZAIO.cs" />
     <Compile Include="Interfaces\IChampion.cs" />
+    <Compile Include="Notifications\INotification.cs" />
+    <Compile Include="Notifications\Notification.cs" />
+    <Compile Include="Notifications\Notifications.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\Cleanser.cs" />
     <Compile Include="Utility\Drawing\DamageIndicator.cs" />
     <Compile Include="Utility\DamagePrediction\DamagePrediction.cs" />
+    <Compile Include="Utility\Drawing\NotificationDrawing.cs" />
     <Compile Include="Utility\Helpers\ChatHook.cs" />
     <Compile Include="Utility\Helpers\DebugHelper.cs" />
     <Compile Include="Utility\Helpers\DrawHelper.cs" />
