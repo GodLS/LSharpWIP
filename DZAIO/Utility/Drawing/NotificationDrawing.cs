@@ -20,8 +20,8 @@ namespace DZAIO.Utility.Drawing
                 BorderColor = Color.White
             };
             var cassioNotification = new Notification("Cassiopeia Loaded", -1);
-            Notifications.AddNotification(dzaioNotification);
-            Notifications.AddNotification(cassioNotification);
+           // Notifications.AddNotification(dzaioNotification);
+            //Notifications.AddNotification(cassioNotification);
         }
     }
 }
