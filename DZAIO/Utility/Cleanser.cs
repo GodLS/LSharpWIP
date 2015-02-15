@@ -4,7 +4,6 @@ using System.Linq;
 using DZAIO.Utility.Helpers;
 using LeagueSharp;
 using LeagueSharp.Common;
-using Notifications;
 
 namespace DZAIO.Utility
 {
