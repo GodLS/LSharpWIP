@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Notifications;
+﻿using LeagueSharp.Common;
 using SharpDX;
 using SharpDX.Direct3D9;
 
@@ -11,7 +6,7 @@ namespace DZAIO.Utility.Drawing
 {
     class NotificationDrawing
     {
-        public static Notification testNotification;
+        public static Notification TestNotification;
         public static void OnLoad()
         {
             var dzaioNotification = new Notification("[DZAIO]", -1)
@@ -24,9 +19,9 @@ namespace DZAIO.Utility.Drawing
                         FontPitchAndFamily.DontCare | FontPitchAndFamily.Decorative, "Tahoma"),
                 BorderColor = Color.White
             };
-            var CassioNotification = new Notification("Cassiopeia Loaded", -1);
-            Notifications.Notifications.AddNotification(dzaioNotification);
-            Notifications.Notifications.AddNotification(CassioNotification);
+            var cassioNotification = new Notification("Cassiopeia Loaded", -1);
+            Notifications.AddNotification(dzaioNotification);
+            Notifications.AddNotification(cassioNotification);
         }
     }
 }
