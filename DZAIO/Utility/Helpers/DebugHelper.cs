@@ -42,10 +42,10 @@ namespace DZAIO.Utility.Helpers
         {
             if (!DZAIO.IsDebug)
                 return;
-            if (Environment.TickCount - _lastPrint > 150)
+            if (Environment.TickCount - _lastPrint > 250)
             {
                 _lastPrint = Environment.TickCount;
-                Game.PrintChat("<font='#FF0000'>[DZAIO]</font><font color='#FFFFFF'>" + message + "</font>");
+                Game.PrintChat("<font color='#FF0000'>[DZAIO]</font> <font color='#FFFFFF'>" + message + "</font>");
             }
         }
     }

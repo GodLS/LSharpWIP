@@ -122,15 +122,17 @@ namespace DZAIO.Champions
 
         void CastQ()
         {
-            Dictionary<Obj_AI_Hero,HitChance> hitDictionary = new Dictionary<Obj_AI_Hero, HitChance>();
-            foreach (var hero in HeroManager.Enemies.Where(h => h.IsValidTarget(_spells[SpellSlot.Q].Range)))
+            var target = TargetSelector.GetTarget(_spells[SpellSlot.Q].Range, TargetSelector.DamageType.Magical);
+            //Check for Q Split in a cone
+            for (var i = -1; i < 1; i += 2)
             {
-                var qPrediction = _spells[SpellSlot.Q].GetPrediction(hero);
-                hitDictionary.Add(hero,qPrediction.Hitchance);
+                var angleRad = Geometry.DegreeToRadian(30 * i);
+                const float qDelay = 0.25f + 1200f / 1300f * 1000 + 900f / 2100f * 1000;
+                var qPrediction = Prediction.GetPrediction(target,qDelay);
+                var diffVector = qPrediction.CastPosition - ObjectManager.Player.ServerPosition;
+                var rotatedVector = ObjectManager.Player.ServerPosition.To2D() + diffVector.To2D().Rotated(angleRad);
+
             }
-
-            //Check for Q Split
-
         }
 
         void CheckQSplit()

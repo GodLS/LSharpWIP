@@ -57,6 +57,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Champions\Caitlyn.cs" />
     <Compile Include="Champions\Cassiopeia.cs" />
     <Compile Include="Champions\Graves.cs" />
     <Compile Include="Champions\Jinx.cs" />
@@ -78,6 +79,7 @@
     <Compile Include="Utility\Helpers\MenuHelper.cs" />
     <Compile Include="Utility\Helpers\HeroHelper.cs" />
     <Compile Include="Utility\Drawing\ScopeHelper.cs" />
+    <Compile Include="Utility\Helpers\PredictionHelper.cs" />
     <Compile Include="Utility\ItemManager.cs" />
     <Compile Include="Utility\PotionManager.cs" />
     <Compile Include="Utility\SummonerSpells.cs" />

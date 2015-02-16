@@ -48,6 +48,32 @@ namespace DZAIO.Utility.Helpers
         {
             return ObjectManager.Get<Obj_AI_Turret>().Where(t => !t.IsDead && t.IsEnemy).Any(turret => target.Distance(turret.Position) <= 975f);
         }
+
+        public static bool IsSafePosition(Vector3 position)
+        {
+            if (position.UnderTurret(true) && !ObjectManager.Player.UnderTurret(true))
+                return false;
+            var allies = position.CountAlliesInRange(ObjectManager.Player.AttackRange);
+            var enemies = position.CountEnemiesInRange(ObjectManager.Player.AttackRange);
+            var lhEnemies = HeroHelper.GetLhEnemiesNearPosition(position, ObjectManager.Player.AttackRange).Count();
+
+            if (enemies == 1) //It's a 1v1, safe to assume I can E
+            {
+                return true;
+            }
+
+            //Adding 1 for the Player
+            return (allies + 1 > enemies - lhEnemies);
+        }
+
+        public static bool IsEmpaired(Obj_AI_Hero enemy)
+        {
+            return (enemy.HasBuffOfType(BuffType.Stun) || enemy.HasBuffOfType(BuffType.Snare) ||
+                    enemy.HasBuffOfType(BuffType.Charm) || enemy.HasBuffOfType(BuffType.Fear) ||
+                    enemy.HasBuffOfType(BuffType.Taunt));
+        }
+
+
     }
 
 }
