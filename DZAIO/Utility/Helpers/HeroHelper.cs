@@ -55,7 +55,7 @@ namespace DZAIO.Utility.Helpers
                 return false;
             var allies = position.CountAlliesInRange(ObjectManager.Player.AttackRange);
             var enemies = position.CountEnemiesInRange(ObjectManager.Player.AttackRange);
-            var lhEnemies = HeroHelper.GetLhEnemiesNearPosition(position, ObjectManager.Player.AttackRange).Count();
+            var lhEnemies = GetLhEnemiesNearPosition(position, ObjectManager.Player.AttackRange).Count();
 
             if (enemies == 1) //It's a 1v1, safe to assume I can E
             {
@@ -66,6 +66,7 @@ namespace DZAIO.Utility.Helpers
             return (allies + 1 > enemies - lhEnemies);
         }
 
+        
         public static bool IsEmpaired(Obj_AI_Hero enemy)
         {
             return (enemy.HasBuffOfType(BuffType.Stun) || enemy.HasBuffOfType(BuffType.Snare) ||

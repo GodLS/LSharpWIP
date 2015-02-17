@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using DZAIO.Utility.Helpers;
 using LeagueSharp;
 using LeagueSharp.Common;
@@ -12,6 +10,27 @@ namespace DZAIO.Champions
 {
     class Caitlyn : IChampion
     {
+        /// <summary>
+        /// Caitlyn features:
+        /// 
+        /// Q, W, E, R in combo
+        /// Uses W only if Snared/Taunted/Empaired/Recalling
+        /// Checks for R position if safe
+        /// 
+        /// E -> AA combo with checks for Safe E
+        /// E -> Q combo with checks for Safe E
+        /// 
+        /// W interrupter
+        /// E antigapcloser
+        /// 
+        /// TODO:
+        /// E to mouse
+        /// Harass
+        /// Farm
+        /// Manual R
+        /// </summary>
+         
+        
         private readonly Dictionary<SpellSlot, Spell> _spells = new Dictionary<SpellSlot, Spell>
         {
             { SpellSlot.Q, new Spell(SpellSlot.Q, 1100f) },
@@ -20,7 +39,6 @@ namespace DZAIO.Champions
             { SpellSlot.R, new Spell(SpellSlot.R, 3000f) }
         };
 
-        private Vector3 pos1;
         public void OnLoad(Menu menu)
         {
             var cName = ObjectManager.Player.ChampionName;
@@ -34,8 +52,8 @@ namespace DZAIO.Champions
 
             menu.AddSubMenu(comboMenu);
             var harrassMenu = new Menu(cName + " - Harrass", "dzaio.caitlyn.harass");
-            harrassMenu.AddModeMenu(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.E }, new[] { true, true, false });
-            harrassMenu.AddManaManager(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.E }, new[] { 30, 35, 20 });
+            harrassMenu.AddModeMenu(Mode.Harrass, new[] { SpellSlot.Q }, new[] { true });
+            harrassMenu.AddManaManager(Mode.Harrass, new[] { SpellSlot.Q }, new[] { 30 });
             menu.AddSubMenu(harrassMenu);
             var farmMenu = new Menu(cName + " - Farm", "dzaio.caitlyn.farm");
             farmMenu.AddModeMenu(Mode.Farm, new[] { SpellSlot.Q }, new[] { false });
@@ -118,6 +136,7 @@ namespace DZAIO.Champions
                     return;
             }
         }
+
         private void Combo()
         {
             var comboTarget = TargetSelector.GetTarget(_spells[SpellSlot.Q].Range, TargetSelector.DamageType.Physical);
@@ -137,7 +156,7 @@ namespace DZAIO.Champions
             if (_spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo))
             {
                 if (HeroHelper.IsSafePosition(ObjectManager.Player.ServerPosition) && _spells[SpellSlot.R].GetDamage(rTarget) >= rTarget.Health + 25 &&
-                    rTarget.CountAlliesInRange(450f) <= 1 && rTarget.CountEnemiesInRange(450f) <= 2 && rTarget.Distance(ObjectManager.Player) >= ObjectManager.Player.AttackRange)
+                    rTarget.CountEnemiesInRange(800f) <= 2 && rTarget.CountAlliesInRange(600f) < 3 && rTarget.Distance(ObjectManager.Player) >= ObjectManager.Player.AttackRange)
                 {
                     _spells[SpellSlot.R].CastOnUnit(rTarget);
                 }
@@ -148,20 +167,18 @@ namespace DZAIO.Champions
             {
 
                 var afterEPosition = GetPositionAfterE(WhereToEForPosition(eqTarget.ServerPosition));
-                if (!HeroHelper.IsSafePosition(afterEPosition))
+                if (!CaitlynIsSafePosition(afterEPosition))
                 {
                     return;
                 }
                 var delay = (int)Math.Ceiling(ObjectManager.Player.Distance(afterEPosition) / _spells[SpellSlot.E].Speed * 1000 + 100);
-                var delayPrediction = Prediction.GetPrediction(eqTarget, delay);
+                //var delayPrediction = Prediction.GetPrediction(eqTarget, delay);
                 //E AA
                 if (afterEPosition.Distance(eqTarget.ServerPosition) <= Orbwalking.GetRealAutoAttackRange(null) - 50 && ObjectManager.Player.GetAutoAttackDamage(eqTarget) >= eqTarget.Health + 20)
                 {
                     _spells[SpellSlot.E].Cast(WhereToEForPosition(eqTarget.ServerPosition));
                     LeagueSharp.Common.Utility.DelayAction.Add((int)(delay + Game.Ping/2f), Orbwalking.ResetAutoAttackTimer);
-                    _orbwalker.ForceTarget(eqTarget);
-                    
-                    //DebugHelper.PrintDebug("Done E AA");
+                    _orbwalker.ForceTarget(eqTarget);                   
                     return;
                 }
                 //E Q
@@ -199,6 +216,12 @@ namespace DZAIO.Champions
                 Render.Circle.DrawCircle(eqTarget.Position,65f,Color.DarkRed,20);
             }
            
+        }
+
+        bool CaitlynIsSafePosition(Vector3 position)
+        {
+            //If the enemies in range - the low health enemies in range are equal to zero and our Health % is >= 40% then we can go in
+            return (position.CountEnemiesInRange(450f) - HeroHelper.GetLhEnemiesNearPosition(position,450f).Count == 0) && (ObjectManager.Player.HealthPercentage() >= 40);
         }
 
         private Vector3 GetPositionAfterE(Vector3 eCastPosition)

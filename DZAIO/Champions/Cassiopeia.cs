@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using DZAIO.Utility.DamagePrediction;
 using DZAIO.Utility.Drawing;
 using DZAIO.Utility.Helpers;
 using LeagueSharp;
@@ -13,9 +11,46 @@ namespace DZAIO.Champions
 {
     class Cassiopeia : IChampion
     {
+
+        /// <summary>
+        /// Cassiopeia features
+        /// 
+        /// Uses Q, W, E, R combo
+        /// Smooth E
+        /// Mana Manager for each mode
+        /// 
+        /// Only W if x Enemies
+        /// Only W if not poisoned
+        /// Min R enemies not facing
+        /// Min R enemies Facing
+        /// 
+        /// Auto Q
+        /// Auto Q Mana
+        /// 
+        /// Farm:
+        /// Min minions for Q-W
+        /// Uses Q,W,E
+        /// 
+        /// Use AA combo
+        /// Antigapcloser R
+        /// Interrupter R
+        /// Auto R enemy under tower
+        /// Auto R enemy when low
+        /// Block R if no hit
+        /// 
+        /// Humanizer:
+        /// E Delay
+        /// Laneclear delay
+        /// Use AA Laneclear
+        /// 
+        /// KS:
+        /// With Q, E
+        /// </summary>
+        
+        
         private static float _lastCastedETick;
         private static float _lastCastedQTick;
-        private static float _lastLCTick;
+        private static float _lastLcTick;
 
         private readonly Dictionary<SpellSlot, Spell> _spells = new Dictionary<SpellSlot, Spell>
         {
@@ -74,7 +109,7 @@ namespace DZAIO.Champions
             {
                 humanizerMenu.AddItem(new MenuItem("dzaio.cassiopeia.misc.humanizer.edelay", "E Delay").SetValue(new Slider(300,0, 1500)));
                 humanizerMenu.AddItem(new MenuItem("dzaio.cassiopeia.misc.humanizer.lcdelay", "Laneclear Delay").SetValue(new Slider(300, 0, 1000)));
-                humanizerMenu.AddItem(new MenuItem("dzaio.cassiopeia.misc.humanizer.disableaalc", "Disable AA Laneclear").SetValue(true));
+                humanizerMenu.AddItem(new MenuItem("dzaio.cassiopeia.misc.humanizer.disableaalc", "Disable AA Laneclear").SetValue(false));
             }
             miscMenu.AddSubMenu(humanizerMenu);
             menu.AddSubMenu(miscMenu);
@@ -310,12 +345,12 @@ namespace DZAIO.Champions
 
         void Farm()
         {
-            if (Environment.TickCount - _lastLCTick <
+            if (Environment.TickCount - _lastLcTick <
                 MenuHelper.getSliderValue("dzaio.cassiopeia.misc.humanizer.lcdelay"))
             {
                 return;
             }
-            _lastLCTick = Environment.TickCount;
+            _lastLcTick = Environment.TickCount;
 
             var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, _spells[SpellSlot.E].Range);
             var eDelay = MenuHelper.getSliderValue("dzaio.cassiopeia.misc.humanizer.edelay");
