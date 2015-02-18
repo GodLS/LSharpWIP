@@ -17,17 +17,19 @@ namespace DZAIO.Champions
         /// Uses W only if Snared/Taunted/Empaired/Recalling
         /// Checks for R position if safe
         /// 
+        /// Harass
+        /// Farm
+        /// 
         /// E -> AA combo with checks for Safe E
         /// E -> Q combo with checks for Safe E
         /// 
         /// W interrupter
         /// E antigapcloser
+        /// E to mouse
+        /// Manual R
         /// 
         /// TODO:
-        /// E to mouse
-        /// Harass
-        /// Farm
-        /// Manual R
+        /// Nothing atm
         /// </summary>
          
         
@@ -56,8 +58,8 @@ namespace DZAIO.Champions
             harrassMenu.AddManaManager(Mode.Harrass, new[] { SpellSlot.Q }, new[] { 30 });
             menu.AddSubMenu(harrassMenu);
             var farmMenu = new Menu(cName + " - Farm", "dzaio.caitlyn.farm");
-            farmMenu.AddModeMenu(Mode.Farm, new[] { SpellSlot.Q }, new[] { false });
-            farmMenu.AddManaManager(Mode.Farm, new[] { SpellSlot.Q }, new[] { 35 });
+            farmMenu.AddModeMenu(Mode.Laneclear, new[] { SpellSlot.Q }, new[] { false });
+            farmMenu.AddManaManager(Mode.Laneclear, new[] { SpellSlot.Q }, new[] { 35 });
             menu.AddSubMenu(farmMenu);
             var miscMenu = new Menu(cName + " - Misc", "dzaio.caitlyn.misc");
             {
@@ -65,15 +67,13 @@ namespace DZAIO.Champions
                 miscMenu.AddItem(new MenuItem("dzaio.caitlyn.interrupt", "W Interrupter").SetValue(true));
                 miscMenu.AddItem(new MenuItem("dzaio.caitlyn.dashtomouse", "Dash to mouse").SetValue(new KeyBind("S".ToCharArray()[0],KeyBindType.Press)));
                 miscMenu.AddItem(new MenuItem("dzaio.caitlyn.manualr", "Manual R").SetValue(new KeyBind("Z".ToCharArray()[0], KeyBindType.Press)));
-                miscMenu.AddItem(new MenuItem("dzaio.caitlyn.debug", "debug").SetValue(new KeyBind("K".ToCharArray()[0], KeyBindType.Toggle)));
-
-
+               // miscMenu.AddItem(new MenuItem("dzaio.caitlyn.debug", "debug").SetValue(new KeyBind("K".ToCharArray()[0], KeyBindType.Toggle)));
             }
             miscMenu.AddHitChanceSelector();
             menu.AddSubMenu(miscMenu);
             var drawMenu = new Menu(cName + " - Drawings", "dzaio.caitlyn.drawing");
             drawMenu.AddDrawMenu(_spells, Color.Aquamarine);
-            DZAIO.Config.Item("dzaio.caitlyn.debug").ValueChanged += Caitlyn_ValueChanged;
+           // DZAIO.Config.Item("dzaio.caitlyn.debug").ValueChanged += Caitlyn_ValueChanged;
             menu.AddSubMenu(drawMenu);
         }
 
@@ -134,6 +134,31 @@ namespace DZAIO.Champions
                     break;
                 default:
                     return;
+            }
+            OnUpdateFunctions();
+        }
+
+        private void OnUpdateFunctions()
+        {
+            if (MenuHelper.getKeybindValue("dzaio.caitlyn.dashtomouse"))
+            {
+                if (_spells[SpellSlot.E].IsReady())
+                {
+                    _spells[SpellSlot.E].Cast(WhereToEForPosition(Game.CursorPos));
+                }
+            }
+
+            if (MenuHelper.getKeybindValue("dzaio.caitlyn.manualr"))
+            {
+                var rTarget = TargetSelector.GetTarget(_spells[SpellSlot.R].Range, TargetSelector.DamageType.Physical);
+                if (_spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo))
+                {
+                    if (HeroHelper.IsSafePosition(ObjectManager.Player.ServerPosition) && _spells[SpellSlot.R].GetDamage(rTarget) >= rTarget.Health + 25 &&
+                        rTarget.CountEnemiesInRange(800f) <= 2 && rTarget.CountAlliesInRange(600f) < 3 && rTarget.Distance(ObjectManager.Player) >= ObjectManager.Player.AttackRange)
+                    {
+                        _spells[SpellSlot.R].CastOnUnit(rTarget);
+                    }
+                }
             }
         }
 
@@ -197,24 +222,35 @@ namespace DZAIO.Champions
 
         private void Harrass()
         {
-
+            var harassTarget = TargetSelector.GetTarget(_spells[SpellSlot.Q].Range, TargetSelector.DamageType.Physical);
+            if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Harrass) && harassTarget.IsValidTarget(_spells[SpellSlot.Q].Range))
+            {
+                _spells[SpellSlot.Q].CastIfHitchanceEquals(harassTarget, MenuHelper.GetHitchance());
+            }
         }
 
         private void Farm()
         {
-
+            if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Laneclear))
+            {
+                var farmLocation = _spells[SpellSlot.Q].GetLineFarmLocation(
+                    MinionManager.GetMinions(
+                        ObjectManager.Player.ServerPosition, _spells[SpellSlot.Q].Range, MinionTypes.All,
+                        MinionTeam.NotAlly));
+                if (farmLocation.MinionsHit >= 1)
+                {
+                    _spells[SpellSlot.Q].Cast(farmLocation.Position);
+                }
+            }
         }
 
         void Drawing_OnDraw(EventArgs args)
         {
-           // Render.Circle.DrawCircle(GetPositionAfterE(Game.CursorPos), 100f, System.Drawing.Color.DarkRed);
-               
-          // Render.Circle.DrawCircle(WhereToEForPosition(Game.CursorPos),100f,System.Drawing.Color.Blue);
-            var eqTarget = TargetSelector.GetTarget(_spells[SpellSlot.Q].Range + _spells[SpellSlot.E].Range, TargetSelector.DamageType.Physical);
-            if(eqTarget.IsValidTarget() && (ObjectManager.Player.GetAutoAttackDamage(eqTarget) >= eqTarget.Health + 20))
-            {
-                Render.Circle.DrawCircle(eqTarget.Position,65f,Color.DarkRed,20);
-            }
+            //var eqTarget = TargetSelector.GetTarget(_spells[SpellSlot.Q].Range + _spells[SpellSlot.E].Range, TargetSelector.DamageType.Physical);
+           // if(eqTarget.IsValidTarget() && (ObjectManager.Player.GetAutoAttackDamage(eqTarget) >= eqTarget.Health + 20))
+            //{
+            //    Render.Circle.DrawCircle(eqTarget.Position,65f,Color.DarkRed,20);
+           // }
            
         }
 
