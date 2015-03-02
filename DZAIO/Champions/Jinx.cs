@@ -19,6 +19,7 @@ namespace DZAIO.Champions
         };
         public void OnLoad(Menu menu)
         {
+            Game.PrintChat("Jinx is still WIP. Please use PennyJinx :)");
         }
 
         public void RegisterEvents()

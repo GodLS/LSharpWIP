@@ -79,6 +79,7 @@
     <Compile Include="Utility\Helpers\MenuHelper.cs" />
     <Compile Include="Utility\Helpers\HeroHelper.cs" />
     <Compile Include="Utility\Drawing\ScopeHelper.cs" />
+    <Compile Include="Utility\Helpers\NotificationHelper.cs" />
     <Compile Include="Utility\Helpers\PredictionHelper.cs" />
     <Compile Include="Utility\ItemManager.cs" />
     <Compile Include="Utility\PotionManager.cs" />

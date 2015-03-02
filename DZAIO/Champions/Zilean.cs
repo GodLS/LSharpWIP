@@ -86,10 +86,10 @@ namespace DZAIO.Champions
 
         void Game_OnGameUpdate(EventArgs args)
         {
-            DebugHelper.AddEntry("Spell Q", _spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo).ToString());
-            DebugHelper.AddEntry("Spell Q Menu != null", (DZAIO.Config.Item("dzaio.champion.zilean.useqc") != null).ToString());
-            DebugHelper.AddEntry("Spell Q Menu enabled", (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo)).ToString());
-            DebugHelper.AddEntry("Spell E Menu enabled", (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo)).ToString());
+           // DebugHelper.AddEntry("Spell Q", _spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo).ToString());
+           // DebugHelper.AddEntry("Spell Q Menu != null", (DZAIO.Config.Item("dzaio.champion.zilean.useqc") != null).ToString());
+           // DebugHelper.AddEntry("Spell Q Menu enabled", (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo)).ToString());
+           // DebugHelper.AddEntry("Spell E Menu enabled", (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo)).ToString());
 
             switch (_orbwalker.ActiveMode)
             {

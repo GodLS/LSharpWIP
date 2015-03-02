@@ -25,6 +25,11 @@ namespace DZAIO.Champions
 
         public void OnLoad(Menu menu)
         {
+            if (!DZAIO.IsDebug)
+            {
+                Game.PrintChat("Vel'Koz is still WIP. :)");
+                return;
+            }
             var cName = ObjectManager.Player.ChampionName;
             var comboMenu = new Menu(cName + " - Combo", "dzaio.velkoz.combo");
             comboMenu.AddModeMenu(Mode.Combo, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E, SpellSlot.R }, new[] { true, true, true, true });

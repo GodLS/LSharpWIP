@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using DZAIO.Utility.Helpers;
 using LeagueSharp;
 using LeagueSharp.Common;
@@ -29,18 +30,17 @@ namespace DZAIO.Champions
         /// Manual R
         /// 
         /// TODO:
-        /// Nothing atm
+        /// Nothing
         /// </summary>
-         
-        
-        private readonly Dictionary<SpellSlot, Spell> _spells = new Dictionary<SpellSlot, Spell>
+
+        private static readonly Dictionary<SpellSlot, Spell> _spells = new Dictionary<SpellSlot, Spell>
         {
             { SpellSlot.Q, new Spell(SpellSlot.Q, 1100f) },
             { SpellSlot.W, new Spell(SpellSlot.W, 800f) },
             { SpellSlot.E, new Spell(SpellSlot.E, 980f) },
             { SpellSlot.R, new Spell(SpellSlot.R, 3000f) }
         };
-
+        
         public void OnLoad(Menu menu)
         {
             var cName = ObjectManager.Player.ChampionName;
@@ -60,6 +60,8 @@ namespace DZAIO.Champions
             var farmMenu = new Menu(cName + " - Farm", "dzaio.caitlyn.farm");
             farmMenu.AddModeMenu(Mode.Laneclear, new[] { SpellSlot.Q }, new[] { false });
             farmMenu.AddManaManager(Mode.Laneclear, new[] { SpellSlot.Q }, new[] { 35 });
+            farmMenu.AddItem(
+                new MenuItem("dzaio.caitlyn.farm.minminionsq", "Min. Minions for Q").SetValue(new Slider(3, 1, 6)));
             menu.AddSubMenu(farmMenu);
             var miscMenu = new Menu(cName + " - Misc", "dzaio.caitlyn.misc");
             {
@@ -67,19 +69,17 @@ namespace DZAIO.Champions
                 miscMenu.AddItem(new MenuItem("dzaio.caitlyn.interrupt", "W Interrupter").SetValue(true));
                 miscMenu.AddItem(new MenuItem("dzaio.caitlyn.dashtomouse", "Dash to mouse").SetValue(new KeyBind("S".ToCharArray()[0],KeyBindType.Press)));
                 miscMenu.AddItem(new MenuItem("dzaio.caitlyn.manualr", "Manual R").SetValue(new KeyBind("Z".ToCharArray()[0], KeyBindType.Press)));
-               // miscMenu.AddItem(new MenuItem("dzaio.caitlyn.debug", "debug").SetValue(new KeyBind("K".ToCharArray()[0], KeyBindType.Toggle)));
             }
             miscMenu.AddHitChanceSelector();
             menu.AddSubMenu(miscMenu);
             var drawMenu = new Menu(cName + " - Drawings", "dzaio.caitlyn.drawing");
             drawMenu.AddDrawMenu(_spells, Color.Aquamarine);
-           // DZAIO.Config.Item("dzaio.caitlyn.debug").ValueChanged += Caitlyn_ValueChanged;
             menu.AddSubMenu(drawMenu);
         }
 
         void Caitlyn_ValueChanged(object sender, OnValueChangeEventArgs e)
         {
-          
+
         }
 
         public void RegisterEvents()
@@ -94,7 +94,7 @@ namespace DZAIO.Champions
         {
             if (gapcloser.Sender.IsValidTarget(_spells[SpellSlot.E].Range) && _spells[SpellSlot.E].IsReady() && MenuHelper.isMenuEnabled("dzaio.caitlyn.antigp"))
             {
-                if (HeroHelper.IsSafePosition(GetPositionAfterE(gapcloser.Sender.ServerPosition)))
+                if (GetPositionAfterE(gapcloser.Sender.ServerPosition).CountEnemiesInRange(500f) < 3)
                 {
                     _spells[SpellSlot.E].CastOnUnit(gapcloser.Sender);
                 }
@@ -132,8 +132,6 @@ namespace DZAIO.Champions
                 case Orbwalking.OrbwalkingMode.LaneClear:
                     Farm();
                     break;
-                default:
-                    return;
             }
             OnUpdateFunctions();
         }
@@ -233,11 +231,11 @@ namespace DZAIO.Champions
         {
             if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Laneclear))
             {
-                var farmLocation = _spells[SpellSlot.Q].GetLineFarmLocation(
+                var farmLocation = _spells[SpellSlot.Q].GetCircularFarmLocation(
                     MinionManager.GetMinions(
                         ObjectManager.Player.ServerPosition, _spells[SpellSlot.Q].Range, MinionTypes.All,
                         MinionTeam.NotAlly));
-                if (farmLocation.MinionsHit >= 1)
+                if (farmLocation.MinionsHit >= MenuHelper.getSliderValue("dzaio.caitlyn.farm.minminionsq"))
                 {
                     _spells[SpellSlot.Q].Cast(farmLocation.Position);
                 }
@@ -246,12 +244,7 @@ namespace DZAIO.Champions
 
         void Drawing_OnDraw(EventArgs args)
         {
-            //var eqTarget = TargetSelector.GetTarget(_spells[SpellSlot.Q].Range + _spells[SpellSlot.E].Range, TargetSelector.DamageType.Physical);
-           // if(eqTarget.IsValidTarget() && (ObjectManager.Player.GetAutoAttackDamage(eqTarget) >= eqTarget.Health + 20))
-            //{
-            //    Render.Circle.DrawCircle(eqTarget.Position,65f,Color.DarkRed,20);
-           // }
-           
+           DrawHelper.DrawSpellsRanges(_spells);
         }
 
         bool CaitlynIsSafePosition(Vector3 position)

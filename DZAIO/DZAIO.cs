@@ -66,12 +66,13 @@ namespace DZAIO
             var aboutMenu = new Menu(Player.ChampionName + " - About", "dzaio.about");
             {
                 aboutMenu.AddItem(new MenuItem("dzaio.about.line1", "DZAIO By Asuna/DZ191"));
-                aboutMenu.AddItem(new MenuItem("dzaio.about.line2", "v. " + Assembly.GetExecutingAssembly().GetName().Version));
+                aboutMenu.AddItem(new MenuItem("dzaio.about.line2", "v." + Assembly.GetExecutingAssembly().GetName().Version));
                 aboutMenu.AddItem(new MenuItem("dzaio.about.line3", " "));
-                aboutMenu.AddItem(new MenuItem("dzaio.about.line4", "If you liked/appreciated"));
-                aboutMenu.AddItem(new MenuItem("dzaio.about.line5", "Feel free to donate:"));
+                aboutMenu.AddItem(new MenuItem("dzaio.about.line4", "If you liked/appreciated the assembly"));
+                aboutMenu.AddItem(new MenuItem("dzaio.about.line5", "Feel free to donate at:"));
                 aboutMenu.AddItem(new MenuItem("dzaio.about.line6", "dz1917@yahoo.it"));
             }
+            Config.AddSubMenu(aboutMenu);
 
             Config.AddToMainMenu();
         }
