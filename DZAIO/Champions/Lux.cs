@@ -39,8 +39,8 @@ namespace DZAIO.Champions
             harrassMenu.AddManaManager(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.E }, new[] { 30, 20 });
             menu.AddSubMenu(harrassMenu);
             var farmMenu = new Menu(cName + " - Farm", "dzaio.lux.farm");
-            farmMenu.AddModeMenu(Mode.Farm, new[] { SpellSlot.E }, new[] { false });
-            farmMenu.AddManaManager(Mode.Farm, new[] { SpellSlot.E }, new[] { 35 });
+            farmMenu.AddModeMenu(Mode.Laneclear, new[] { SpellSlot.E }, new[] { false });
+            farmMenu.AddManaManager(Mode.Laneclear, new[] { SpellSlot.E }, new[] { 35 });
             menu.AddSubMenu(farmMenu);
             var miscMenu = new Menu(cName + " - Misc", "dzaio.lux.misc");
             {
@@ -101,9 +101,6 @@ namespace DZAIO.Champions
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
                     Harrass();
-                    break;
-                case Orbwalking.OrbwalkingMode.LastHit:
-                    Farm();
                     break;
                 case Orbwalking.OrbwalkingMode.LaneClear:
                     Farm();
@@ -206,9 +203,10 @@ namespace DZAIO.Champions
             var bestFarm =
                 _spells[SpellSlot.E].GetCircularFarmLocation(
                     MinionManager.GetMinions(DZAIO.Player.ServerPosition, _spells[SpellSlot.E].Range));
-            if (bestFarm.MinionsHit >= 1 && _spells[SpellSlot.E].IsEnabledAndReady(Mode.Farm))
+            if (bestFarm.MinionsHit >= 3 && _spells[SpellSlot.E].IsEnabledAndReady(Mode.Laneclear))
             {
                 _spells[SpellSlot.E].Cast(bestFarm.Position);
+                LeagueSharp.Common.Utility.DelayAction.Add(250,()=>_spells[SpellSlot.E].Cast());
             }
         }
 
