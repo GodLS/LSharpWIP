@@ -61,6 +61,16 @@ namespace DZAIO.Champions
             GameObject.OnCreate += GameObject_OnCreate;
             GameObject.OnDelete += GameObject_OnDelete;
             DamageIndicator.Initialize(GetComboDamage);
+            AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
+        }
+
+        void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
+        {
+            if (_spells[SpellSlot.Q].IsReady() && MenuHelper.isMenuEnabled("dzaio.lux.misc.antigapcloserq") &&
+                gapcloser.Sender.IsValidTarget(_spells[SpellSlot.Q].Range))
+            {
+                _spells[SpellSlot.Q].Cast(gapcloser.End);
+            }
         }
 
         private void GameObject_OnDelete(GameObject sender, EventArgs args)
